@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GTIP Eğitim Yönetim Sistemi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="flex items-center justify-center gap-3 mb-2">
+                <span class="text-4xl">🎓</span>
+                <h1 class="text-4xl font-bold text-gray-800">GTIP Eğitim Yönetim Sistemi</h1>
+            </div>
+            <p class="text-gray-600">3 farklı eğitim merkezinizi tek yerden yönetin</p>
+        </div>
+
+        <!-- Training Center Tabs -->
+        <div id="centerTabs" class="flex flex-wrap gap-4 justify-center mb-8"></div>
+
+        <!-- Content Area -->
+        <div class="bg-white rounded-2xl shadow-xl p-6">
+            <!-- Sub Tabs -->
+            <div class="flex gap-2 mb-6 border-b border-gray-200">
+                <button onclick="switchTab('todos')" id="tab-todos" class="flex items-center gap-2 px-6 py-3 font-semibold transition-colors relative text-blue-600">
+                    <span>📝</span>
+                    Yapılacaklar
+                    <span id="todoCount" class="bg-red-500 text-white text-xs px-2 py-1 rounded-full hidden"></span>
+                    <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600"></div>
+                </button>
+                <button onclick="switchTab('trainings')" id="tab-trainings" class="flex items-center gap-2 px-6 py-3 font-semibold transition-colors relative text-gray-600 hover:text-gray-800">
+                    <span>📚</span>
+                    Eğitim Takibi
+                    <span id="trainingCount" class="bg-yellow-500 text-white text-xs px-2 py-1 rounded-full hidden"></span>
+                </button>
+            </div>
+
+            <!-- Tab Content -->
+            <div id="tabContent"></div>
+        </div>
+
+        <!-- Footer Stats -->
+        <div id="footerStats" class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+    </div>
+
+    <script>
+        // Training Centers Data
+        const CENTERS = [
+            { id: 'canli-7-24', name: "Can'lı 7/24 Eğitim Merkezi", color: 'bg-blue-500', icon: '🎓' },
+            { id: 'egumruk', name: 'Eğümrük Eğitim', color: 'bg-green-500', icon: '📚' },
+            { id: 'gumruk-kocu', name: 'Gümrük Koçu', color: 'bg-purple-500', icon: '🎯' }
+        ];
+
+        // State
+        let activeCenter = CENTERS[0].id;
+        let activeTab = 'todos';
+        let todos = JSON.parse(localStorage.getItem('gtip-todos') || '[]');
+        let trainings = JSON.parse(localStorage.getItem('gtip-trainings') || '[]');
+
+        // Save to localStorage
+        function saveTodos() {
+            localStorage.setItem('gtip-todos', JSON.stringify(todos));
+            render();
+        }
+
+        function saveTrainings() {
+            localStorage.setItem('gtip-trainings', JSON.stringify(trainings));
+            render();
+        }
+
+        // Center Management
+        function switchCenter(centerId) {
+            activeCenter = centerId;
+            render();
+        }
+
+        function switchTab(tab) {
+            activeTab = tab;
+            render();
+        }
+
+        // Todo Functions
+        function addTodo() {
+            const title = prompt('Görev başlığı:');
+            if (!title) return;
+
+            const priority = prompt('Öncelik (low/medium/high):', 'medium');
+
+            todos.push({
+                id: Date.now().toString(),
+                centerId: activeCenter,
+                title: title,
+                completed: false,
+                priority: priority || 'medium',
+                createdAt: new Date().toISOString()
+            });
+            saveTodos();
+        }
+
+        function toggleTodo(id) {
+            const todo = todos.find(t => t.id === id);
+            if (todo) {
+                todo.completed = !todo.completed;
+                saveTodos();
+            }
+        }
+
+        function deleteTodo(id) {
+            if (confirm('Bu görevi silmek istediğinizden emin misiniz?')) {
+                todos = todos.filter(t => t.id !== id);
+                saveTodos();
+            }
+        }
+
+        // Training Functions
+        function addTraining() {
+            const studentName = prompt('Öğrenci adı:');
+            if (!studentName) return;
+
+            const courseName = prompt('Kurs adı:');
+            if (!courseName) return;
+
+            const startDate = prompt('Başlangıç tarihi (YYYY-MM-DD):');
+            if (!startDate) return;
+
+            trainings.push({
+                id: Date.now().toString(),
+                centerId: activeCenter,
+                studentName: studentName,
+                courseName: courseName,
+                startDate: startDate,
+                endDate: '',
+                status: 'planned',
+                progress: 0,
+                notes: ''
+            });
+            saveTrainings();
+        }
+
+        function editTraining(id) {
+            const training = trainings.find(t => t.id === id);
+            if (!training) return;
+
+            const studentName = prompt('Öğrenci adı:', training.studentName);
+            if (studentName !== null) training.studentName = studentName;
+
+            const courseName = prompt('Kurs adı:', training.courseName);
+            if (courseName !== null) training.courseName = courseName;
+
+            const status = prompt('Durum (planned/ongoing/completed/cancelled):', training.status);
+            if (status !== null) training.status = status;
+
+            const progress = prompt('İlerleme (0-100):', training.progress);
+            if (progress !== null) training.progress = parseInt(progress);
+
+            saveTrainings();
+        }
+
+        function deleteTraining(id) {
+            if (confirm('Bu eğitimi silmek istediğinizden emin misiniz?')) {
+                trainings = trainings.filter(t => t.id !== id);
+                saveTrainings();
+            }
+        }
+
+        // Render Functions
+        function renderCenterTabs() {
+            const container = document.getElementById('centerTabs');
+            container.innerHTML = CENTERS.map(center => {
+                const centerTodos = todos.filter(t => t.centerId === center.id && !t.completed).length;
+                const centerTrainings = trainings.filter(t => t.centerId === center.id && t.status === 'ongoing').length;
+                const isActive = activeCenter === center.id;
+
+                return `
+                    <button onclick="switchCenter('${center.id}')"
+                        class="flex items-center gap-3 px-6 py-4 rounded-xl transition-all ${
+                            isActive
+                                ? center.color + ' text-white shadow-lg scale-105'
+                                : 'bg-white text-gray-800 hover:shadow-md'
+                        }">
+                        <span class="text-2xl">${center.icon}</span>
+                        <div class="text-left">
+                            <div class="font-bold">${center.name}</div>
+                            <div class="text-xs opacity-90">${centerTodos} görev · ${centerTrainings} eğitim</div>
+                        </div>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function renderTodos() {
+            const centerTodos = todos.filter(t => t.centerId === activeCenter);
+            const activeTodos = centerTodos.filter(t => !t.completed);
+            const completedTodos = centerTodos.filter(t => t.completed);
+
+            const getPriorityIcon = (priority) => {
+                switch(priority) {
+                    case 'high': return '🔴';
+                    case 'medium': return '🟡';
+                    case 'low': return '🟢';
+                    default: return '⚪';
+                }
+            };
+
+            return `
+                <div class="space-y-4 fade-in">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xl font-bold">Yapılacaklar</h3>
+                        <button onclick="addTodo()"
+                            class="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                            ➕ Yeni Görev
+                        </button>
+                    </div>
+
+                    ${activeTodos.length > 0 ? `
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-600 mb-2 flex items-center gap-2">
+                                ⏰ Aktif Görevler (${activeTodos.length})
+                            </h4>
+                            <div class="space-y-2">
+                                ${activeTodos.map(todo => `
+                                    <div class="flex items-start gap-3 p-3 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
+                                        <button onclick="toggleTodo('${todo.id}')"
+                                            class="mt-1 flex-shrink-0 w-5 h-5 border-2 border-gray-300 rounded hover:border-green-500 transition-colors">
+                                        </button>
+                                        <div class="flex-1">
+                                            <p class="font-medium">${todo.title}</p>
+                                        </div>
+                                        <span class="text-xs font-semibold">${getPriorityIcon(todo.priority)}</span>
+                                        <button onclick="deleteTodo('${todo.id}')"
+                                            class="text-red-500 hover:text-red-700 transition-colors">
+                                            🗑️
+                                        </button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${completedTodos.length > 0 ? `
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-600 mb-2 flex items-center gap-2">
+                                ✅ Tamamlananlar (${completedTodos.length})
+                            </h4>
+                            <div class="space-y-2">
+                                ${completedTodos.map(todo => `
+                                    <div class="flex items-start gap-3 p-3 bg-gray-50 border border-gray-200 rounded-lg opacity-60">
+                                        <button onclick="toggleTodo('${todo.id}')"
+                                            class="mt-1 flex-shrink-0 w-5 h-5 bg-green-500 border-2 border-green-500 rounded flex items-center justify-center">
+                                            <span class="text-white text-xs">✓</span>
+                                        </button>
+                                        <div class="flex-1">
+                                            <p class="font-medium line-through">${todo.title}</p>
+                                        </div>
+                                        <button onclick="deleteTodo('${todo.id}')"
+                                            class="text-red-500 hover:text-red-700 transition-colors">
+                                            🗑️
+                                        </button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${centerTodos.length === 0 ? `
+                        <div class="text-center py-12 text-gray-500">
+                            <p>Henüz görev eklenmemiş</p>
+                            <p class="text-sm mt-2">Yukarıdaki "Yeni Görev" butonuna tıklayarak başlayın</p>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function renderTrainings() {
+            const centerTrainings = trainings.filter(t => t.centerId === activeCenter);
+            const ongoingCount = centerTrainings.filter(t => t.status === 'ongoing').length;
+            const plannedCount = centerTrainings.filter(t => t.status === 'planned').length;
+            const completedCount = centerTrainings.filter(t => t.status === 'completed').length;
+
+            const getStatusBadge = (status) => {
+                const badges = {
+                    'planned': '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">Planlandı</span>',
+                    'ongoing': '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">Devam Ediyor</span>',
+                    'completed': '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">Tamamlandı</span>',
+                    'cancelled': '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">İptal</span>'
+                };
+                return badges[status] || badges['planned'];
+            };
+
+            return `
+                <div class="space-y-4 fade-in">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xl font-bold flex items-center gap-2">📚 Eğitim Takibi</h3>
+                        <button onclick="addTraining()"
+                            class="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                            ➕ Yeni Eğitim
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <div class="text-2xl font-bold text-blue-600">${plannedCount}</div>
+                            <div class="text-sm text-gray-600">Planlanan</div>
+                        </div>
+                        <div class="bg-yellow-50 p-4 rounded-lg">
+                            <div class="text-2xl font-bold text-yellow-600">${ongoingCount}</div>
+                            <div class="text-sm text-gray-600">Devam Eden</div>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-lg">
+                            <div class="text-2xl font-bold text-green-600">${completedCount}</div>
+                            <div class="text-sm text-gray-600">Tamamlanan</div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        ${centerTrainings.length === 0 ? `
+                            <div class="text-center py-12 text-gray-500">
+                                <div class="text-5xl mb-4 opacity-50">📚</div>
+                                <p>Henüz eğitim kaydı yok</p>
+                                <p class="text-sm mt-2">Yukarıdaki "Yeni Eğitim" butonuna tıklayarak başlayın</p>
+                            </div>
+                        ` : centerTrainings.map(training => `
+                            <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                <div class="flex items-start justify-between mb-3">
+                                    <div class="flex-1">
+                                        <h4 class="font-bold text-lg">${training.studentName}</h4>
+                                        <p class="text-gray-600">${training.courseName}</p>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        ${getStatusBadge(training.status)}
+                                        <button onclick="editTraining('${training.id}')"
+                                            class="text-blue-500 hover:text-blue-700 transition-colors p-1">
+                                            ✏️
+                                        </button>
+                                        <button onclick="deleteTraining('${training.id}')"
+                                            class="text-red-500 hover:text-red-700 transition-colors p-1">
+                                            🗑️
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-gray-600">
+                                            ${new Date(training.startDate).toLocaleDateString('tr-TR')}
+                                            ${training.endDate ? ' - ' + new Date(training.endDate).toLocaleDateString('tr-TR') : ''}
+                                        </span>
+                                        <span class="text-gray-600">📈 %${training.progress}</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-green-500 h-2 rounded-full transition-all" style="width: ${training.progress}%"></div>
+                                    </div>
+                                    ${training.notes ? `<p class="text-gray-600 text-xs mt-2 italic">${training.notes}</p>` : ''}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderFooterStats() {
+            const container = document.getElementById('footerStats');
+            container.innerHTML = CENTERS.map(center => {
+                const centerTodosAll = todos.filter(t => t.centerId === center.id);
+                const centerCompletedTodos = centerTodosAll.filter(t => t.completed).length;
+                const centerTrainingsAll = trainings.filter(t => t.centerId === center.id);
+                const centerCompletedTrainings = centerTrainingsAll.filter(t => t.status === 'completed').length;
+
+                return `
+                    <div class="bg-white rounded-lg p-4 shadow">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-xl">${center.icon}</span>
+                            <h3 class="font-semibold text-sm">${center.name}</h3>
+                        </div>
+                        <div class="text-xs text-gray-600 space-y-1">
+                            <div>Toplam Görev: ${centerTodosAll.length} (${centerCompletedTodos} tamamlandı)</div>
+                            <div>Toplam Eğitim: ${centerTrainingsAll.length} (${centerCompletedTrainings} tamamlandı)</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function render() {
+            renderCenterTabs();
+
+            // Update tab buttons
+            document.getElementById('tab-todos').className = activeTab === 'todos'
+                ? 'flex items-center gap-2 px-6 py-3 font-semibold transition-colors relative text-blue-600'
+                : 'flex items-center gap-2 px-6 py-3 font-semibold transition-colors relative text-gray-600 hover:text-gray-800';
+
+            document.getElementById('tab-trainings').className = activeTab === 'trainings'
+                ? 'flex items-center gap-2 px-6 py-3 font-semibold transition-colors relative text-green-600'
+                : 'flex items-center gap-2 px-6 py-3 font-semibold transition-colors relative text-gray-600 hover:text-gray-800';
+
+            // Update active tab indicator
+            const todosTab = document.getElementById('tab-todos');
+            const trainingsTab = document.getElementById('tab-trainings');
+            todosTab.querySelector('.absolute')?.remove();
+            trainingsTab.querySelector('.absolute')?.remove();
+
+            if (activeTab === 'todos') {
+                todosTab.innerHTML += '<div class="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600"></div>';
+            } else {
+                trainingsTab.innerHTML += '<div class="absolute bottom-0 left-0 right-0 h-0.5 bg-green-600"></div>';
+            }
+
+            // Update counts
+            const centerTodos = todos.filter(t => t.centerId === activeCenter && !t.completed);
+            const centerOngoingTrainings = trainings.filter(t => t.centerId === activeCenter && t.status === 'ongoing');
+
+            const todoCountEl = document.getElementById('todoCount');
+            const trainingCountEl = document.getElementById('trainingCount');
+
+            if (centerTodos.length > 0) {
+                todoCountEl.textContent = centerTodos.length;
+                todoCountEl.classList.remove('hidden');
+            } else {
+                todoCountEl.classList.add('hidden');
+            }
+
+            if (centerOngoingTrainings.length > 0) {
+                trainingCountEl.textContent = centerOngoingTrainings.length;
+                trainingCountEl.classList.remove('hidden');
+            } else {
+                trainingCountEl.classList.add('hidden');
+            }
+
+            // Render content
+            const content = activeTab === 'todos' ? renderTodos() : renderTrainings();
+            document.getElementById('tabContent').innerHTML = content;
+
+            renderFooterStats();
+        }
+
+        // Initial render
+        render();
+    </script>
+</body>
+</html>
