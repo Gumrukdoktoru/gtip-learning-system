@@ -1,25 +1,19 @@
-import type {
-  PaginatedData,
-  ResourceCategory,
-  ResourceVisibility,
-} from '@gtip/shared';
+import type { MediaItem, MediaSource, PaginatedData } from '@gtip/shared';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { ApiRequestError } from '../services/api-client';
-import type { ResourceListItem } from '../services/resource-service';
-import { fetchResources } from '../services/resource-service';
+import { fetchMedia } from '../services/media-service';
 
-export interface UseResourcesOptions {
+export interface UseMediaOptions {
+  source?: MediaSource;
   pageSize?: number;
-  visibility?: ResourceVisibility;
   search?: string;
-  category?: ResourceCategory | '';
   /** Skips the request entirely; used when a tab is not visible. */
   enabled?: boolean;
 }
 
-export interface UseResourcesResult {
-  data: PaginatedData<ResourceListItem> | null;
+export interface UseMediaResult {
+  data: PaginatedData<MediaItem> | null;
   isLoading: boolean;
   error: string | null;
   page: number;
@@ -27,25 +21,16 @@ export interface UseResourcesResult {
   reload: () => void;
 }
 
-/**
- * Loads a page of resources for the given filters.
- *
- * Filters are owned by the caller so one search box can drive several lists;
- * only the page number lives here. Every request is abortable, so a fast
- * typist never sees an older response overwrite a newer one.
- */
-export function useResources({
+/** Loads a page of external content, aborting superseded requests. */
+export function useMedia({
+  source,
   pageSize = 12,
-  visibility,
   search = '',
-  category = '',
   enabled = true,
-}: UseResourcesOptions = {}): UseResourcesResult {
+}: UseMediaOptions = {}): UseMediaResult {
   const [page, setPage] = useState(1);
   const [reloadToken, setReloadToken] = useState(0);
-  const [data, setData] = useState<PaginatedData<ResourceListItem> | null>(
-    null,
-  );
+  const [data, setData] = useState<PaginatedData<MediaItem> | null>(null);
   const [isLoading, setIsLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
 
@@ -54,13 +39,13 @@ export function useResources({
       page,
       pageSize,
       ...(search ? { search } : {}),
-      ...(category ? { category: category as ResourceCategory } : {}),
-      ...(visibility ? { visibility } : {}),
+      ...(source ? { source } : {}),
     }),
-    [page, pageSize, search, category, visibility],
+    [page, pageSize, search, source],
   );
 
-  useEffect(() => setPage(1), [search, category]);
+  // A new search term always restarts at the first page.
+  useEffect(() => setPage(1), [search, source]);
 
   useEffect(() => {
     if (!enabled) {
@@ -74,7 +59,7 @@ export function useResources({
     setIsLoading(true);
     setError(null);
 
-    fetchResources(query, controller.signal)
+    fetchMedia(query, controller.signal)
       .then((result) => {
         setData(result);
         setIsLoading(false);
@@ -87,7 +72,7 @@ export function useResources({
         setError(
           cause instanceof ApiRequestError
             ? cause.message
-            : 'Kaynaklar yüklenemedi.',
+            : 'İçerikler yüklenemedi.',
         );
         setIsLoading(false);
       });

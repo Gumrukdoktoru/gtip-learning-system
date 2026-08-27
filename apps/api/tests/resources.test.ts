@@ -1,5 +1,5 @@
 import request from 'supertest';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   createTestContext,
@@ -71,7 +71,9 @@ describe('resource upload', () => {
   });
 
   it('honours a different AWS_FOLDER_PREFIX', async () => {
-    const other = await createTestContext({ AWS_FOLDER_PREFIX: '12345' });
+    const other = await createTestContext({
+      env: { AWS_FOLDER_PREFIX: '12345' },
+    });
     const response = await uploadResource(other);
 
     expect(response.body.data.storageKey).toMatch(
@@ -103,6 +105,30 @@ describe('resource upload', () => {
     expect(ctx.storage.keys()).toHaveLength(0);
   });
 
+  it('keeps both uploads when two files share a name in one second', async () => {
+    // Freeze only Date, so express and supertest keep their real timers.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2024-08-27T18:30:00.000Z'));
+
+    try {
+      const first = await uploadResource(ctx, { title: 'Birinci belge' });
+      const second = await uploadResource(ctx, { title: 'İkinci belge' });
+
+      expect(first.status).toBe(201);
+      expect(second.status).toBe(201);
+      expect(first.body.data.storageKey).toBe(
+        '69655/public/uploads/1724783400-Gumruk-Tebligi.pdf',
+      );
+      // Same second, same file name: the second key gets a random suffix.
+      expect(second.body.data.storageKey).toMatch(
+        /^69655\/public\/uploads\/1724783400-Gumruk-Tebligi-[0-9a-f]{6}\.pdf$/,
+      );
+      expect(ctx.storage.keys()).toHaveLength(2);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('rejects a request without a file', async () => {
     const response = await request(ctx.app)
       .post(BASE)
@@ -121,7 +147,9 @@ describe('resource upload', () => {
   });
 
   it('rejects uploads above the size limit', async () => {
-    const small = await createTestContext({ MAX_UPLOAD_SIZE_BYTES: '512' });
+    const small = await createTestContext({
+      env: { MAX_UPLOAD_SIZE_BYTES: '512' },
+    });
     const response = await uploadResource(small, {
       body: Buffer.concat([samplePdf(), Buffer.alloc(2048, 0x20)]),
     });

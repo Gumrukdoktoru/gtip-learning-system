@@ -70,12 +70,29 @@ describe('sanitizeFileName', () => {
 });
 
 describe('buildStoredFileName', () => {
-  it('prefixes the sanitized name with a unix timestamp', () => {
-    const uploadedAt = new Date('2024-08-27T18:30:00.000Z');
+  const uploadedAt = new Date('2024-08-27T18:30:00.000Z');
 
+  it('prefixes the sanitized name with a unix timestamp', () => {
     expect(buildStoredFileName('Gümrük Tebliği.pdf', uploadedAt)).toBe(
       '1724783400-Gumruk-Tebligi.pdf',
     );
+  });
+
+  it('places a disambiguating suffix before the extension', () => {
+    expect(buildStoredFileName('Gümrük Tebliği.pdf', uploadedAt, 'a3f19c')).toBe(
+      '1724783400-Gumruk-Tebligi-a3f19c.pdf',
+    );
+  });
+
+  it('keeps the suffixed name within the length limit', () => {
+    const result = buildStoredFileName(
+      `${'a'.repeat(400)}.pdf`,
+      uploadedAt,
+      'a3f19c',
+    );
+
+    expect(result.endsWith('-a3f19c.pdf')).toBe(true);
+    expect(result.slice(result.indexOf('-') + 1).length).toBeLessThanOrEqual(180);
   });
 });
 

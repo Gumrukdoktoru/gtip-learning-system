@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 
+import { useSiteConfig } from '../../hooks/use-site-config';
 import { useAuthStore } from '../../stores/auth-store';
 
 function navLinkClass({ isActive }: { isActive: boolean }): string {
@@ -12,6 +13,7 @@ function navLinkClass({ isActive }: { isActive: boolean }): string {
 }
 
 export function AppShell(): JSX.Element {
+  const site = useSiteConfig();
   const user = useAuthStore((state) => state.user);
   const signOut = useAuthStore((state) => state.signOut);
   const navigate = useNavigate();
@@ -21,17 +23,20 @@ export function AppShell(): JSX.Element {
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-4 py-3">
           <NavLink to="/" className="text-base font-semibold text-slate-900">
-            Gümrük Mevzuatı Kaynakları
+            {site.title}
           </NavLink>
 
           <nav className="flex items-center gap-1">
             <NavLink to="/" end className={navLinkClass}>
-              Kaynaklar
+              Ana Sayfa
             </NavLink>
             {user?.role === 'admin' ? (
               <>
                 <NavLink to="/yonetim" end className={navLinkClass}>
                   Yönetim
+                </NavLink>
+                <NavLink to="/yonetim/sosyal" className={navLinkClass}>
+                  Sosyal İçerik
                 </NavLink>
                 <NavLink to="/yonetim/yukle" className={navLinkClass}>
                   Yeni Kaynak

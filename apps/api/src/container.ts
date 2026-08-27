@@ -2,6 +2,10 @@ import path from 'node:path';
 
 import type { AppConfig } from './config/env.js';
 import {
+  JsonMediaRepository,
+  type MediaRepository,
+} from './repositories/media-repository.js';
+import {
   JsonResourceRepository,
   type ResourceRepository,
 } from './repositories/resource-repository.js';
@@ -10,7 +14,9 @@ import {
   type UserRepository,
 } from './repositories/user-repository.js';
 import { AuthService } from './services/auth-service.js';
+import { MediaService } from './services/media-service.js';
 import { ResourceService } from './services/resource-service.js';
+import { YouTubeFeedClient } from './services/youtube-feed.js';
 import { createStorageDriver } from './storage/create-storage-driver.js';
 import type { StorageDriver } from './storage/storage-driver.js';
 
@@ -22,14 +28,19 @@ export interface Container {
   storage: StorageDriver;
   users: UserRepository;
   resources: ResourceRepository;
+  media: MediaRepository;
   authService: AuthService;
   resourceService: ResourceService;
+  mediaService: MediaService;
 }
 
 export interface ContainerOverrides {
   storage?: StorageDriver;
   users?: UserRepository;
   resources?: ResourceRepository;
+  media?: MediaRepository;
+  /** Injected by tests so no request ever leaves the process. */
+  youtubeFetch?: typeof fetch;
 }
 
 /**
@@ -49,6 +60,9 @@ export function createContainer(
   const resources =
     overrides.resources ??
     new JsonResourceRepository(path.join(config.dataDir, 'resources.json'));
+  const media =
+    overrides.media ??
+    new JsonMediaRepository(path.join(config.dataDir, 'media.json'));
 
   const authService = new AuthService({
     users,
@@ -69,5 +83,23 @@ export function createContainer(
     maxUploadSizeBytes: config.MAX_UPLOAD_SIZE_BYTES,
   });
 
-  return { config, storage, users, resources, authService, resourceService };
+  const mediaService = new MediaService({
+    media,
+    youtube: new YouTubeFeedClient(
+      overrides.youtubeFetch ? { fetchImpl: overrides.youtubeFetch } : {},
+    ),
+    youtubeChannel: config.YOUTUBE_CHANNEL,
+    syncIntervalMs: config.YOUTUBE_SYNC_INTERVAL_MINUTES * 60 * 1000,
+  });
+
+  return {
+    config,
+    storage,
+    users,
+    resources,
+    media,
+    authService,
+    resourceService,
+    mediaService,
+  };
 }

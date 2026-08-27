@@ -3,6 +3,7 @@ import type { Express } from 'express';
 import { createApp } from '../../src/app.js';
 import { loadConfig, type AppConfig } from '../../src/config/env.js';
 import { createContainer, type Container } from '../../src/container.js';
+import { JsonMediaRepository } from '../../src/repositories/media-repository.js';
 import { JsonResourceRepository } from '../../src/repositories/resource-repository.js';
 import { JsonUserRepository } from '../../src/repositories/user-repository.js';
 import { MemoryStorageDriver } from '../../src/storage/memory-storage-driver.js';
@@ -32,9 +33,16 @@ export interface TestContext {
  * Builds an isolated API instance: in-memory storage, in-memory repositories
  * (JsonStore with a null path never touches disk) and two seeded accounts.
  */
-export async function createTestContext(
-  envOverrides: Record<string, string> = {},
-): Promise<TestContext> {
+export interface TestContextOptions {
+  env?: Record<string, string>;
+  /** Stands in for global fetch inside the YouTube feed client. */
+  youtubeFetch?: typeof fetch;
+}
+
+export async function createTestContext({
+  env: envOverrides = {},
+  youtubeFetch,
+}: TestContextOptions = {}): Promise<TestContext> {
   const config = loadConfig({
     NODE_ENV: 'test',
     JWT_SECRET: 'test-secret-that-is-long-enough-for-tests',
@@ -49,6 +57,8 @@ export async function createTestContext(
     storage,
     users: new JsonUserRepository(null),
     resources: new JsonResourceRepository(null),
+    media: new JsonMediaRepository(null),
+    ...(youtubeFetch ? { youtubeFetch } : {}),
   });
 
   await container.authService.register({ ...TEST_ADMIN, role: 'admin' });

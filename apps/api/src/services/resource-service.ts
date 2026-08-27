@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 import path from 'node:path';
 
 import {
@@ -19,6 +19,7 @@ import type {
 
 import {
   BadRequestError,
+  ConflictError,
   NotFoundError,
   PayloadTooLargeError,
 } from '../errors/app-error.js';
@@ -28,6 +29,9 @@ import type {
 } from '../repositories/resource-repository.js';
 import type { StorageDriver } from '../storage/storage-driver.js';
 import { logger } from '../utils/logger.js';
+
+/** Extra key attempts after the plain `{timestamp}-{name}` one. */
+const MAX_KEY_ATTEMPTS = 5;
 
 export interface UploadedFile {
   originalName: string;
@@ -116,6 +120,41 @@ export class ResourceService {
   }
 
   /**
+   * Picks an object key that is not taken yet.
+   *
+   * The documented `{timestamp}-{name}` shape is tried first; a collision only
+   * happens when two documents sharing a file name are uploaded in the same
+   * second, and then a short random token is added rather than failing the
+   * upload.
+   */
+  private async reserveStorageKey(
+    originalFileName: string,
+    visibility: CreateResourceInput['visibility'],
+    uploadedAt: Date,
+  ): Promise<{ storedFileName: string; storageKey: string }> {
+    for (let attempt = 0; attempt <= MAX_KEY_ATTEMPTS; attempt += 1) {
+      const storedFileName = buildStoredFileName(
+        originalFileName,
+        uploadedAt,
+        attempt === 0 ? undefined : randomBytes(3).toString('hex'),
+      );
+      const storageKey = buildStorageKey({
+        folderPrefix: this.folderPrefix,
+        visibility,
+        storedFileName,
+      });
+
+      if (!(await this.storage.objectExists(storageKey))) {
+        return { storedFileName, storageKey };
+      }
+    }
+
+    throw new ConflictError(
+      'Dosya için benzersiz bir depolama adı üretilemedi. Lütfen tekrar deneyin.',
+    );
+  }
+
+  /**
    * Writes the bytes first and the record second.
    *
    * If the record cannot be written the object is removed again, so a failed
@@ -129,18 +168,11 @@ export class ResourceService {
     this.assertUploadAllowed(file);
 
     const now = new Date();
-    const storedFileName = buildStoredFileName(file.originalName, now);
-    const storageKey = buildStorageKey({
-      folderPrefix: this.folderPrefix,
-      visibility: input.visibility,
-      storedFileName,
-    });
-
-    if (await this.storage.objectExists(storageKey)) {
-      throw new BadRequestError(
-        'Aynı isimde bir dosya bu saniye içinde yüklenmiş. Lütfen tekrar deneyin.',
-      );
-    }
+    const { storedFileName, storageKey } = await this.reserveStorageKey(
+      file.originalName,
+      input.visibility,
+      now,
+    );
 
     await this.storage.putObject({
       key: storageKey,

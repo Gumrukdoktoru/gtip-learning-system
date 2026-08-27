@@ -5,7 +5,10 @@ import { Link } from 'react-router-dom';
 import { Alert } from '../components/alert';
 import { EmptyState } from '../components/empty-state';
 import { Pagination } from '../components/pagination';
-import { ResourceFilters } from '../components/resource-filters';
+import {
+  ResourceFilters,
+  type ResourceFiltersValue,
+} from '../components/resource-filters';
 import { Spinner } from '../components/spinner';
 import { useResourceDownload } from '../hooks/use-resource-download';
 import { useResources } from '../hooks/use-resources';
@@ -18,8 +21,15 @@ import {
 import { formatBytes, formatDate } from '../utils/format';
 
 export function AdminResourcesPage(): JSX.Element {
-  const { data, isLoading, error, filters, setFilters, setPage, reload } =
-    useResources({ pageSize: 20 });
+  const [filters, setFilters] = useState<ResourceFiltersValue>({
+    search: '',
+    category: '',
+  });
+  const { data, isLoading, error, setPage, reload } = useResources({
+    pageSize: 20,
+    search: filters.search,
+    category: filters.category,
+  });
   const { download, downloadingId } = useResourceDownload();
   const [actionError, setActionError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);

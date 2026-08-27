@@ -8,6 +8,7 @@ import { createAuthMiddleware } from './middleware/auth.js';
 import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
 import { createUploadMiddleware } from './middleware/upload.js';
 import { createApiRouter } from './routes/index.js';
+import { buildSiteConfig } from './services/site-service.js';
 
 export function createApp(container: Container): Express {
   const { config } = container;
@@ -41,9 +42,18 @@ export function createApp(container: Container): Express {
     createApiRouter({
       authService: container.authService,
       resourceService: container.resourceService,
+      mediaService: container.mediaService,
       auth: createAuthMiddleware(container.authService),
       upload: createUploadMiddleware(config.MAX_UPLOAD_SIZE_BYTES),
       storageDriverName: container.storage.name,
+      siteConfig: buildSiteConfig({
+        title: config.SITE_TITLE,
+        tagline: config.SITE_TAGLINE,
+        youtubeChannel: config.YOUTUBE_CHANNEL,
+        ...(config.INSTAGRAM_PROFILE_URL
+          ? { instagramProfileUrl: config.INSTAGRAM_PROFILE_URL }
+          : {}),
+      }),
     }),
   );
 

@@ -73,16 +73,31 @@ export function sanitizeFileName(originalFileName: string): string {
 /**
  * Builds the `{unixTimestamp}-{originalFileName}` name written to storage.
  *
- * The timestamp is in seconds and exists purely to keep concurrent uploads of
- * the same document from overwriting each other.
+ * The timestamp is in seconds, which is not by itself unique: two different
+ * documents that happen to share a file name can be uploaded within the same
+ * second. `suffix` is for exactly that case — the caller passes a short random
+ * token to disambiguate, and it lands before the extension so the name stays
+ * readable and the file still opens.
  */
 export function buildStoredFileName(
   originalFileName: string,
   uploadedAt: Date = new Date(),
+  suffix?: string,
 ): string {
   const unixTimestamp = Math.floor(uploadedAt.getTime() / 1000);
+  const safeName = sanitizeFileName(originalFileName);
 
-  return `${unixTimestamp}-${sanitizeFileName(originalFileName)}`;
+  if (!suffix) {
+    return `${unixTimestamp}-${safeName}`;
+  }
+
+  const { base, extension } = splitExtension(safeName);
+  const maxBaseLength = Math.max(
+    1,
+    MAX_STORED_FILE_NAME_LENGTH - extension.length - suffix.length - 1,
+  );
+
+  return `${unixTimestamp}-${base.slice(0, maxBaseLength)}-${suffix}${extension}`;
 }
 
 export interface BuildStorageKeyParams {

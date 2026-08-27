@@ -52,6 +52,22 @@ const envSchema = z
       .positive()
       .default(MAX_UPLOAD_SIZE_BYTES),
 
+    // ---- Learning hub -----------------------------------------------------
+    SITE_TITLE: z.string().default('Gümrük Mevzuatı Kaynakları'),
+    SITE_TAGLINE: z
+      .string()
+      .default(
+        'Videolar, gönderiler ve belgeler tek sayfada; öğrenciler için derlenmiş çalışma kaynakları.',
+      ),
+    /** Channel id, @handle or channel URL. Empty disables the YouTube shelf. */
+    YOUTUBE_CHANNEL: z.string().default(''),
+    YOUTUBE_SYNC_INTERVAL_MINUTES: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(30),
+    INSTAGRAM_PROFILE_URL: z.string().url().optional(),
+
     DATA_DIR: z.string().default('./storage-data/db'),
     SEED_SAMPLE_DATA: booleanFromString.default('false'),
   })
