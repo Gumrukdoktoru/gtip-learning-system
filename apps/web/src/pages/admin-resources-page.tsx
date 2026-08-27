@@ -112,8 +112,8 @@ export function AdminResourcesPage(): JSX.Element {
                         <span
                           className={
                             admin?.visibility === 'private'
-                              ? 'rounded-full bg-amber-50 px-2 py-1 text-xs font-medium text-amber-700'
-                              : 'rounded-full bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700'
+                              ? 'whitespace-nowrap rounded-full bg-amber-50 px-2 py-1 text-xs font-medium text-amber-700'
+                              : 'whitespace-nowrap rounded-full bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700'
                           }
                         >
                           {admin?.visibility === 'private'
@@ -133,10 +133,10 @@ export function AdminResourcesPage(): JSX.Element {
                         {formatDate(resource.createdAt)}
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex justify-end gap-2">
+                        <div className="flex justify-end gap-2 whitespace-nowrap">
                           <button
                             type="button"
-                            className="btn-secondary"
+                            className="btn-secondary whitespace-nowrap"
                             disabled={downloadingId === resource.id}
                             onClick={() => download(resource)}
                           >
@@ -145,7 +145,7 @@ export function AdminResourcesPage(): JSX.Element {
                           {admin ? (
                             <button
                               type="button"
-                              className="btn-secondary"
+                              className="btn-secondary whitespace-nowrap"
                               disabled={isBusy}
                               onClick={() =>
                                 runAction(resource.id, () =>
@@ -165,7 +165,7 @@ export function AdminResourcesPage(): JSX.Element {
                           ) : null}
                           <button
                             type="button"
-                            className="btn-danger"
+                            className="btn-danger whitespace-nowrap"
                             disabled={isBusy}
                             onClick={() => {
                               if (

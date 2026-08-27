@@ -8,6 +8,8 @@ const currentDir = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   plugins: [react()],
+  // A single .env at the repo root configures both the API and the frontend.
+  envDir: path.resolve(currentDir, '../..'),
   resolve: {
     alias: {
       '@gtip/shared': path.resolve(
