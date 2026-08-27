@@ -1,0 +1,19 @@
+node_modules/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+.env
+.env.local
+.env.*.local
+
+# Local storage driver output & file-backed repository data
+storage-data/
+var/
+
+.DS_Store
+*.log
+npm-debug.log*
+.vscode/
+.idea/

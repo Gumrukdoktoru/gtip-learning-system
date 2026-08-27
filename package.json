@@ -1,0 +1,22 @@
+{
+  "name": "gtip-learning-system",
+  "private": true,
+  "version": "0.1.0",
+  "description": "G\u00fcmr\u00fck mevzuat\u0131 kaynak y\u00f6netimi ve GTIP \u00f6\u011frenme platformu",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace @gtip/shared && npm run build --workspace @gtip/api && npm run build --workspace @gtip/web",
+    "dev": "npm run dev --workspaces --if-present",
+    "dev:api": "npm run dev --workspace @gtip/api",
+    "dev:web": "npm run dev --workspace @gtip/web",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
