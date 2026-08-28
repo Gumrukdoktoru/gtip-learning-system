@@ -38,6 +38,8 @@ sözleşmeyi uygular:
 kanal kimliğinizi (`UC…`), `@kullanıcıadınızı` veya kanal adresinizi yazın.
 Uygulama kanalın herkese açık Atom akışını (`feeds/videos.xml`) okur; bir
 `@kullanıcıadı` verildiyse kanal kimliği bir kez çözülüp önbelleğe alınır.
+Türkçe harf içeren el adları (`@GumrukKoçunuz`) hem düz hem de tarayıcıdan
+kopyalanan yüzde kodlu (`@GumrukKo%C3%A7unuz`) biçimde kabul edilir.
 Akış son ~15 videoyu taşır ve `YOUTUBE_SYNC_INTERVAL_MINUTES` dolduğunda ilk
 ziyaretçi isteğinde tazelenir — ayrı bir zamanlayıcı kurmanız gerekmez.
 YouTube'a ulaşılamazsa sayfa en son senkronize edilen videolarla açılmaya
@@ -65,9 +67,9 @@ npm run dev               # api :3000, web :5173
 JWT_SECRET=...              # üretimde en az 32 karakter
 ADMIN_EMAIL=...             # ilk açılışta oluşturulacak yönetici
 ADMIN_PASSWORD=...
-YOUTUBE_CHANNEL=@kanaliniz   # veya UC… kimliği / kanal adresi
-INSTAGRAM_PROFILE_URL=https://www.instagram.com/kullaniciadiniz/
-SITE_TITLE=Akademi adınız
+YOUTUBE_CHANNEL=@GumrukKoçunuz   # veya UC… kimliği / kanal adresi
+INSTAGRAM_PROFILE_URL=https://www.instagram.com/gumrukkocunuz/
+SITE_TITLE=Gümrük Koçu
 ```
 
 İlk açılışta kullanıcı tablosu boşsa `ADMIN_EMAIL` / `ADMIN_PASSWORD` ile bir

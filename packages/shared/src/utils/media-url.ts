@@ -31,6 +31,22 @@ export function isYouTubeChannelId(value: string): boolean {
 }
 
 /**
+ * Percent-decodes one path segment.
+ *
+ * `URL` keeps the pathname percent-encoded, so a handle carrying a Turkish
+ * letter arrives as `GumrukKo%C3%A7unuz`. Decoding here means callers always
+ * hold the real handle and can encode it once when they build a request.
+ */
+function decodeSegment(segment: string): string {
+  try {
+    return decodeURIComponent(segment);
+  } catch {
+    // A malformed escape sequence is not a handle we can use.
+    return segment;
+  }
+}
+
+/**
  * Normalises whatever the admin put in `YOUTUBE_CHANNEL`.
  *
  * Accepts a bare channel id, an `@handle`, or any channel URL, and reports
@@ -55,7 +71,9 @@ export function parseYouTubeChannelInput(
 
   // A bare word is a handle. This is checked before URL parsing because
   // `new URL('https://gumrukdoktoru')` happily parses it as a hostname.
-  if (/^[A-Za-z0-9_-]+$/.test(trimmed)) {
+  // Letters outside ASCII are allowed (`@GumrukKoçunuz` is a real handle);
+  // a dot is not, since that is what separates a bare word from a host name.
+  if (/^[\p{L}\p{N}_-]+$/u.test(trimmed)) {
     return { kind: 'handle', handle: trimmed };
   }
 
@@ -85,11 +103,11 @@ export function parseYouTubeChannelInput(
   }
 
   if (first?.startsWith('@')) {
-    return { kind: 'handle', handle: first.slice(1) };
+    return { kind: 'handle', handle: decodeSegment(first.slice(1)) };
   }
 
   if ((first === 'c' || first === 'user') && second) {
-    return { kind: 'handle', handle: second };
+    return { kind: 'handle', handle: decodeSegment(second) };
   }
 
   return null;

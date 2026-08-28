@@ -114,6 +114,32 @@ describe('YouTube sync', () => {
     expect(after.body.data.items[0].isPinned).toBe(true);
   });
 
+  it('encodes a Turkish handle exactly once when resolving it', async () => {
+    const { ctx, fake } = await withYouTube({
+      YOUTUBE_CHANNEL: 'https://www.youtube.com/@GumrukKo%C3%A7unuz',
+    });
+
+    const response = await request(ctx.app)
+      .post(`${BASE}/youtube/sync`)
+      .set('Authorization', `Bearer ${ctx.adminToken}`);
+
+    expect(response.status).toBe(200);
+    // Not GumrukKo%25C3%25A7unuz, which is what a double encode would send.
+    expect(fake.calls[0]).toBe('https://www.youtube.com/@GumrukKo%C3%A7unuz');
+  });
+
+  it('exposes a Turkish handle as an encoded channel link', async () => {
+    const ctx = await createTestContext({
+      env: { YOUTUBE_CHANNEL: '@GumrukKoçunuz' },
+    });
+
+    const response = await request(ctx.app).get('/api/v1/site');
+
+    expect(response.body.data.youtubeChannelUrl).toBe(
+      'https://www.youtube.com/@GumrukKo%C3%A7unuz',
+    );
+  });
+
   it('accepts a bare channel id without a page lookup', async () => {
     const { ctx, fake } = await withYouTube({
       YOUTUBE_CHANNEL: 'UCgumrukdoktoru000000000',

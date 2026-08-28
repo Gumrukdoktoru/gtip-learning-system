@@ -60,6 +60,40 @@ describe('parseYouTubeChannelInput', () => {
     });
   });
 
+  it('decodes a percent-encoded handle out of a URL', () => {
+    // How a browser hands back https://www.youtube.com/@GumrukKoçunuz.
+    expect(
+      parseYouTubeChannelInput('https://www.youtube.com/@GumrukKo%C3%A7unuz'),
+    ).toEqual({ kind: 'handle', handle: 'GumrukKoçunuz' });
+  });
+
+  it('accepts Turkish letters in a handle, typed or in a URL', () => {
+    expect(parseYouTubeChannelInput('@GumrukKoçunuz')).toEqual({
+      kind: 'handle',
+      handle: 'GumrukKoçunuz',
+    });
+    expect(parseYouTubeChannelInput('GumrukKoçunuz')).toEqual({
+      kind: 'handle',
+      handle: 'GumrukKoçunuz',
+    });
+    expect(
+      parseYouTubeChannelInput('https://www.youtube.com/@GumrukKoçunuz'),
+    ).toEqual({ kind: 'handle', handle: 'GumrukKoçunuz' });
+  });
+
+  it('decodes a legacy /c/ path', () => {
+    expect(
+      parseYouTubeChannelInput('youtube.com/c/G%C3%BCmr%C3%BCkKocu'),
+    ).toEqual({ kind: 'handle', handle: 'GümrükKocu' });
+  });
+
+  it('accepts a dotted handle when it is written with the @', () => {
+    expect(parseYouTubeChannelInput('@gumruk.kocu')).toEqual({
+      kind: 'handle',
+      handle: 'gumruk.kocu',
+    });
+  });
+
   it('rejects blanks and foreign hosts', () => {
     expect(parseYouTubeChannelInput('   ')).toBeNull();
     expect(parseYouTubeChannelInput('https://vimeo.com/channel/x')).toBeNull();

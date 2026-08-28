@@ -23,7 +23,7 @@ export function buildYouTubeProfileUrl(
 
   return parsed.kind === 'channelId'
     ? buildYouTubeChannelUrl(parsed.channelId)
-    : `https://www.youtube.com/@${parsed.handle}`;
+    : `https://www.youtube.com/@${encodeURIComponent(parsed.handle)}`;
 }
 
 /** Public, non-secret site metadata for the learning hub header. */
