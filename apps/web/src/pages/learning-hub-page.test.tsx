@@ -67,8 +67,10 @@ function video(overrides: Partial<MediaItem> = {}): MediaItem {
 }
 
 function post(overrides: Partial<MediaItem> = {}): MediaItem {
+  const { thumbnailUrl: _unused, ...base } = video();
+
   return {
-    ...video(),
+    ...base,
     id: 'post-1',
     source: 'instagram',
     externalId: 'CzQ1x8Zx1Zx',
@@ -118,9 +120,15 @@ describe('LearningHubPage', () => {
     expect(screen.getByRole('heading', { name: /Instagram/ })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /Belgeler/ })).toBeInTheDocument();
 
-    expect(screen.getByText('GTİP Sınıflandırma Dersi 1')).toBeInTheDocument();
-    expect(screen.getByText('Beyanname tescil ipucu')).toBeInTheDocument();
-    expect(screen.getByText('İthalatta Gözetim Tebliği')).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'GTİP Sınıflandırma Dersi 1' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Beyanname tescil ipucu' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'İthalatta Gözetim Tebliği' }),
+    ).toBeInTheDocument();
   });
 
   it('renders the channel and profile links from the site config', async () => {
@@ -192,36 +200,65 @@ describe('LearningHubPage', () => {
     expect(screen.getByText('İthalatta Gözetim Tebliği')).toBeInTheDocument();
   });
 
-  it('mounts the Instagram embed only when the reader asks for it', async () => {
+  it('opens an Instagram post in a dialog with the official embed', async () => {
     const user = userEvent.setup();
 
     render(<LearningHubPage />);
     await screen.findByRole('heading', { name: /Instagram/ });
 
-    await user.click(screen.getByRole('tab', { name: 'Instagram' }));
-
-    const toggle = await screen.findByRole('button', {
-      name: 'Gönderiyi burada göster',
-    });
-
-    // No third-party iframe until the button is pressed.
+    // No third-party iframe until the reader opens the post.
     expect(screen.queryByTitle('Beyanname tescil ipucu')).not.toBeInTheDocument();
 
-    await user.click(toggle);
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Beyanname tescil ipucu gönderisini aç',
+      }),
+    );
 
-    expect(screen.getByTitle('Beyanname tescil ipucu')).toHaveAttribute(
+    const dialog = within(screen.getByRole('dialog'));
+
+    expect(dialog.getByTitle('Beyanname tescil ipucu')).toHaveAttribute(
       'src',
       'https://www.instagram.com/p/CzQ1x8Zx1Zx/embed/captioned',
     );
+    expect(dialog.getByRole('link', { name: /Instagram/ })).toHaveAttribute(
+      'href',
+      'https://www.instagram.com/p/CzQ1x8Zx1Zx/',
+    );
   });
 
-  it('does not offer the embed toggle in the overview', async () => {
+  it('shows an uploaded cover on an Instagram card', async () => {
+    mockMedia(
+      [video()],
+      [
+        post({
+          thumbnailUrl: 'http://localhost:3000/api/v1/media/post-1/cover',
+        }),
+      ],
+    );
+
     render(<LearningHubPage />);
     await screen.findByRole('heading', { name: /Instagram/ });
 
-    expect(
-      screen.queryByRole('button', { name: 'Gönderiyi burada göster' }),
-    ).not.toBeInTheDocument();
+    const card = screen
+      .getByRole('button', { name: 'Beyanname tescil ipucu gönderisini aç' });
+
+    expect(within(card).getByRole('presentation', { hidden: true })).toHaveAttribute(
+      'src',
+      'http://localhost:3000/api/v1/media/post-1/cover',
+    );
+  });
+
+  it('falls back to a titled panel when a post has no cover', async () => {
+    render(<LearningHubPage />);
+    await screen.findByRole('heading', { name: /Instagram/ });
+
+    const card = screen
+      .getByRole('button', { name: 'Beyanname tescil ipucu gönderisini aç' });
+
+    // No <img> at all, so no broken-image icon; a branded panel stands in.
+    expect(within(card).queryByRole('presentation', { hidden: true })).toBeNull();
+    expect(within(card).getByText('Instagram')).toBeInTheDocument();
   });
 
   it('sends one debounced search term to every shelf', async () => {

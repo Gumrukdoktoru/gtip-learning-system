@@ -1,4 +1,4 @@
-import { buildYouTubeEmbedUrl } from '@gtip/shared';
+import { buildInstagramEmbedUrl, buildYouTubeEmbedUrl } from '@gtip/shared';
 import type { MediaItem } from '@gtip/shared';
 import { useState } from 'react';
 
@@ -6,13 +6,12 @@ import { Alert } from '../components/alert';
 import { EmptyState } from '../components/empty-state';
 import { HubHero } from '../components/hub-hero';
 import { HubTabs, type HubTab } from '../components/hub-tabs';
-import { InstagramCard } from '../components/instagram-card';
+import { MediaCard } from '../components/media-card';
 import { Modal } from '../components/modal';
 import { Pagination } from '../components/pagination';
 import { ResourceCard } from '../components/resource-card';
 import { SectionHeader } from '../components/section-header';
 import { Spinner } from '../components/spinner';
-import { VideoCard } from '../components/video-card';
 import { useDebouncedValue } from '../hooks/use-debounced-value';
 import { useMedia } from '../hooks/use-media';
 import { useResourceDownload } from '../hooks/use-resource-download';
@@ -36,7 +35,7 @@ export function LearningHubPage(): JSX.Element {
   const [tab, setTab] = useState<HubTab>('all');
   const [searchDraft, setSearchDraft] = useState('');
   const search = useDebouncedValue(searchDraft, 300);
-  const [playing, setPlaying] = useState<MediaItem | null>(null);
+  const [openItem, setOpenItem] = useState<MediaItem | null>(null);
 
   const isOverview = tab === 'all';
   const showVideos = isOverview || tab === 'video';
@@ -127,7 +126,7 @@ export function LearningHubPage(): JSX.Element {
           />
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {videos.data?.items.map((item) => (
-              <VideoCard key={item.id} item={item} onPlay={setPlaying} />
+              <MediaCard key={item.id} item={item} onOpen={setOpenItem} />
             ))}
           </div>
           {isOverview ? null : (
@@ -155,7 +154,7 @@ export function LearningHubPage(): JSX.Element {
           />
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {posts.data?.items.map((item) => (
-              <InstagramCard key={item.id} item={item} allowEmbed={!isOverview} />
+              <MediaCard key={item.id} item={item} onOpen={setOpenItem} />
             ))}
           </div>
           {isOverview ? null : (
@@ -197,22 +196,47 @@ export function LearningHubPage(): JSX.Element {
         </section>
       ) : null}
 
-      {playing ? (
-        <Modal title={playing.title} onClose={() => setPlaying(null)}>
-          <div className="aspect-video w-full overflow-hidden rounded-lg bg-black">
-            <iframe
-              src={buildYouTubeEmbedUrl(playing.externalId)}
-              title={playing.title}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="h-full w-full border-0"
-            />
-          </div>
-          {playing.description ? (
+      {openItem ? (
+        <Modal title={openItem.title} onClose={() => setOpenItem(null)}>
+          {openItem.source === 'youtube' ? (
+            <div className="aspect-video w-full overflow-hidden rounded-lg bg-black">
+              <iframe
+                src={buildYouTubeEmbedUrl(openItem.externalId)}
+                title={openItem.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="h-full w-full border-0"
+              />
+            </div>
+          ) : (
+            <div className="overflow-hidden rounded-lg border border-slate-200">
+              {/* Instagram's own frame. It only loads once a reader opens the
+                  post, so no third-party request leaves the page on its own. */}
+              <iframe
+                src={buildInstagramEmbedUrl(openItem.externalId)}
+                title={openItem.title}
+                loading="lazy"
+                className="h-[560px] w-full border-0"
+              />
+            </div>
+          )}
+
+          {openItem.description ? (
             <p className="mt-4 whitespace-pre-line text-sm text-slate-600">
-              {playing.description}
+              {openItem.description}
             </p>
           ) : null}
+
+          <a
+            href={openItem.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 inline-block text-sm font-medium text-brand-700 hover:underline"
+          >
+            {openItem.source === 'youtube'
+              ? 'YouTube’da aç'
+              : 'Instagram’da aç'}
+          </a>
         </Modal>
       ) : null}
     </div>

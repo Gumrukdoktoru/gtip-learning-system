@@ -20,7 +20,8 @@ sözleşmeyi uygular:
   Arama Türkçe karakter duyarsızdır: `GOZETIM` yazan `Gözetim`i bulur.
 - Sekmelerle daraltır: Tümü · Videolar · Instagram · Belgeler.
 - Videoyu sayfadan çıkmadan izler (çerezsiz `youtube-nocookie` gömme).
-- Instagram gönderisini isterse sayfa içinde açar, istemezse Instagram'a gider.
+- Instagram gönderisine tıklayıp resmî gömme çerçevesinde okur veya
+  Instagram'a gider.
 - PDF/HTML belgeleri indirir; indirme sayacı artar.
 - Özel kaynakları göremez — API bu kayıtları anonim çağırana 404 döner.
 
@@ -28,7 +29,8 @@ sözleşmeyi uygular:
 - Giriş yapar (JWT), belge yükler (başlık, açıklama, kategori, görünürlük).
 - YouTube videoları kanal akışından kendiliğinden gelir; istediğinde elle
   senkronize eder.
-- Instagram gönderisini adresini yapıştırıp başlık/açıklama yazarak ekler.
+- Instagram gönderisini adresini yapıştırıp başlık, açıklama ve kapak görseli
+  vererek ekler; kapağı sonradan da değiştirebilir.
 - İçerikleri öne çıkarır (sabitler), kaldırır; kaynakları yayına/özele alır
   (nesne iki önek arasında taşınır) veya siler.
 
@@ -45,11 +47,23 @@ ziyaretçi isteğinde tazelenir — ayrı bir zamanlayıcı kurmanız gerekmez.
 YouTube'a ulaşılamazsa sayfa en son senkronize edilen videolarla açılmaya
 devam eder.
 
-**Instagram — elle eklenir.** Instagram'ın anahtarsız bir listeleme yolu yok;
-otomatik çekim için İşletme/Yaratıcı hesabı ve uzun ömürlü Graph API token'ı
-gerekir. Kazıma hem kullanım şartlarına aykırı hem de kırılgan olduğu için
-yapılmadı. Bunun yerine panelden gönderi adresini yapıştırıp başlık ve açıklama
-yazarsınız; sayfa gönderiyi Instagram'ın resmî gömme çerçevesiyle gösterir.
+**Instagram — elle eklenir, kapak görselini siz verirsiniz.** Instagram'ın
+anahtarsız bir listeleme yolu yok: eski `oembed` uç noktası artık giriş
+sayfasına yönlendiriyor, profil sayfası da giriş duvarının arkasında. Otomatik
+çekim için İşletme/Yaratıcı hesabı ve uzun ömürlü Graph API token'ı gerekir;
+kazıma hem kullanım şartlarına aykırı hem de kırılgan olduğu için yapılmadı.
+
+Bunun yerine panelden gönderi adresini yapıştırıp başlık, açıklama ve **kapak
+görseli** yüklersiniz. Kapak, kartta görünen resimdir ve belgelerle aynı
+`{prefix}public/uploads/` önekine yazılır. Kapak vermezseniz kart yine de bir
+kart gibi görünür — başlığıyla birlikte Instagram renklerinde bir blok.
+
+Kartın kendisi videolarla aynı şekilde davranır: tıklayınca Instagram'ın resmî
+gömme çerçevesi bir pencerede açılır. Çerçeve yalnızca okuyucu gönderiyi
+açtığında yüklenir, yani sayfa kendiliğinden hiçbir üçüncü taraf isteği
+göndermez. (Gömme çerçevesi silinmiş veya erişilemeyen bir gönderi için boş
+gelir; bu yüzden kartın görünürlüğü ona bağlı bırakılmadı.)
+
 Graph API'ye geçmek istenirse `MediaService.addInstagramItem` yanına bir
 `syncInstagram` eklemek yeterlidir; depo, tipler ve arayüz hazır.
 
@@ -85,7 +99,7 @@ Varsayılan `STORAGE_DRIVER=local` hiçbir AWS kimlik bilgisi istemez; dosyalar
 | --- | --- |
 | `npm run dev` | API ve web sunucusunu birlikte başlatır |
 | `npm run dev:api` / `npm run dev:web` | Yalnızca birini başlatır |
-| `npm test` | Tüm workspace testleri (133 test) |
+| `npm test` | Tüm workspace testleri (148 test) |
 | `npm run typecheck` | Tüm paketlerde `tsc --noEmit` |
 | `npm run lint` | ESLint (flat config) |
 | `npm run build` | shared → api → web sırasıyla derler |
@@ -118,7 +132,9 @@ Tüm yanıtlar ortak zarfı kullanır: `{ success, data? , error? }`.
 | `GET` | `/api/v1/site` | herkes (başlık, kanal ve profil bağlantıları) |
 | `GET` | `/api/v1/media` | herkes (bayatsa YouTube'u tazeler) |
 | `POST` | `/api/v1/media/youtube/sync` | admin |
-| `POST` | `/api/v1/media/instagram` | admin |
+| `POST` | `/api/v1/media/instagram` | admin (multipart, isteğe bağlı `cover`) |
+| `POST` | `/api/v1/media/:id/cover` | admin (multipart, `cover`) |
+| `GET` | `/api/v1/media/:id/cover` | herkes |
 | `PATCH` | `/api/v1/media/:id` | admin |
 | `DELETE` | `/api/v1/media/:id` | admin |
 | `GET` | `/api/v1/resources` | herkes (anonim → yalnız public) |
@@ -153,16 +169,17 @@ yeğlenmiştir.
 
 - Parolalar bcrypt ile (maliyet 12; yalnız test ortamında 4) saklanır.
 - Bilinmeyen e-posta ile yanlış parola aynı süreyi ve aynı mesajı üretir.
-- Yükleme yalnız PDF/HTML kabul eder; hem MIME türü hem uzantı doğrulanır.
+- Belge yüklemesi yalnız PDF/HTML, kapak yüklemesi yalnız JPG/PNG/WEBP kabul
+  eder; her ikisinde de hem MIME türü hem uzantı doğrulanır.
 - Dosya adı yol ayırıcılarından temizlenir, yerel sürücü ayrıca kökten çıkan
   anahtarları reddeder.
 - Özel kaynaklar anonim çağırana 403 değil 404 döner; varlıkları sızmaz.
 - Anonim listeleme yanıtlarından `storageKey`, `uploadedById` gibi alanlar
   çıkarılır.
 - `helmet`, CORS beyaz listesi ve iki kademeli rate limit açıktır.
-- Videolar `youtube-nocookie.com` üzerinden gömülür; Instagram çerçevesi ancak
-  ziyaretçi isterse yüklenir, yani hiçbir üçüncü taraf isteği kendiliğinden
-  gitmez.
+- Videolar `youtube-nocookie.com` üzerinden gömülür; her iki gömme çerçevesi de
+  ancak ziyaretçi içeriği açtığında yüklenir, yani sayfa açılırken hiçbir
+  üçüncü taraf isteği gitmez.
 - Aynı saniyede aynı ada sahip iki dosya yüklenirse depolama anahtarına kısa
   rastgele bir ek gelir; yükleme reddedilmez, dosyalar birbirini ezmez.
 
@@ -175,9 +192,9 @@ npm test
 - `packages/shared` — depolama anahtarı üretimi, dosya adı temizleme, arama
   katlama, YouTube/Instagram adres ayrıştırma (41 test)
 - `apps/api` — supertest ile yükleme, listeleme, indirme, güncelleme, silme,
-  yetkilendirme, yerel sürücü ve sahte bir akışla YouTube senkronizasyonu
-  (65 test)
+  yetkilendirme, yerel sürücü, kapak görselleri ve sahte bir akışla YouTube
+  senkronizasyonu (75 test)
 - `apps/web` — API istemcisi zarfı, biçimlendirme, öğrenci sayfasının üç rafı,
-  video penceresi ve arama (27 test)
+  video/gönderi pencereleri ve arama (28 test)
 
 Ağ çağrısı yapan hiçbir test yok: YouTube istemcisine `fetch` enjekte edilir.

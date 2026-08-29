@@ -1,7 +1,11 @@
-import { MEDIA_SOURCE_LABELS } from '@gtip/shared';
+import {
+  ALLOWED_COVER_EXTENSIONS,
+  MAX_COVER_SIZE_BYTES,
+  MEDIA_SOURCE_LABELS,
+} from '@gtip/shared';
 import type { MediaSource, YouTubeSyncResult } from '@gtip/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -16,10 +20,26 @@ import { ApiRequestError } from '../services/api-client';
 import {
   addInstagramItem,
   deleteMediaItem,
+  setMediaCover,
   syncYouTube,
   updateMediaItem,
 } from '../services/media-service';
-import { formatDate } from '../utils/format';
+import { formatBytes, formatDate } from '../utils/format';
+
+/** Mirrors the API's cover check so the admin is told before uploading. */
+function validateCover(file: File): string | null {
+  const extension = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
+
+  if (!(ALLOWED_COVER_EXTENSIONS as readonly string[]).includes(extension)) {
+    return 'Kapak görseli JPG, PNG veya WEBP olmalı.';
+  }
+
+  if (file.size > MAX_COVER_SIZE_BYTES) {
+    return `Kapak görseli en fazla ${formatBytes(MAX_COVER_SIZE_BYTES)} olabilir.`;
+  }
+
+  return null;
+}
 
 const instagramFormSchema = z.object({
   url: z
@@ -56,6 +76,11 @@ export function AdminSocialPage(): JSX.Element {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncResult, setSyncResult] = useState<YouTubeSyncResult | null>(null);
+  const [cover, setCover] = useState<File | null>(null);
+  const [coverError, setCoverError] = useState<string | null>(null);
+  // One hidden picker serves every row; this says which row asked for it.
+  const rowCoverInput = useRef<HTMLInputElement>(null);
+  const [coverTargetId, setCoverTargetId] = useState<string | null>(null);
 
   const {
     register,
@@ -102,14 +127,43 @@ export function AdminSocialPage(): JSX.Element {
   const onAddPost = handleSubmit(async (values) => {
     setActionError(null);
 
+    const problem = cover ? validateCover(cover) : null;
+
+    setCoverError(problem);
+
+    if (problem) {
+      return;
+    }
+
     try {
-      await addInstagramItem(values);
+      await addInstagramItem(values, cover);
       reset();
+      setCover(null);
       reload();
     } catch (cause) {
       setActionError(describeError(cause, 'Gönderi eklenemedi.'));
     }
   });
+
+  const onRowCoverPicked = async (file: File): Promise<void> => {
+    const id = coverTargetId;
+
+    setCoverTargetId(null);
+
+    if (!id) {
+      return;
+    }
+
+    const problem = validateCover(file);
+
+    if (problem) {
+      setActionError(problem);
+
+      return;
+    }
+
+    await runAction(id, () => setMediaCover(id, file));
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -219,6 +273,37 @@ export function AdminSocialPage(): JSX.Element {
               />
             </div>
 
+            <div>
+              <label className="label" htmlFor="ig-cover">
+                Kapak görseli (isteğe bağlı)
+              </label>
+              <input
+                id="ig-cover"
+                type="file"
+                accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                className="field"
+                onChange={(event) => {
+                  const selected = event.target.files?.[0] ?? null;
+
+                  setCover(selected);
+                  setCoverError(selected ? validateCover(selected) : null);
+                }}
+              />
+              <p className="mt-1 text-xs text-slate-500">
+                Instagram gönderi görselini anahtarsız okumanın bir yolu yok;
+                kartta görünecek resmi siz yükleyin. Boş bırakırsanız kart
+                başlıklı bir renk bloğuyla görünür.
+              </p>
+              {cover ? (
+                <p className="mt-1 text-xs text-slate-500">
+                  {cover.name} · {formatBytes(cover.size)}
+                </p>
+              ) : null}
+              {coverError ? (
+                <p className="mt-1 text-xs text-red-600">{coverError}</p>
+              ) : null}
+            </div>
+
             <button
               type="submit"
               className="btn-primary self-start"
@@ -280,6 +365,7 @@ export function AdminSocialPage(): JSX.Element {
                 <tr>
                   <th className="px-4 py-3 font-medium">Başlık</th>
                   <th className="px-4 py-3 font-medium">Kaynak</th>
+                  <th className="px-4 py-3 font-medium">Kapak</th>
                   <th className="px-4 py-3 font-medium">Yayın tarihi</th>
                   <th className="px-4 py-3 text-right font-medium">İşlemler</th>
                 </tr>
@@ -314,11 +400,35 @@ export function AdminSocialPage(): JSX.Element {
                           {MEDIA_SOURCE_LABELS[item.source]}
                         </span>
                       </td>
+                      <td className="px-4 py-3">
+                        {item.thumbnailUrl ? (
+                          <img
+                            src={item.thumbnailUrl}
+                            alt=""
+                            className="h-12 w-12 rounded object-cover"
+                          />
+                        ) : (
+                          <span className="text-xs text-slate-400">yok</span>
+                        )}
+                      </td>
                       <td className="whitespace-nowrap px-4 py-3 text-slate-600">
                         {formatDate(item.publishedAt)}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex justify-end gap-2 whitespace-nowrap">
+                          {item.source === 'instagram' ? (
+                            <button
+                              type="button"
+                              className="btn-secondary whitespace-nowrap"
+                              disabled={isBusy}
+                              onClick={() => {
+                                setCoverTargetId(item.id);
+                                rowCoverInput.current?.click();
+                              }}
+                            >
+                              {item.thumbnailUrl ? 'Kapağı değiştir' : 'Kapak ekle'}
+                            </button>
+                          ) : null}
                           <button
                             type="button"
                             className="btn-secondary whitespace-nowrap"
@@ -362,6 +472,24 @@ export function AdminSocialPage(): JSX.Element {
           <Pagination pagination={data.pagination} onPageChange={setPage} />
         </>
       ) : null}
+
+      <input
+        ref={rowCoverInput}
+        type="file"
+        accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+        className="hidden"
+        aria-hidden="true"
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+
+          // Reset so picking the same file twice fires change again.
+          event.target.value = '';
+
+          if (file) {
+            void onRowCoverPicked(file);
+          }
+        }}
+      />
     </div>
   );
 }

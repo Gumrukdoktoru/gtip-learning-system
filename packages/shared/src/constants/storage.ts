@@ -30,6 +30,31 @@ export type AllowedResourceMimeType =
 /** File extensions matching {@link ALLOWED_RESOURCE_MIME_TYPES}. */
 export const ALLOWED_RESOURCE_EXTENSIONS = ['.pdf', '.html', '.htm'] as const;
 
+/**
+ * Cover images an admin attaches to an Instagram card.
+ *
+ * Instagram has no keyless way to read a post's own image, so the card shows a
+ * picture the coach uploads. These land in the public upload prefix like any
+ * other public file.
+ */
+export const ALLOWED_COVER_MIME_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+] as const;
+
+export type AllowedCoverMimeType = (typeof ALLOWED_COVER_MIME_TYPES)[number];
+
+export const ALLOWED_COVER_EXTENSIONS = [
+  '.jpg',
+  '.jpeg',
+  '.png',
+  '.webp',
+] as const;
+
+/** Cover image size ceiling (5 MiB). */
+export const MAX_COVER_SIZE_BYTES = 5 * 1024 * 1024;
+
 /** Default page size for paginated list endpoints. */
 export const DEFAULT_PAGE_SIZE = 20;
 

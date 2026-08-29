@@ -3,6 +3,21 @@ import type { MediaItem, MediaSource } from '@gtip/shared';
 
 import { JsonStore } from './json-store.js';
 
+/**
+ * Stored shape of a media item.
+ *
+ * `coverStorageKey` stays server side — readers get a `thumbnailUrl` the API
+ * computes from it, so the bucket layout never reaches the browser.
+ */
+export interface MediaRecord extends Omit<MediaItem, 'thumbnailUrl'> {
+  /** Feed-provided image (YouTube). */
+  thumbnailUrl?: string;
+  /** Object key of an admin-uploaded cover (Instagram). */
+  coverStorageKey?: string;
+  /** Content type the cover was uploaded with, so it is served correctly. */
+  coverMimeType?: string;
+}
+
 export interface MediaQuery {
   page: number;
   pageSize: number;
@@ -11,28 +26,28 @@ export interface MediaQuery {
 }
 
 export interface MediaPage {
-  items: MediaItem[];
+  items: MediaRecord[];
   total: number;
 }
 
 export interface MediaRepository {
   list(query: MediaQuery): Promise<MediaPage>;
-  findById(id: string): Promise<MediaItem | null>;
+  findById(id: string): Promise<MediaRecord | null>;
   findByExternalId(
     source: MediaSource,
     externalId: string,
-  ): Promise<MediaItem | null>;
-  create(item: MediaItem): Promise<MediaItem>;
-  update(id: string, patch: Partial<MediaItem>): Promise<MediaItem | null>;
+  ): Promise<MediaRecord | null>;
+  create(item: MediaRecord): Promise<MediaRecord>;
+  update(id: string, patch: Partial<MediaRecord>): Promise<MediaRecord | null>;
   delete(id: string): Promise<boolean>;
 }
 
-function matchesSearch(item: MediaItem, needle: string): boolean {
+function matchesSearch(item: MediaRecord, needle: string): boolean {
   return foldForSearch(`${item.title} ${item.description}`).includes(needle);
 }
 
 /** Pinned first, then newest published. */
-function byPinnedThenDate(left: MediaItem, right: MediaItem): number {
+function byPinnedThenDate(left: MediaRecord, right: MediaRecord): number {
   if (left.isPinned !== right.isPinned) {
     return left.isPinned ? -1 : 1;
   }
@@ -41,10 +56,10 @@ function byPinnedThenDate(left: MediaItem, right: MediaItem): number {
 }
 
 export class JsonMediaRepository implements MediaRepository {
-  private readonly store: JsonStore<MediaItem>;
+  private readonly store: JsonStore<MediaRecord>;
 
   constructor(filePath: string | null) {
-    this.store = new JsonStore<MediaItem>(filePath);
+    this.store = new JsonStore<MediaRecord>(filePath);
   }
 
   public async list({
@@ -67,27 +82,27 @@ export class JsonMediaRepository implements MediaRepository {
     };
   }
 
-  public findById(id: string): Promise<MediaItem | null> {
+  public findById(id: string): Promise<MediaRecord | null> {
     return this.store.findById(id);
   }
 
   public findByExternalId(
     source: MediaSource,
     externalId: string,
-  ): Promise<MediaItem | null> {
+  ): Promise<MediaRecord | null> {
     return this.store.find(
       (item) => item.source === source && item.externalId === externalId,
     );
   }
 
-  public create(item: MediaItem): Promise<MediaItem> {
+  public create(item: MediaRecord): Promise<MediaRecord> {
     return this.store.insert(item);
   }
 
   public update(
     id: string,
-    patch: Partial<MediaItem>,
-  ): Promise<MediaItem | null> {
+    patch: Partial<MediaRecord>,
+  ): Promise<MediaRecord | null> {
     return this.store.update(id, patch);
   }
 

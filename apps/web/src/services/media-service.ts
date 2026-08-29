@@ -31,12 +31,41 @@ export function fetchSiteConfig(signal?: AbortSignal): Promise<SiteConfig> {
   return apiRequest<SiteConfig>('/site', signal ? { signal } : {});
 }
 
+/**
+ * Adds an Instagram post, optionally with a cover image.
+ *
+ * Always sent as multipart so the request shape does not change depending on
+ * whether a cover was picked.
+ */
 export function addInstagramItem(
   input: CreateInstagramItemInput,
+  cover?: File | null,
 ): Promise<MediaItem> {
+  const formData = new FormData();
+
+  formData.append('url', input.url);
+  formData.append('title', input.title);
+  formData.append('description', input.description);
+
+  if (cover) {
+    formData.append('cover', cover);
+  }
+
   return apiRequest<MediaItem>('/media/instagram', {
     method: 'POST',
-    body: input,
+    formData,
+  });
+}
+
+/** Attaches or replaces a card's cover image. */
+export function setMediaCover(id: string, cover: File): Promise<MediaItem> {
+  const formData = new FormData();
+
+  formData.append('cover', cover);
+
+  return apiRequest<MediaItem>(`/media/${id}/cover`, {
+    method: 'POST',
+    formData,
   });
 }
 

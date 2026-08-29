@@ -1,7 +1,13 @@
 import { randomUUID } from 'node:crypto';
 
 import {
+  ALLOWED_COVER_EXTENSIONS,
+  ALLOWED_COVER_MIME_TYPES,
   buildInstagramPostUrl,
+  buildStorageKey,
+  buildStoredFileName,
+  MAX_COVER_SIZE_BYTES,
+  normalizeFolderPrefix,
   parseInstagramShortcode,
 } from '@gtip/shared';
 import type {
@@ -12,12 +18,20 @@ import type {
   YouTubeSyncResult,
 } from '@gtip/shared';
 
-import { BadRequestError, ConflictError, NotFoundError } from '../errors/app-error.js';
+import {
+  BadRequestError,
+  ConflictError,
+  NotFoundError,
+  PayloadTooLargeError,
+} from '../errors/app-error.js';
 import type {
   MediaQuery,
+  MediaRecord,
   MediaRepository,
 } from '../repositories/media-repository.js';
+import type { StorageDriver } from '../storage/storage-driver.js';
 import { logger } from '../utils/logger.js';
+import type { UploadedFile } from './resource-service.js';
 import type { YouTubeFeedClient } from './youtube-feed.js';
 
 export interface MediaServiceOptions {
@@ -27,6 +41,10 @@ export interface MediaServiceOptions {
   youtubeChannel: string;
   /** How long a sync result stays fresh before a read triggers another. */
   syncIntervalMs: number;
+  storage: StorageDriver;
+  folderPrefix: string;
+  /** e.g. `http://localhost:3000/api/v1`, used to build cover URLs. */
+  apiBaseUrl: string;
 }
 
 export class MediaService {
@@ -34,6 +52,9 @@ export class MediaService {
   private readonly youtube: YouTubeFeedClient;
   private readonly youtubeChannel: string;
   private readonly syncIntervalMs: number;
+  private readonly storage: StorageDriver;
+  private readonly folderPrefix: string;
+  private readonly apiBaseUrl: string;
 
   private resolvedChannelId: string | null = null;
   private lastSyncedAt: number | null = null;
@@ -45,11 +66,34 @@ export class MediaService {
     youtube,
     youtubeChannel,
     syncIntervalMs,
+    storage,
+    folderPrefix,
+    apiBaseUrl,
   }: MediaServiceOptions) {
     this.media = media;
     this.youtube = youtube;
     this.youtubeChannel = youtubeChannel.trim();
     this.syncIntervalMs = syncIntervalMs;
+    this.storage = storage;
+    this.folderPrefix = normalizeFolderPrefix(folderPrefix);
+    this.apiBaseUrl = apiBaseUrl.replace(/\/+$/, '');
+  }
+
+  /**
+   * Maps a stored record onto what readers get.
+   *
+   * An uploaded cover wins over a feed thumbnail, and the object key is
+   * replaced by a URL the browser can actually fetch.
+   */
+  private toMediaItem(record: MediaRecord): MediaItem {
+    const { coverStorageKey, coverMimeType: _coverMimeType, thumbnailUrl, ...rest } =
+      record;
+    const coverUrl = coverStorageKey
+      ? (this.storage.getPublicUrl(coverStorageKey) ??
+        `${this.apiBaseUrl}/media/${record.id}/cover`)
+      : thumbnailUrl;
+
+    return { ...rest, ...(coverUrl ? { thumbnailUrl: coverUrl } : {}) };
   }
 
   public get isYouTubeConfigured(): boolean {
@@ -60,7 +104,7 @@ export class MediaService {
     const { items, total } = await this.media.list(query);
 
     return {
-      items,
+      items: items.map((item) => this.toMediaItem(item)),
       pagination: {
         page: query.page,
         pageSize: query.pageSize,
@@ -178,9 +222,79 @@ export class MediaService {
     return this.pendingSync;
   }
 
+  /**
+   * Validates a cover image and writes it to the public upload prefix.
+   *
+   * Covers share the documented `{prefix}public/uploads/` layout with resource
+   * files: they are public images served to every visitor.
+   */
+  private async storeCover(
+    cover: UploadedFile,
+  ): Promise<{ storageKey: string; mimeType: string }> {
+    if (cover.sizeBytes <= 0) {
+      throw new BadRequestError('Boş bir görsel yüklenemez.');
+    }
+
+    if (cover.sizeBytes > MAX_COVER_SIZE_BYTES) {
+      throw new PayloadTooLargeError(
+        `Kapak görseli en fazla ${Math.floor(
+          MAX_COVER_SIZE_BYTES / (1024 * 1024),
+        )} MB olabilir.`,
+      );
+    }
+
+    const mimeType = cover.mimeType.split(';')[0]?.trim().toLowerCase() ?? '';
+    const extension = cover.originalName
+      .slice(cover.originalName.lastIndexOf('.'))
+      .toLowerCase();
+
+    const mimeAllowed = (
+      ALLOWED_COVER_MIME_TYPES as readonly string[]
+    ).includes(mimeType);
+    const extensionAllowed = (
+      ALLOWED_COVER_EXTENSIONS as readonly string[]
+    ).includes(extension);
+
+    if (!mimeAllowed || !extensionAllowed) {
+      throw new BadRequestError(
+        'Kapak görseli JPG, PNG veya WEBP olmalı.',
+        { mimeType, extension },
+      );
+    }
+
+    const storageKey = buildStorageKey({
+      folderPrefix: this.folderPrefix,
+      visibility: 'public',
+      storedFileName: buildStoredFileName(cover.originalName),
+    });
+
+    await this.storage.putObject({
+      key: storageKey,
+      body: cover.buffer,
+      contentType: mimeType,
+    });
+
+    return { storageKey, mimeType };
+  }
+
+  /** Removes a cover object, logging rather than failing the caller. */
+  private async discardCover(storageKey: string | undefined): Promise<void> {
+    if (!storageKey) {
+      return;
+    }
+
+    await this.storage.deleteObject(storageKey).catch((error: unknown) => {
+      logger.error('Orphaned cover left in storage', {
+        storageKey,
+        message: error instanceof Error ? error.message : String(error),
+      });
+    });
+  }
+
   /** Adds an Instagram post by URL; the copy is written by the admin. */
   public async addInstagramItem(
     input: CreateInstagramItemInput,
+    cover?: UploadedFile,
   ): Promise<MediaItem> {
     const shortcode = parseInstagramShortcode(input.url);
 
@@ -198,37 +312,100 @@ export class MediaService {
       });
     }
 
+    const storedCover = cover ? await this.storeCover(cover) : undefined;
     const now = new Date().toISOString();
 
-    return this.media.create({
-      id: randomUUID(),
-      source: 'instagram',
-      externalId: shortcode,
-      url: buildInstagramPostUrl(shortcode),
-      title: input.title,
-      description: input.description,
-      publishedAt: input.publishedAt ?? now,
-      isPinned: false,
-      createdAt: now,
-      updatedAt: now,
-    });
+    try {
+      const created = await this.media.create({
+        id: randomUUID(),
+        source: 'instagram',
+        externalId: shortcode,
+        url: buildInstagramPostUrl(shortcode),
+        title: input.title,
+        description: input.description,
+        publishedAt: input.publishedAt ?? now,
+        isPinned: false,
+        createdAt: now,
+        updatedAt: now,
+        ...(storedCover
+          ? {
+              coverStorageKey: storedCover.storageKey,
+              coverMimeType: storedCover.mimeType,
+            }
+          : {}),
+      });
+
+      return this.toMediaItem(created);
+    } catch (error) {
+      await this.discardCover(storedCover?.storageKey);
+
+      throw error;
+    }
   }
 
-  public async getMediaItemOrFail(id: string): Promise<MediaItem> {
-    const item = await this.media.findById(id);
+  /** Attaches or replaces a card's cover image. */
+  public async setCover(id: string, cover: UploadedFile): Promise<MediaItem> {
+    const existing = await this.getRecordOrFail(id);
+    const stored = await this.storeCover(cover);
 
-    if (!item) {
+    const updated = await this.media.update(id, {
+      coverStorageKey: stored.storageKey,
+      coverMimeType: stored.mimeType,
+      updatedAt: new Date().toISOString(),
+    });
+
+    if (!updated) {
+      await this.discardCover(stored.storageKey);
+
       throw new NotFoundError('İçerik bulunamadı.');
     }
 
-    return item;
+    // The replaced object is only removed once the record points elsewhere.
+    if (
+      existing.coverStorageKey &&
+      existing.coverStorageKey !== stored.storageKey
+    ) {
+      await this.discardCover(existing.coverStorageKey);
+    }
+
+    return this.toMediaItem(updated);
+  }
+
+  /** Streams a card's cover image back. */
+  public async readCoverBytes(
+    id: string,
+  ): Promise<{ body: Buffer; mimeType: string }> {
+    const record = await this.getRecordOrFail(id);
+
+    if (!record.coverStorageKey) {
+      throw new NotFoundError('Bu içeriğin kapak görseli yok.');
+    }
+
+    return {
+      body: await this.storage.getObject(record.coverStorageKey),
+      mimeType: record.coverMimeType ?? 'application/octet-stream',
+    };
+  }
+
+  private async getRecordOrFail(id: string): Promise<MediaRecord> {
+    const record = await this.media.findById(id);
+
+    if (!record) {
+      throw new NotFoundError('İçerik bulunamadı.');
+    }
+
+    return record;
+  }
+
+  public async getMediaItemOrFail(id: string): Promise<MediaItem> {
+    return this.toMediaItem(await this.getRecordOrFail(id));
   }
 
   public async updateMediaItem(
     id: string,
     input: UpdateMediaItemInput,
   ): Promise<MediaItem> {
-    await this.getMediaItemOrFail(id);
+    await this.getRecordOrFail(id);
 
     const updated = await this.media.update(id, {
       ...(input.title === undefined ? {} : { title: input.title }),
@@ -243,11 +420,13 @@ export class MediaService {
       throw new NotFoundError('İçerik bulunamadı.');
     }
 
-    return updated;
+    return this.toMediaItem(updated);
   }
 
   public async deleteMediaItem(id: string): Promise<void> {
-    await this.getMediaItemOrFail(id);
+    const record = await this.getRecordOrFail(id);
+
     await this.media.delete(id);
+    await this.discardCover(record.coverStorageKey);
   }
 }

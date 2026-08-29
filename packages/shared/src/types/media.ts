@@ -23,6 +23,11 @@ export interface MediaItem {
   url: string;
   title: string;
   description: string;
+  /**
+   * Card image. For YouTube this is the frame from the feed; for Instagram it
+   * is a cover the admin uploaded, served by the API. Absent means the card
+   * falls back to a titled placeholder.
+   */
   thumbnailUrl?: string;
   publishedAt: string;
   /** Pinned items lead the list regardless of date. */
@@ -49,6 +54,12 @@ export interface UpdateMediaItemInput {
   title?: string;
   description?: string;
   isPinned?: boolean;
+}
+
+/** Result of attaching or replacing an Instagram card's cover image. */
+export interface CoverUploadResult {
+  id: string;
+  thumbnailUrl: string;
 }
 
 export interface YouTubeSyncResult {

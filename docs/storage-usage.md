@@ -14,14 +14,22 @@ sözleşmedir. `packages/shared/src/utils/storage-path.ts` bu düzeni tek başı
 
 ## `69655/public/uploads/`
 
-- **Contents:** PDF and HTML resource files uploaded by the admin (Gümrük
-  mevzuatı kaynakları). Filename pattern: `{timestamp}-{originalFileName}`.
-- **Written by:** admin panel resource upload form
-  (`POST /api/v1/resources`, `visibility=public`).
-- **Read by:** public resources page and the resource download API
-  (`GET /api/v1/resources`, `GET /api/v1/resources/:id/download`).
-- **Lifecycle:** permanent; removed only when an admin deletes the resource
-  from the panel (`DELETE /api/v1/resources/:id`).
+- **Contents:** two kinds of public file, both named
+  `{timestamp}-{originalFileName}`:
+  1. PDF and HTML resource files uploaded by the admin (Gümrük mevzuatı
+     kaynakları).
+  2. JPG/PNG/WEBP cover images for Instagram cards. Instagram exposes no
+     keyless way to read a post's own image, so the coach uploads the picture
+     that appears on the card.
+- **Written by:** the admin panel resource upload form
+  (`POST /api/v1/resources`, `visibility=public`) and the social content page
+  (`POST /api/v1/media/instagram`, `POST /api/v1/media/:id/cover`).
+- **Read by:** the public learning hub and the download/cover APIs
+  (`GET /api/v1/resources`, `GET /api/v1/resources/:id/download`,
+  `GET /api/v1/media/:id/cover`).
+- **Lifecycle:** permanent; a resource object is removed with its record
+  (`DELETE /api/v1/resources/:id`), a cover object with its media item
+  (`DELETE /api/v1/media/:id`) or when a cover is replaced.
 
 ## `69655/uploads/`
 

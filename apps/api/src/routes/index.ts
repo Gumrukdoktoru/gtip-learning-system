@@ -45,7 +45,7 @@ export function createApiRouter({
 
   router.use('/auth', createAuthRouter(authService, auth));
   router.use('/resources', createResourceRouter(resourceService, auth, upload));
-  router.use('/media', createMediaRouter(mediaService, auth));
+  router.use('/media', createMediaRouter(mediaService, auth, upload));
 
   return router;
 }

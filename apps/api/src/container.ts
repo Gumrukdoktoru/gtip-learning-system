@@ -90,6 +90,9 @@ export function createContainer(
     ),
     youtubeChannel: config.YOUTUBE_CHANNEL,
     syncIntervalMs: config.YOUTUBE_SYNC_INTERVAL_MINUTES * 60 * 1000,
+    storage,
+    folderPrefix: config.AWS_FOLDER_PREFIX,
+    apiBaseUrl: `${config.API_BASE_URL}${API_VERSION_PREFIX}`,
   });
 
   return {
