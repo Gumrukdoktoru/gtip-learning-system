@@ -9,6 +9,7 @@ export interface SiteServiceOptions {
   tagline: string;
   youtubeChannel: string;
   instagramProfileUrl?: string;
+  instagramAccessToken?: string;
 }
 
 /** Turns the raw YOUTUBE_CHANNEL value into a link a visitor can click. */
@@ -32,6 +33,7 @@ export function buildSiteConfig({
   tagline,
   youtubeChannel,
   instagramProfileUrl,
+  instagramAccessToken,
 }: SiteServiceOptions): SiteConfig {
   const youtubeChannelUrl = buildYouTubeProfileUrl(youtubeChannel);
 
@@ -41,5 +43,6 @@ export function buildSiteConfig({
     ...(youtubeChannelUrl ? { youtubeChannelUrl } : {}),
     ...(instagramProfileUrl ? { instagramProfileUrl } : {}),
     youtubeConnected: youtubeChannel.trim().length > 0,
+    instagramConnected: (instagramAccessToken ?? '').trim().length > 0,
   };
 }

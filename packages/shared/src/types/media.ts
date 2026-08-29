@@ -62,6 +62,17 @@ export interface CoverUploadResult {
   thumbnailUrl: string;
 }
 
+export interface InstagramSyncResult {
+  fetched: number;
+  created: number;
+  updated: number;
+  /** Posts left untouched because an admin wrote their copy by hand. */
+  skippedCurated: number;
+  /** Cover images downloaded from Instagram's CDN into our own storage. */
+  coversStored: number;
+  syncedAt: string;
+}
+
 export interface YouTubeSyncResult {
   channelId: string;
   channelTitle: string;
@@ -78,4 +89,6 @@ export interface SiteConfig {
   youtubeChannelUrl?: string;
   instagramProfileUrl?: string;
   youtubeConnected: boolean;
+  /** True when an Instagram access token is configured. */
+  instagramConnected: boolean;
 }

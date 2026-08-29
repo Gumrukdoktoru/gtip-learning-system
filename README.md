@@ -29,8 +29,9 @@ sözleşmeyi uygular:
 - Giriş yapar (JWT), belge yükler (başlık, açıklama, kategori, görünürlük).
 - YouTube videoları kanal akışından kendiliğinden gelir; istediğinde elle
   senkronize eder.
-- Instagram gönderisini adresini yapıştırıp başlık, açıklama ve kapak görseli
-  vererek ekler; kapağı sonradan da değiştirebilir.
+- Instagram gönderilerini otomatik çeker (anahtar bağlıysa) veya adresini
+  yapıştırıp başlık, açıklama ve kapak görseli vererek elle ekler; kapağı
+  sonradan da değiştirebilir.
 - İçerikleri öne çıkarır (sabitler), kaldırır; kaynakları yayına/özele alır
   (nesne iki önek arasında taşınır) veya siler.
 
@@ -47,16 +48,27 @@ ziyaretçi isteğinde tazelenir — ayrı bir zamanlayıcı kurmanız gerekmez.
 YouTube'a ulaşılamazsa sayfa en son senkronize edilen videolarla açılmaya
 devam eder.
 
-**Instagram — elle eklenir, kapak görselini siz verirsiniz.** Instagram'ın
-anahtarsız bir listeleme yolu yok: eski `oembed` uç noktası artık giriş
-sayfasına yönlendiriyor, profil sayfası da giriş duvarının arkasında. Otomatik
-çekim için İşletme/Yaratıcı hesabı ve uzun ömürlü Graph API token'ı gerekir;
-kazıma hem kullanım şartlarına aykırı hem de kırılgan olduğu için yapılmadı.
+**Instagram — iki mod.** `INSTAGRAM_ACCESS_TOKEN` boşsa gönderiler panelden
+elle eklenir; doluysa hesabınızdan otomatik çekilir. İkisi bir arada da
+çalışır.
 
-Bunun yerine panelden gönderi adresini yapıştırıp başlık, açıklama ve **kapak
+*Elle:* panelden gönderi adresini yapıştırıp başlık, açıklama ve **kapak
 görseli** yüklersiniz. Kapak, kartta görünen resimdir ve belgelerle aynı
 `{prefix}public/uploads/` önekine yazılır. Kapak vermezseniz kart yine de bir
-kart gibi görünür — başlığıyla birlikte Instagram renklerinde bir blok.
+kart gibi görünür — Instagram renklerinde bir blok.
+
+*Otomatik:* uygulama Graph API'den son gönderileri okur, başlığı ve açıklamayı
+gönderi metninden çıkarır, görseli **kendi depomuza indirir**. İndirmek şart:
+Instagram'ın CDN adresleri imzalıdır ve süresi dolar, hotlink verilse kartlar
+bir süre sonra boşalırdı.
+
+Otomatik mod elle yapılan işi asla ezmez:
+
+- Kayıtlar gönderi adresindeki **kısa kodla** eşleşir; elle eklediğiniz bir
+  gönderi tekrarlanmaz, aynı kart güncellenir.
+- Başlığı veya açıklamayı elle yazdıysanız o kart "elle düzenlenmiş" sayılır
+  ve senkronizasyon metnine dokunmaz (sadece öne çıkarmak bunu tetiklemez).
+- Kapak yalnızca kartta hiç kapak yoksa doldurulur.
 
 Kartın kendisi videolarla aynı şekilde davranır: tıklayınca Instagram'ın resmî
 gömme çerçevesi bir pencerede açılır. Çerçeve yalnızca okuyucu gönderiyi
@@ -64,8 +76,37 @@ açtığında yüklenir, yani sayfa kendiliğinden hiçbir üçüncü taraf iste
 göndermez. (Gömme çerçevesi silinmiş veya erişilemeyen bir gönderi için boş
 gelir; bu yüzden kartın görünürlüğü ona bağlı bırakılmadı.)
 
-Graph API'ye geçmek istenirse `MediaService.addInstagramItem` yanına bir
-`syncInstagram` eklemek yeterlidir; depo, tipler ve arayüz hazır.
+Kazıma yapılmadı: hem kullanım şartlarına aykırı hem de kırılgan. Eski
+anahtarsız `oembed` uç noktası da artık giriş sayfasına yönlendiriyor.
+
+### Instagram'ı otomatiğe almak
+
+1. Instagram hesabınızı **İşletme** veya **Yaratıcı** hesabına çevirin
+   (Instagram → Ayarlar → Hesap türü ve araçlar).
+2. [developers.facebook.com](https://developers.facebook.com/apps) üzerinden
+   bir uygulama oluşturun ve ürünlerden **Instagram**'ı ekleyin.
+3. Instagram girişiyle kurulum ekranından hesabınızı bağlayıp gönderileri
+   okuma iznini (`instagram_business_basic`) onaylayın.
+4. Üretilen **uzun ömürlü** erişim anahtarını `.env` dosyasındaki
+   `INSTAGRAM_ACCESS_TOKEN` alanına yapıştırın. `INSTAGRAM_USER_ID=me` ve
+   `INSTAGRAM_GRAPH_HOST=graph.instagram.com` varsayılanları bu akış içindir.
+5. Panelde **Sosyal İçerik → Şimdi senkronize et** deyin. Kaç gönderi okundu,
+   kaçı yeni, kaç kapak indirildi ekranda yazar.
+
+Facebook girişiyle (Sayfa'ya bağlı) alınan bir anahtar kullanacaksanız
+`INSTAGRAM_GRAPH_HOST=graph.facebook.com` yapın ve `INSTAGRAM_USER_ID` alanına
+Instagram işletme kimliğinizi yazın.
+
+Meta bu ekranların adlarını ve API sürümünü sık değiştiriyor; bu yüzden host ve
+sürüm koda gömülmedi, `.env`'den ayarlanıyor. Bir sürüm emekliye ayrılırsa
+`INSTAGRAM_GRAPH_VERSION` değerini güncellemek yeterli.
+
+**Anahtarın süresi.** Uzun ömürlü anahtarlar 60 gün geçerlidir. Uygulama
+Instagram girişi anahtarlarını 53. günden sonra kendisi tazeler ve yeni
+anahtarı `DATA_DIR` altındaki `tokens.json` dosyasına yazar — `.env`'i elle
+güncellemeniz gerekmez. Tazeleme başarısız olursa senkronizasyon mevcut
+anahtarla devam eder ve bir sonraki denemede tekrar dener. (Facebook girişi
+anahtarları bu şekilde tazelenmez; onlar Meta tarafında yenilenir.)
 
 ## Kurulum
 
@@ -99,7 +140,7 @@ Varsayılan `STORAGE_DRIVER=local` hiçbir AWS kimlik bilgisi istemez; dosyalar
 | --- | --- |
 | `npm run dev` | API ve web sunucusunu birlikte başlatır |
 | `npm run dev:api` / `npm run dev:web` | Yalnızca birini başlatır |
-| `npm test` | Tüm workspace testleri (148 test) |
+| `npm test` | Tüm workspace testleri (174 test) |
 | `npm run typecheck` | Tüm paketlerde `tsc --noEmit` |
 | `npm run lint` | ESLint (flat config) |
 | `npm run build` | shared → api → web sırasıyla derler |
@@ -132,6 +173,7 @@ Tüm yanıtlar ortak zarfı kullanır: `{ success, data? , error? }`.
 | `GET` | `/api/v1/site` | herkes (başlık, kanal ve profil bağlantıları) |
 | `GET` | `/api/v1/media` | herkes (bayatsa YouTube'u tazeler) |
 | `POST` | `/api/v1/media/youtube/sync` | admin |
+| `POST` | `/api/v1/media/instagram/sync` | admin |
 | `POST` | `/api/v1/media/instagram` | admin (multipart, isteğe bağlı `cover`) |
 | `POST` | `/api/v1/media/:id/cover` | admin (multipart, `cover`) |
 | `GET` | `/api/v1/media/:id/cover` | herkes |
@@ -192,9 +234,10 @@ npm test
 - `packages/shared` — depolama anahtarı üretimi, dosya adı temizleme, arama
   katlama, YouTube/Instagram adres ayrıştırma (41 test)
 - `apps/api` — supertest ile yükleme, listeleme, indirme, güncelleme, silme,
-  yetkilendirme, yerel sürücü, kapak görselleri ve sahte bir akışla YouTube
-  senkronizasyonu (75 test)
+  yetkilendirme, yerel sürücü, kapak görselleri ve sahte akışlarla YouTube +
+  Instagram senkronizasyonu, anahtar tazeleme dahil (101 test)
 - `apps/web` — API istemcisi zarfı, biçimlendirme, öğrenci sayfasının üç rafı,
   video/gönderi pencereleri ve arama (28 test)
 
-Ağ çağrısı yapan hiçbir test yok: YouTube istemcisine `fetch` enjekte edilir.
+Ağ çağrısı yapan hiçbir test yok: YouTube ve Instagram istemcilerine `fetch`
+enjekte edilir.

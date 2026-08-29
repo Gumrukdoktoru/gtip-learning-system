@@ -18,12 +18,14 @@ sözleşmedir. `packages/shared/src/utils/storage-path.ts` bu düzeni tek başı
   `{timestamp}-{originalFileName}`:
   1. PDF and HTML resource files uploaded by the admin (Gümrük mevzuatı
      kaynakları).
-  2. JPG/PNG/WEBP cover images for Instagram cards. Instagram exposes no
-     keyless way to read a post's own image, so the coach uploads the picture
-     that appears on the card.
+  2. JPG/PNG/WEBP cover images for Instagram cards, either uploaded by the
+     coach or downloaded once from Instagram's CDN during a sync. The CDN
+     copy is taken because Instagram's own URLs are signed and expire, so a
+     hotlinked card would go blank after a while.
 - **Written by:** the admin panel resource upload form
-  (`POST /api/v1/resources`, `visibility=public`) and the social content page
-  (`POST /api/v1/media/instagram`, `POST /api/v1/media/:id/cover`).
+  (`POST /api/v1/resources`, `visibility=public`), the social content page
+  (`POST /api/v1/media/instagram`, `POST /api/v1/media/:id/cover`) and the
+  Instagram sync (`POST /api/v1/media/instagram/sync`).
 - **Read by:** the public learning hub and the download/cover APIs
   (`GET /api/v1/resources`, `GET /api/v1/resources/:id/download`,
   `GET /api/v1/media/:id/cover`).

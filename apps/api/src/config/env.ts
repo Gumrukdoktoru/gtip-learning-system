@@ -68,6 +68,26 @@ const envSchema = z
       .default(30),
     INSTAGRAM_PROFILE_URL: z.string().url().optional(),
 
+    /**
+     * Long-lived Instagram access token. Empty means posts are curated by
+     * hand from the admin panel and nothing is fetched.
+     */
+    INSTAGRAM_ACCESS_TOKEN: z.string().default(''),
+    /** `me` works for an Instagram-Login token; a Facebook-Login token needs the IG user id. */
+    INSTAGRAM_USER_ID: z.string().default('me'),
+    /**
+     * Host and version are configurable because Meta moves these: point them
+     * at graph.facebook.com if the token came from Facebook Login.
+     */
+    INSTAGRAM_GRAPH_HOST: z.string().default('graph.instagram.com'),
+    INSTAGRAM_GRAPH_VERSION: z.string().default('v21.0'),
+    INSTAGRAM_SYNC_INTERVAL_MINUTES: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(60),
+    INSTAGRAM_SYNC_LIMIT: z.coerce.number().int().min(1).max(100).default(24),
+
     DATA_DIR: z.string().default('./storage-data/db'),
     SEED_SAMPLE_DATA: booleanFromString.default('false'),
   })

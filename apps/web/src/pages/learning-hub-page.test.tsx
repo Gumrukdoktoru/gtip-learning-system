@@ -35,6 +35,7 @@ const SITE: SiteConfig = {
   youtubeChannelUrl: 'https://www.youtube.com/@gumrukdoktoru',
   instagramProfileUrl: 'https://www.instagram.com/gumrukdoktoru/',
   youtubeConnected: true,
+  instagramConnected: true,
 };
 
 function page<T>(items: T[], pageSize = 6): PaginatedData<T> {

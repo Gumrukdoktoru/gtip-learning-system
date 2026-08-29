@@ -53,6 +53,7 @@ export function createApp(container: Container): Express {
         ...(config.INSTAGRAM_PROFILE_URL
           ? { instagramProfileUrl: config.INSTAGRAM_PROFILE_URL }
           : {}),
+        instagramAccessToken: config.INSTAGRAM_ACCESS_TOKEN,
       }),
     }),
   );

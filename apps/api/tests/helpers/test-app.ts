@@ -4,6 +4,7 @@ import { createApp } from '../../src/app.js';
 import { loadConfig, type AppConfig } from '../../src/config/env.js';
 import { createContainer, type Container } from '../../src/container.js';
 import { JsonMediaRepository } from '../../src/repositories/media-repository.js';
+import { JsonTokenRepository } from '../../src/repositories/token-repository.js';
 import { JsonResourceRepository } from '../../src/repositories/resource-repository.js';
 import { JsonUserRepository } from '../../src/repositories/user-repository.js';
 import { MemoryStorageDriver } from '../../src/storage/memory-storage-driver.js';
@@ -37,11 +38,14 @@ export interface TestContextOptions {
   env?: Record<string, string>;
   /** Stands in for global fetch inside the YouTube feed client. */
   youtubeFetch?: typeof fetch;
+  /** Stands in for global fetch inside the Instagram Graph client. */
+  instagramFetch?: typeof fetch;
 }
 
 export async function createTestContext({
   env: envOverrides = {},
   youtubeFetch,
+  instagramFetch,
 }: TestContextOptions = {}): Promise<TestContext> {
   const config = loadConfig({
     NODE_ENV: 'test',
@@ -58,7 +62,9 @@ export async function createTestContext({
     users: new JsonUserRepository(null),
     resources: new JsonResourceRepository(null),
     media: new JsonMediaRepository(null),
+    tokens: new JsonTokenRepository(null),
     ...(youtubeFetch ? { youtubeFetch } : {}),
+    ...(instagramFetch ? { instagramFetch } : {}),
   });
 
   await container.authService.register({ ...TEST_ADMIN, role: 'admin' });

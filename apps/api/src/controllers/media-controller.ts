@@ -18,6 +18,7 @@ export interface MediaController {
   update: RequestHandler;
   remove: RequestHandler;
   syncYouTube: RequestHandler;
+  syncInstagram: RequestHandler;
   setCover: RequestHandler;
   readCover: RequestHandler;
 }
@@ -39,9 +40,12 @@ export function createMediaController(
   const list = asyncHandler(async (req: Request, res: Response) => {
     const query = listMediaQuerySchema.parse(req.query);
 
-    // Keeps the shelf current without a scheduler; a YouTube outage only
-    // means the previously synced videos are served.
-    await mediaService.syncYouTubeIfStale();
+    // Keeps both shelves current without a scheduler; an outage on either
+    // platform only means the previously synced items are served.
+    await Promise.all([
+      mediaService.syncYouTubeIfStale(),
+      mediaService.syncInstagramIfStale(),
+    ]);
 
     return sendSuccess(res, await mediaService.listMedia(query));
   });
@@ -98,5 +102,18 @@ export function createMediaController(
     return sendSuccess(res, await mediaService.syncYouTube());
   });
 
-  return { list, addInstagram, update, remove, syncYouTube, setCover, readCover };
+  const syncInstagram = asyncHandler(async (_req: Request, res: Response) => {
+    return sendSuccess(res, await mediaService.syncInstagram());
+  });
+
+  return {
+    list,
+    addInstagram,
+    update,
+    remove,
+    syncYouTube,
+    syncInstagram,
+    setCover,
+    readCover,
+  };
 }

@@ -1,5 +1,6 @@
 import type {
   CreateInstagramItemInput,
+  InstagramSyncResult,
   MediaItem,
   MediaListQuery,
   PaginatedData,
@@ -71,6 +72,12 @@ export function setMediaCover(id: string, cover: File): Promise<MediaItem> {
 
 export function syncYouTube(): Promise<YouTubeSyncResult> {
   return apiRequest<YouTubeSyncResult>('/media/youtube/sync', {
+    method: 'POST',
+  });
+}
+
+export function syncInstagram(): Promise<InstagramSyncResult> {
+  return apiRequest<InstagramSyncResult>('/media/instagram/sync', {
     method: 'POST',
   });
 }

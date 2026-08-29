@@ -16,6 +16,13 @@ export interface MediaRecord extends Omit<MediaItem, 'thumbnailUrl'> {
   coverStorageKey?: string;
   /** Content type the cover was uploaded with, so it is served correctly. */
   coverMimeType?: string;
+  /**
+   * True when a human wrote this item's title and description.
+   *
+   * Instagram sync fills copy from the caption, but never overwrites words an
+   * admin typed, so a curated card survives every re-sync.
+   */
+  isCurated?: boolean;
 }
 
 export interface MediaQuery {

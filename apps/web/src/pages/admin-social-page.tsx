@@ -3,7 +3,11 @@ import {
   MAX_COVER_SIZE_BYTES,
   MEDIA_SOURCE_LABELS,
 } from '@gtip/shared';
-import type { MediaSource, YouTubeSyncResult } from '@gtip/shared';
+import type {
+  InstagramSyncResult,
+  MediaSource,
+  YouTubeSyncResult,
+} from '@gtip/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -21,6 +25,7 @@ import {
   addInstagramItem,
   deleteMediaItem,
   setMediaCover,
+  syncInstagram,
   syncYouTube,
   updateMediaItem,
 } from '../services/media-service';
@@ -74,8 +79,8 @@ export function AdminSocialPage(): JSX.Element {
 
   const [actionError, setActionError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [syncResult, setSyncResult] = useState<YouTubeSyncResult | null>(null);
+  const [syncingSource, setSyncingSource] = useState<MediaSource | null>(null);
+  const [syncMessage, setSyncMessage] = useState<string | null>(null);
   const [cover, setCover] = useState<File | null>(null);
   const [coverError, setCoverError] = useState<string | null>(null);
   // One hidden picker serves every row; this says which row asked for it.
@@ -109,18 +114,48 @@ export function AdminSocialPage(): JSX.Element {
     }
   }
 
-  const onSync = async (): Promise<void> => {
-    setIsSyncing(true);
+  const onSyncYouTube = async (): Promise<void> => {
+    setSyncingSource('youtube');
     setActionError(null);
-    setSyncResult(null);
+    setSyncMessage(null);
 
     try {
-      setSyncResult(await syncYouTube());
+      const result: YouTubeSyncResult = await syncYouTube();
+
+      setSyncMessage(
+        `${result.channelTitle}: ${result.fetched} video okundu, ` +
+          `${result.created} yeni, ${result.updated} güncellendi.`,
+      );
       reload();
     } catch (cause) {
       setActionError(describeError(cause, 'YouTube senkronizasyonu başarısız.'));
     } finally {
-      setIsSyncing(false);
+      setSyncingSource(null);
+    }
+  };
+
+  const onSyncInstagram = async (): Promise<void> => {
+    setSyncingSource('instagram');
+    setActionError(null);
+    setSyncMessage(null);
+
+    try {
+      const result: InstagramSyncResult = await syncInstagram();
+
+      setSyncMessage(
+        `Instagram: ${result.fetched} gönderi okundu, ${result.created} yeni, ` +
+          `${result.updated} güncellendi, ${result.coversStored} kapak indirildi` +
+          (result.skippedCurated > 0
+            ? `, ${result.skippedCurated} elle yazılmış kart korundu.`
+            : '.'),
+      );
+      reload();
+    } catch (cause) {
+      setActionError(
+        describeError(cause, 'Instagram senkronizasyonu başarısız.'),
+      );
+    } finally {
+      setSyncingSource(null);
     }
   };
 
@@ -177,12 +212,7 @@ export function AdminSocialPage(): JSX.Element {
 
       {actionError ? <Alert tone="error">{actionError}</Alert> : null}
       {error ? <Alert tone="error">{error}</Alert> : null}
-      {syncResult ? (
-        <Alert tone="success">
-          {syncResult.channelTitle}: {syncResult.fetched} video okundu,{' '}
-          {syncResult.created} yeni, {syncResult.updated} güncellendi.
-        </Alert>
-      ) : null}
+      {syncMessage ? <Alert tone="success">{syncMessage}</Alert> : null}
 
       <div className="grid gap-4 lg:grid-cols-2">
         <section className="card flex flex-col gap-3 p-5">
@@ -197,10 +227,12 @@ export function AdminSocialPage(): JSX.Element {
                 <button
                   type="button"
                   className="btn-primary"
-                  disabled={isSyncing}
-                  onClick={onSync}
+                  disabled={syncingSource !== null}
+                  onClick={onSyncYouTube}
                 >
-                  {isSyncing ? 'Senkronize ediliyor…' : 'Şimdi senkronize et'}
+                  {syncingSource === 'youtube'
+                    ? 'Senkronize ediliyor…'
+                    : 'Şimdi senkronize et'}
                 </button>
                 {site.youtubeChannelUrl ? (
                   <a
@@ -224,9 +256,52 @@ export function AdminSocialPage(): JSX.Element {
         </section>
 
         <section className="card flex flex-col gap-3 p-5">
-          <h2 className="text-base font-semibold text-slate-900">
-            Instagram gönderisi ekle
-          </h2>
+          <h2 className="text-base font-semibold text-slate-900">Instagram</h2>
+
+          {site.instagramConnected ? (
+            <>
+              <p className="text-sm text-slate-600">
+                Hesabınız bağlı: gönderiler, açıklamaları ve görselleriyle
+                birlikte kendiliğinden gelir. Görseller Instagram’ın adresi
+                zamanla geçersizleştiği için kendi depomuza kopyalanır.
+              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  className="btn-primary"
+                  disabled={syncingSource !== null}
+                  onClick={onSyncInstagram}
+                >
+                  {syncingSource === 'instagram'
+                    ? 'Senkronize ediliyor…'
+                    : 'Şimdi senkronize et'}
+                </button>
+                {site.instagramProfileUrl ? (
+                  <a
+                    href={site.instagramProfileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-medium text-brand-700 hover:underline"
+                  >
+                    Profili aç
+                  </a>
+                ) : null}
+              </div>
+            </>
+          ) : (
+            <Alert tone="info">
+              Hesap bağlı değil; gönderiler elle eklenir. Otomatik çekim için{' '}
+              <code>.env</code> dosyasına <code>INSTAGRAM_ACCESS_TOKEN</code>
+              {' '}ekleyin.
+            </Alert>
+          )}
+
+          <h3 className="mt-2 text-sm font-semibold text-slate-900">
+            Gönderiyi elle ekle
+          </h3>
+          <p className="text-xs text-slate-600">
+            Elle yazdığınız başlık ve açıklama senkronizasyonda korunur.
+          </p>
           <form className="flex flex-col gap-3" onSubmit={onAddPost} noValidate>
             <div>
               <label className="label" htmlFor="ig-url">

@@ -7,6 +7,7 @@ const FALLBACK: SiteConfig = {
   title: 'Gümrük Mevzuatı Kaynakları',
   tagline: 'Videolar, gönderiler ve belgeler tek sayfada.',
   youtubeConnected: false,
+  instagramConnected: false,
 };
 
 /**

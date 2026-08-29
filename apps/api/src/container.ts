@@ -10,10 +10,15 @@ import {
   type ResourceRepository,
 } from './repositories/resource-repository.js';
 import {
+  JsonTokenRepository,
+  type TokenRepository,
+} from './repositories/token-repository.js';
+import {
   JsonUserRepository,
   type UserRepository,
 } from './repositories/user-repository.js';
 import { AuthService } from './services/auth-service.js';
+import { InstagramGraphClient } from './services/instagram-graph.js';
 import { MediaService } from './services/media-service.js';
 import { ResourceService } from './services/resource-service.js';
 import { YouTubeFeedClient } from './services/youtube-feed.js';
@@ -29,6 +34,7 @@ export interface Container {
   users: UserRepository;
   resources: ResourceRepository;
   media: MediaRepository;
+  tokens: TokenRepository;
   authService: AuthService;
   resourceService: ResourceService;
   mediaService: MediaService;
@@ -39,8 +45,10 @@ export interface ContainerOverrides {
   users?: UserRepository;
   resources?: ResourceRepository;
   media?: MediaRepository;
+  tokens?: TokenRepository;
   /** Injected by tests so no request ever leaves the process. */
   youtubeFetch?: typeof fetch;
+  instagramFetch?: typeof fetch;
 }
 
 /**
@@ -63,6 +71,23 @@ export function createContainer(
   const media =
     overrides.media ??
     new JsonMediaRepository(path.join(config.dataDir, 'media.json'));
+  const tokens =
+    overrides.tokens ??
+    new JsonTokenRepository(path.join(config.dataDir, 'tokens.json'));
+
+  const instagramToken = config.INSTAGRAM_ACCESS_TOKEN.trim();
+  const instagram =
+    instagramToken.length > 0
+      ? new InstagramGraphClient({
+          accessToken: instagramToken,
+          userId: config.INSTAGRAM_USER_ID,
+          host: config.INSTAGRAM_GRAPH_HOST,
+          version: config.INSTAGRAM_GRAPH_VERSION,
+          ...(overrides.instagramFetch
+            ? { fetchImpl: overrides.instagramFetch }
+            : {}),
+        })
+      : null;
 
   const authService = new AuthService({
     users,
@@ -90,6 +115,15 @@ export function createContainer(
     ),
     youtubeChannel: config.YOUTUBE_CHANNEL,
     syncIntervalMs: config.YOUTUBE_SYNC_INTERVAL_MINUTES * 60 * 1000,
+    instagram,
+    instagramSyncIntervalMs:
+      config.INSTAGRAM_SYNC_INTERVAL_MINUTES * 60 * 1000,
+    instagramSyncLimit: config.INSTAGRAM_SYNC_LIMIT,
+    // Only Instagram-Login tokens can be exchanged in place; a Facebook-Login
+    // token is renewed through a different flow.
+    instagramTokenRefreshable:
+      config.INSTAGRAM_GRAPH_HOST.includes('graph.instagram.com'),
+    tokens,
     storage,
     folderPrefix: config.AWS_FOLDER_PREFIX,
     apiBaseUrl: `${config.API_BASE_URL}${API_VERSION_PREFIX}`,
@@ -101,6 +135,7 @@ export function createContainer(
     users,
     resources,
     media,
+    tokens,
     authService,
     resourceService,
     mediaService,

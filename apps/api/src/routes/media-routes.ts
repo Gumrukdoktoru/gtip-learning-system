@@ -32,6 +32,7 @@ export function createMediaRouter(
     controller.setCover,
   );
   router.post('/youtube/sync', ...adminOnly, controller.syncYouTube);
+  router.post('/instagram/sync', ...adminOnly, controller.syncInstagram);
   router.patch('/:id', ...adminOnly, controller.update);
   router.delete('/:id', ...adminOnly, controller.remove);
 
