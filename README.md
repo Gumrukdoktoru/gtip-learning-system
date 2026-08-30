@@ -81,21 +81,32 @@ Kabul edilen yazımlar:
 
 | Öğe | Yazılabilecek biçimler |
 | --- | --- |
-| Soru başlangıcı | `1.` · `1)` · `1-` · `Soru 1:` |
-| Şık | `A)` · `(A)` · `A.` · `A-` · `a)` · başında `-` veya `*` olabilir |
+| Soru başlangıcı | `1.` · `1)` · `1-` · `Soru 1:` · `SORU 1` (ayraçsız) |
+| Soru başlığı | `**SORU 1**  **Kısa başlık**` — başlık kendi satırında kalır |
+| Şık | `A)` · `(A)` · `A.` · `A-` · `a)` · `**A)**metin` (boşluksuz) |
 | Doğru cevap | `Cevap: B` · `Doğru cevap: B` · `Yanıt: B` · `Doğru şık: B` · `Answer: B` |
-| Cevap işareti | Cevap satırı yoksa **kalın** yazılmış şık, `✓` veya `(doğru)` işareti |
+| Cevap işareti | Cevap satırı yoksa **kalın** yazılmış şık, `✓` veya `(doğru)` |
+| Ayrı cevap anahtarı | `SORU 4 — ✅ Doğru Cevap: A` gibi satırlar, soru numarasıyla eşleşir |
 | Konu | `Konu: Tarife` veya `## Tarife` başlığı |
 | Zorluk | `Zorluk: kolay/orta/zor` (`easy/medium/hard` de olur) |
-| Açıklama | `Açıklama:` · `Gerekçe:` · `Not:` — birkaç satır sürebilir |
+| Açıklama | `Açıklama:` · `Gerekçe:` · `Çözüm:` · `Not:` — birkaç satır sürebilir |
+| Ek notlar | `Yasal Dayanak:` · `Tuzak Nokta:` · `Kaynak:` — açıklamanın altına eklenir |
 
-Soru metni birden fazla satıra yayılabilir. `Konu:` ve `Zorluk:` bir sorunun
-içindeyse o soruya, soruların dışında tek başına duruyorsa altındaki tüm
-sorulara uygulanır. Dosyada hiç konu yoksa formdaki **varsayılan konu** kullanılır.
+**Cevaplar ayrı bir bölümde olabilir.** Soru bankalarının çoğu cevapları arkada
+bir “Açıklamalı Çözümler” bölümünde tutar; `SORU 4 — Doğru Cevap: A` biçimindeki
+satırlar soru numarasına göre eşleştirilir, altındaki `Açıklama:` ve
+`Yasal Dayanak:` notları da o soruya bağlanır.
 
-Word dosyalarında **kalın** yazılmış şık doğru cevap sayılır — Word'de sık
-kullanılan yazım budur. Eski `.doc` biçimi desteklenmez; `.docx` olarak
-kaydedin.
+Soru metni birden fazla satıra yayılabilir; satır sonunda cümle bitmemişse
+alttaki satırla birleştirilir, `I.` `II.` gibi madde işaretleri ise kendi
+satırında kalır. `Konu:` ve `Zorluk:` bir sorunun içindeyse o soruya, soruların
+dışında tek başına duruyorsa altındaki tüm sorulara uygulanır. Dosyada hiç konu
+yoksa formdaki **varsayılan konu** kullanılır.
+
+Word dosyalarında tek başına **kalın** yazılmış şık doğru cevap sayılır. Bütün
+şıklar kalınsa bu bir biçimlendirme tercihidir; cevap olarak okunmaz. Emoji ve
+onay işaretleri etiketlerden temizlenir. Eski `.doc` desteklenmez; `.docx`
+olarak kaydedin.
 
 ## Sosyal içerik nasıl bağlanır
 
@@ -202,7 +213,7 @@ Varsayılan `STORAGE_DRIVER=local` hiçbir AWS kimlik bilgisi istemez; dosyalar
 | --- | --- |
 | `npm run dev` | API ve web sunucusunu birlikte başlatır |
 | `npm run dev:api` / `npm run dev:web` | Yalnızca birini başlatır |
-| `npm test` | Tüm workspace testleri (228 test) |
+| `npm test` | Tüm workspace testleri (232 test) |
 | `npm run typecheck` | Tüm paketlerde `tsc --noEmit` |
 | `npm run lint` | ESLint (flat config) |
 | `npm run build` | shared → api → web sırasıyla derler |
@@ -310,7 +321,7 @@ npm test
 - `apps/api` — supertest ile yükleme, listeleme, indirme, güncelleme, silme,
   yetkilendirme, yerel sürücü, kapak görselleri, sahte akışlarla YouTube +
   Instagram senkronizasyonu (anahtar tazeleme dahil), soru bankası, sınav
-  değerlendirmesi ve Markdown/Word içe aktarma ayrıştırıcısı (147 test)
+  değerlendirmesi ve Markdown/Word içe aktarma ayrıştırıcısı (151 test)
 - `apps/web` — API istemcisi zarfı, biçimlendirme, öğrenci sayfasının rafları,
   video/gönderi pencereleri, arama ve sınav akışı (36 test)
 

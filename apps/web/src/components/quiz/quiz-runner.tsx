@@ -2,6 +2,8 @@ import { QUIZ_DIFFICULTY_LABELS, QUIZ_OPTION_LETTERS } from '@gtip/shared';
 import type { QuizSession } from '@gtip/shared';
 import { useState } from 'react';
 
+import { QuestionText } from './question-text';
+
 export interface QuizRunnerProps {
   session: QuizSession;
   answers: Record<string, number>;
@@ -58,9 +60,9 @@ export function QuizRunner({
           </span>
         </div>
 
-        <h2 className="mt-4 whitespace-pre-line text-base font-semibold leading-relaxed text-slate-900">
-          {question.question}
-        </h2>
+        <div className="mt-4">
+          <QuestionText text={question.question} />
+        </div>
 
         <div role="radiogroup" aria-label="Şıklar" className="mt-5 flex flex-col gap-2">
           {question.options.map((option, optionIndex) => (

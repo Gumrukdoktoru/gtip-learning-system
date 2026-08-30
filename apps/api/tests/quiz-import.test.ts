@@ -175,8 +175,9 @@ Açıklama: İlk satır.
 İkinci satır da açıklamaya aittir.
 `);
 
+    // Line structure is kept; the card renders it with the breaks intact.
     expect(question?.explanation).toBe(
-      'İlk satır. İkinci satır da açıklamaya aittir.',
+      'İlk satır.\nİkinci satır da açıklamaya aittir.',
     );
   });
 
@@ -199,10 +200,25 @@ Açıklama: İlk satır.
 
   it('reports more than one highlighted option', () => {
     const [question] = parseQuizDocument(
-      '1. Yeterince uzun bir soru metni\n**A) Bir**\n**B) İki**\n',
+      '1. Yeterince uzun bir soru metni\n**A) Bir**\n**B) İki**\nC) Üç\n',
     );
 
     expect(question?.errors[0]).toContain('Birden fazla şık');
+  });
+
+  it('ignores bold when every option carries it', () => {
+    // Whole banks are typeset with bold option letters; that is styling, not
+    // an answer, so it must not read as five correct options.
+    const [question] = parseQuizDocument(`
+1. Yeterince uzun bir soru metni
+**A)** Bir
+**B)** İki
+**C)** Üç
+Cevap: C
+`);
+
+    expect(question?.correctOptionIndex).toBe(2);
+    expect(question?.errors).toEqual([]);
   });
 
   it('reports a question with a single option', () => {
@@ -219,6 +235,88 @@ Açıklama: İlk satır.
     );
 
     expect(questions.map((item) => item.lineNumber)).toEqual([3, 8]);
+  });
+
+  it('reads a real bank: bold captions, glued letters, a separate answer key', () => {
+    // Shape taken from an exported Word question bank: every option letter is
+    // bold, the answers live in a solutions section at the back, and the
+    // labels there carry emoji.
+    const questions = parseQuizDocument(`**BÖLÜM 1   ·   SORULAR**
+
+**SORU 1**   **Şartlı muafiyet düzenlemesi kapsamı**
+4458 sayılı Gümrük Kanununa göre, aşağıdakilerden hangisi kapsam DIŞINDADIR?
+**A)**  Transit rejimi
+**B)**  Antrepo rejimi
+**C)**  Hariçte işleme rejimi
+
+**SORU 2**   **Ortak hükümler**
+Aşağıdaki ifadelerden hangileri doğrudur?
+I. Birinci ifade burada yer alır.
+II. İkinci ifade burada yer alır.
+**A)**  Yalnız I
+**B)**  I ve II
+
+**BÖLÜM 3   ·   AÇIKLAMALI ÇÖZÜMLER**
+
+**SORU 1**   —   **✅ Doğru Cevap: C**
+**📖 Açıklama:**Hariçte işleme, serbest dolaşımdaki eşya için uygulanır.
+**⚖️ Yasal Dayanak:**Gümrük Kanunu Madde 79/1
+
+**SORU 2**   —   **✅ Doğru Cevap: B**
+**📖 Açıklama:**Her iki ifade de doğrudur.
+`);
+
+    expect(questions).toHaveLength(2);
+
+    // The caption keeps its own line instead of running into the stem.
+    expect(questions[0]?.question).toBe(
+      'Şartlı muafiyet düzenlemesi kapsamı\n4458 sayılı Gümrük Kanununa göre, aşağıdakilerden hangisi kapsam DIŞINDADIR?',
+    );
+    // `**A)**  Transit` — bold letter, no space before the text.
+    expect(questions[0]?.options).toEqual([
+      'Transit rejimi',
+      'Antrepo rejimi',
+      'Hariçte işleme rejimi',
+    ]);
+    // The answer came from the solutions section, matched by question number.
+    expect(questions[0]?.correctOptionIndex).toBe(2);
+    expect(questions[0]?.explanation).toBe(
+      'Hariçte işleme, serbest dolaşımdaki eşya için uygulanır.\nYasal Dayanak: Gümrük Kanunu Madde 79/1',
+    );
+    expect(questions[0]?.errors).toEqual([]);
+
+    // Roman-numeral items stay on their own lines.
+    expect(questions[1]?.question).toContain('\nI. Birinci ifade');
+    expect(questions[1]?.question).toContain('\nII. İkinci ifade');
+    expect(questions[1]?.correctOptionIndex).toBe(1);
+  });
+
+  it('copes with the non-breaking spaces Word exports', () => {
+    const nbsp = '\u00A0';
+    const questions = parseQuizDocument(
+      `**SORU${nbsp}1**${nbsp}${nbsp}**Başlık**\n` +
+        'Yeterince uzun bir soru metni burada\n' +
+        `**A)**${nbsp}Bir\n**B)**${nbsp}İki\n` +
+        `**SORU${nbsp}1**${nbsp}—${nbsp}**Doğru Cevap:${nbsp}B**\n`,
+    );
+
+    expect(questions).toHaveLength(1);
+    expect(questions[0]?.options).toEqual(['Bir', 'İki']);
+    expect(questions[0]?.correctOptionIndex).toBe(1);
+  });
+
+  it('does not treat a solutions-section heading as a new question', () => {
+    const questions = parseQuizDocument(`
+**SORU 1**
+Yeterince uzun bir soru metni burada
+**A)**  Bir
+**B)**  İki
+
+**SORU 1**   —   **Doğru Cevap: B**
+`);
+
+    expect(questions).toHaveLength(1);
+    expect(questions[0]?.correctOptionIndex).toBe(1);
   });
 
   it('returns nothing for a file with no questions', () => {

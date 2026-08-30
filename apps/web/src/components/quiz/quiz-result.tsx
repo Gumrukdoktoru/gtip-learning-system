@@ -1,6 +1,8 @@
 import { QUIZ_OPTION_LETTERS } from '@gtip/shared';
 import type { QuizResult } from '@gtip/shared';
 
+import { QuestionText } from './question-text';
+
 export interface QuizResultViewProps {
   result: QuizResult;
   onRestart: () => void;
@@ -79,9 +81,9 @@ export function QuizResultView({
               </span>
             </div>
 
-            <p className="mt-3 whitespace-pre-line text-sm font-medium text-slate-900">
-              {item.question}
-            </p>
+            <div className="mt-3">
+              <QuestionText text={item.question} as="p" />
+            </div>
 
             <ul className="mt-3 flex flex-col gap-1.5">
               {item.options.map((option, optionIndex) => {
@@ -115,7 +117,7 @@ export function QuizResultView({
             </ul>
 
             {item.explanation ? (
-              <p className="mt-3 rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-700">
+              <p className="mt-3 whitespace-pre-line rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-700">
                 {item.explanation}
               </p>
             ) : null}

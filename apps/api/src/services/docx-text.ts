@@ -95,13 +95,24 @@ export async function extractDocxText(buffer: Buffer): Promise<string> {
         .map((run) => {
           const text = runText(run);
 
-          if (text.length === 0) {
-            return '';
+          if (text.trim().length === 0) {
+            // A run holding only spaces still separates the words around it.
+            return text;
           }
 
           const bold = run['w:rPr'] !== undefined && 'w:b' in run['w:rPr'];
 
-          return bold ? `**${text.trim()}**` : text;
+          if (!bold) {
+            return text;
+          }
+
+          // Emphasis wraps the words, not the spacing around them: Word
+          // routinely puts the gap after a heading inside the bold run, and
+          // swallowing it would glue "SORU 1" to the text that follows.
+          const [, before = '', core = '', after = ''] =
+            /^(\s*)([\s\S]*?)(\s*)$/.exec(text) ?? [];
+
+          return `${before}**${core}**${after}`;
         })
         .join('')
         .trim(),
