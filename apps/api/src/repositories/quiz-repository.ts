@@ -23,6 +23,8 @@ export interface DrawQuery {
 
 export interface QuizRepository {
   list(query: QuizQuestionQuery): Promise<QuizQuestionPage>;
+  /** Every question, published or not; used to spot repeat imports. */
+  all(): Promise<QuizQuestion[]>;
   findById(id: string): Promise<QuizQuestion | null>;
   findManyByIds(ids: string[]): Promise<QuizQuestion[]>;
   /** Every published question matching the filter, for drawing an exam. */
@@ -68,6 +70,10 @@ export class JsonQuizRepository implements QuizRepository {
       items: filtered.slice(start, start + pageSize),
       total: filtered.length,
     };
+  }
+
+  public all(): Promise<QuizQuestion[]> {
+    return this.store.all();
   }
 
   public findById(id: string): Promise<QuizQuestion | null> {

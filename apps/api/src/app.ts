@@ -1,3 +1,4 @@
+import compression from 'compression';
 import cors from 'cors';
 import express, { type Express } from 'express';
 import rateLimit from 'express-rate-limit';
@@ -6,6 +7,8 @@ import helmet from 'helmet';
 import { API_VERSION_PREFIX, type Container } from './container.js';
 import { createAuthMiddleware } from './middleware/auth.js';
 import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
+import { buildHelmetOptions } from './middleware/security-headers.js';
+import { serveWebApp } from './middleware/static-site.js';
 import { createUploadMiddleware } from './middleware/upload.js';
 import { createApiRouter } from './routes/index.js';
 import { buildSiteConfig } from './services/site-service.js';
@@ -15,9 +18,11 @@ export function createApp(container: Container): Express {
   const app = express();
 
   app.disable('x-powered-by');
-  // Downloads are served from this origin, so the default cross-origin
-  // resource policy would block the frontend from embedding PDFs.
-  app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+  // Behind a reverse proxy the client IP arrives in X-Forwarded-For; without
+  // this every visitor would share the proxy's rate-limit bucket.
+  app.set('trust proxy', config.TRUST_PROXY);
+  app.use(compression());
+  app.use(helmet(buildHelmetOptions(config)));
   app.use(
     cors({
       origin: config.corsOrigins.length > 0 ? config.corsOrigins : true,
@@ -58,6 +63,10 @@ export function createApp(container: Container): Express {
       }),
     }),
   );
+
+  if (config.SERVE_WEB) {
+    serveWebApp(app, config.webDistPath);
+  }
 
   app.use(notFoundHandler);
   app.use(errorHandler);

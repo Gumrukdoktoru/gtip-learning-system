@@ -1,7 +1,11 @@
 import type { ApiError, ApiResponse } from '@gtip/shared';
 
-const API_URL: string =
-  import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api/v1';
+/**
+ * Same origin by default: in production the API serves this bundle, and in
+ * development Vite proxies `/api` to it. VITE_API_URL only has to be set when
+ * the two are deployed apart.
+ */
+const API_URL: string = import.meta.env.VITE_API_URL ?? '/api/v1';
 
 /** Error carrying the server's ApiError payload so the UI can show it. */
 export class ApiRequestError extends Error {

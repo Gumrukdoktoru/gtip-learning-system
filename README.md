@@ -207,19 +207,83 @@ başlatmalar parolayı sıfırlamaz.
 Varsayılan `STORAGE_DRIVER=local` hiçbir AWS kimlik bilgisi istemez; dosyalar
 `storage-data/objects/` altına, kayıtlar `storage-data/db/*.json` içine yazılır.
 
+## Yayına alma
+
+Üretimde tek bir süreç çalışır: API hem `/api/v1` uçlarını sunar hem de derlenmiş
+arayüzü. Tek origin olduğu için CORS gerekmez, tek konteyner dağıtılır.
+
+```bash
+npm run preview      # derler ve üretim modunda başlatır (http://localhost:3000)
+```
+
+`SERVE_WEB=true` iken API, `apps/web/dist` içeriğini servis eder: hash'li
+varlıklar bir yıl önbelleklenir, `index.html` hiç önbelleklenmez, `/api/` ile
+başlamayan diğer tüm adresler uygulama kabuğuna düşer — böylece `/yonetim/sorular`
+sayfasında yenileme yapmak 404 vermez.
+
+### Docker ile
+
+```bash
+cp .env.example .env      # değerleri doldurun
+docker compose up -d --build
+```
+
+Uygulama `127.0.0.1:3000` üzerinde dinler; yüklenen dosyalar ve JSON kayıtları
+`akademi-data` biriminde (`/data`) durur. **Bu birimi silmeyin** — belgeleriniz,
+kapak görselleriniz ve soru bankanız oradadır.
+
+### Alan adı ve HTTPS
+
+Elinizdeki `gumrukkocuai.site` altında ücretsiz bir alt alan adı kullanın:
+
+1. DNS'te `akademi` için sunucunuzun IP'sine bir **A kaydı** ekleyin.
+2. Sunucuda bir ters vekil (Caddy en kolayı) TLS sertifikasını kendisi alır:
+
+   ```
+   akademi.gumrukkocuai.site {
+       reverse_proxy 127.0.0.1:3000
+   }
+   ```
+
+3. `.env` içinde iki değeri gerçek adrese çekin:
+
+   ```bash
+   API_BASE_URL=https://akademi.gumrukkocuai.site
+   TRUST_PROXY=1
+   ```
+
+   `API_BASE_URL` indirme bağlantılarının kurulduğu adrestir; `TRUST_PROXY=1`
+   olmadan hız sınırı bütün ziyaretçileri tek IP sayar.
+
+### Yayın öncesi kontrol listesi
+
+- [ ] `JWT_SECRET` en az 32 karakter, rastgele (üretimde daha kısası reddedilir)
+- [ ] `ADMIN_PASSWORD` güçlü; ilk girişten sonra da geçerli kalır
+- [ ] `API_BASE_URL` gerçek `https://` adresi
+- [ ] `TRUST_PROXY=1` (ters vekil arkasındaysanız)
+- [ ] `SITE_TITLE`, `YOUTUBE_CHANNEL`, `INSTAGRAM_PROFILE_URL` doldurulmuş
+- [ ] `/data` birimi yedekleniyor
+- [ ] `https://.../api/v1/health` `{"status":"ok"}` dönüyor
+
+Dosyalar sunucunun diskinde tutulur (`STORAGE_DRIVER=local`). Nesne depolamaya
+geçmek isterseniz `STORAGE_DRIVER=s3` ve kova bilgilerini girmeniz yeterli;
+depolama düzeni birebir aynı kalır.
+
 ## Komutlar
 
 | Komut | Ne yapar |
 | --- | --- |
 | `npm run dev` | API ve web sunucusunu birlikte başlatır |
 | `npm run dev:api` / `npm run dev:web` | Yalnızca birini başlatır |
-| `npm test` | Tüm workspace testleri (232 test) |
+| `npm test` | Tüm workspace testleri (247 test) |
 | `npm run typecheck` | Tüm paketlerde `tsc --noEmit` |
 | `npm run lint` | ESLint (flat config) |
 | `npm run build` | shared → api → web sırasıyla derler |
+| `npm run preview` | derleyip üretim modunda tek süreç olarak başlatır |
+| `npm start` | derlenmiş uygulamayı üretim modunda çalıştırır |
 
-Üretim derlemesinden sonra API `npm start --workspace @gtip/api` ile,
-web ise `apps/web/dist/` statik olarak sunulur.
+Geliştirmede API ve arayüz ayrı çalışır; Vite `/api` isteklerini API'ye
+yönlendirir, böylece istemci üretimdekiyle aynı göreli adresi kullanır.
 
 ## Yapı
 
@@ -303,7 +367,13 @@ yeğlenmiştir.
   açıktır.
 - Anonim listeleme yanıtlarından `storageKey`, `uploadedById` gibi alanlar
   çıkarılır.
-- `helmet`, CORS beyaz listesi ve iki kademeli rate limit açıktır.
+- `helmet` ile içerik güvenlik politikası: yalnız uygulamanın gerçekten
+  kullandığı adresler açıktır (YouTube kapakları ve oynatıcı, Instagram gömme
+  çerçevesi, yapılandırılmışsa kova adresi); geri kalan her şey kapalıdır.
+- Ters vekil arkasında `TRUST_PROXY` ile gerçek ziyaretçi IP'si okunur, böylece
+  hız sınırı herkesi tek kovaya doldurmaz.
+- İki kademeli rate limit açıktır; CORS yalnız arayüz ayrı bir adreste
+  sunulduğunda devreye girer.
 - Videolar `youtube-nocookie.com` üzerinden gömülür; her iki gömme çerçevesi de
   ancak ziyaretçi içeriği açtığında yüklenir, yani sayfa açılırken hiçbir
   üçüncü taraf isteği gitmez.
@@ -321,7 +391,8 @@ npm test
 - `apps/api` — supertest ile yükleme, listeleme, indirme, güncelleme, silme,
   yetkilendirme, yerel sürücü, kapak görselleri, sahte akışlarla YouTube +
   Instagram senkronizasyonu (anahtar tazeleme dahil), soru bankası, sınav
-  değerlendirmesi ve Markdown/Word içe aktarma ayrıştırıcısı (151 test)
+  değerlendirmesi, Markdown/Word içe aktarma ayrıştırıcısı, arayüzün sunulması
+  ve güvenlik başlıkları (166 test)
 - `apps/web` — API istemcisi zarfı, biçimlendirme, öğrenci sayfasının rafları,
   video/gönderi pencereleri, arama ve sınav akışı (36 test)
 

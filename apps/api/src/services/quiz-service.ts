@@ -22,6 +22,8 @@ import type {
   UpdateQuizQuestionInput,
 } from '@gtip/shared';
 
+import { foldForSearch } from '@gtip/shared';
+
 import { BadRequestError, NotFoundError } from '../errors/app-error.js';
 import { parseQuizDocument } from './quiz-import.js';
 import type { ParsedQuizQuestion } from './quiz-import.js';
@@ -257,21 +259,49 @@ export class QuizService {
     };
   }
 
-  /** Reads a file without saving anything, so the admin can check it first. */
-  public previewImport(
+  /**
+   * Reads a file without saving anything, so the admin can check it first.
+   *
+   * Questions already in the bank — and repeats inside the file itself — are
+   * flagged rather than added again: re-importing a corrected file is the
+   * normal way to work, and it must not double the bank.
+   */
+  public async previewImport(
     source: string,
     options: QuizImportOptions = {},
-  ): QuizImportPreview {
-    const items = parseQuizDocument(source).map((parsed) =>
-      this.toImportItem(parsed, options),
-    );
-    const importable = items.filter((item) => item.canImport).length;
+  ): Promise<QuizImportPreview> {
+    const parsed = parseQuizDocument(source);
 
-    if (items.length === 0) {
+    if (parsed.length === 0) {
       throw new BadRequestError(
         'Dosyada soru bulunamadı. Soruların "1." gibi bir numarayla başladığından emin olun.',
       );
     }
+
+    const seen = new Set(
+      (await this.questions.all()).map((question) =>
+        foldForSearch(question.question),
+      ),
+    );
+
+    const items = parsed.map((question) => {
+      const item = this.toImportItem(question, options);
+      const fingerprint = foldForSearch(item.question);
+
+      if (seen.has(fingerprint)) {
+        return {
+          ...item,
+          errors: [...item.errors, 'Bu soru bankada zaten var.'],
+          canImport: false,
+        };
+      }
+
+      seen.add(fingerprint);
+
+      return item;
+    });
+
+    const importable = items.filter((item) => item.canImport).length;
 
     return { items, importable, skipped: items.length - importable };
   }
@@ -281,7 +311,7 @@ export class QuizService {
     source: string,
     options: QuizImportOptions = {},
   ): Promise<QuizImportResult> {
-    const { items } = this.previewImport(source, options);
+    const { items } = await this.previewImport(source, options);
     let created = 0;
 
     for (const item of items) {

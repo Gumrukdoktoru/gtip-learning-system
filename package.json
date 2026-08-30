@@ -2,7 +2,7 @@
   "name": "gtip-learning-system",
   "private": true,
   "version": "0.1.0",
-  "description": "G\u00fcmr\u00fck mevzuat\u0131 kaynak y\u00f6netimi ve GTIP \u00f6\u011frenme platformu",
+  "description": "Gümrük mevzuatı kaynak yönetimi ve GTIP öğrenme platformu",
   "workspaces": [
     "packages/*",
     "apps/*"
@@ -15,7 +15,9 @@
     "test": "npm run test --workspaces --if-present",
     "lint": "eslint .",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "start": "NODE_ENV=production SERVE_WEB=true node apps/api/dist/index.js",
+    "preview": "npm run build && npm start"
   },
   "engines": {
     "node": ">=18"

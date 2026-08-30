@@ -554,6 +554,49 @@ B) İki
     });
   });
 
+  it('does not import the same question twice', async () => {
+    const first = await importRequest('import', {}).attach(
+      'file',
+      Buffer.from(MARKDOWN, 'utf8'),
+      { filename: 'sorular.md', contentType: 'text/markdown' },
+    );
+
+    expect(first.body.data.created).toBe(2);
+
+    // Re-importing a corrected file is normal; it must not double the bank.
+    const second = await importRequest('import', {}).attach(
+      'file',
+      Buffer.from(MARKDOWN, 'utf8'),
+      { filename: 'sorular.md', contentType: 'text/markdown' },
+    );
+
+    expect(second.body.data).toMatchObject({ created: 0, skipped: 3 });
+    expect(
+      second.body.data.items.filter((item: { errors: string[] }) =>
+        item.errors.some((message) => message.includes('zaten var')),
+      ),
+    ).toHaveLength(2);
+
+    const bank = await request(ctx.app)
+      .get(`${BASE}/questions`)
+      .set('Authorization', `Bearer ${ctx.adminToken}`);
+
+    expect(bank.body.data.pagination.total).toBe(2);
+  });
+
+  it('flags a question repeated inside one file', async () => {
+    const twice = `1. Aynı soru metni iki kez yazılmış burada\nA) Bir\nB) İki\nCevap: A\nKonu: Genel\n\n2. Aynı soru metni iki kez yazılmış burada\nA) Bir\nB) İki\nCevap: B\nKonu: Genel\n`;
+
+    const response = await importRequest('import/preview', {}).attach(
+      'file',
+      Buffer.from(twice, 'utf8'),
+      { filename: 'sorular.md', contentType: 'text/markdown' },
+    );
+
+    expect(response.body.data).toMatchObject({ importable: 1, skipped: 1 });
+    expect(response.body.data.items[1].errors[0]).toContain('zaten var');
+  });
+
   it('rejects a file that is not a readable .docx', async () => {
     const response = await importRequest('import/preview', {}).attach(
       'file',

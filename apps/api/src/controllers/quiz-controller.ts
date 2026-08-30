@@ -104,7 +104,7 @@ export function createQuizController(quizService: QuizService): QuizController {
 
     return sendSuccess(
       res,
-      quizService.previewImport(await readSource(req), options),
+      await quizService.previewImport(await readSource(req), options),
     );
   });
 

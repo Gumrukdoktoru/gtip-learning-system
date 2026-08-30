@@ -88,6 +88,19 @@ const envSchema = z
       .default(60),
     INSTAGRAM_SYNC_LIMIT: z.coerce.number().int().min(1).max(100).default(24),
 
+    // ---- Serving the site -------------------------------------------------
+    /**
+     * Serve the built frontend from this process. One origin, one container,
+     * no CORS — how the app is meant to run in production.
+     */
+    SERVE_WEB: booleanFromString.default('false'),
+    WEB_DIST_PATH: z.string().default('./apps/web/dist'),
+    /**
+     * Hops to trust for the client IP. Behind one reverse proxy this is 1;
+     * leaving it at 0 would rate-limit every visitor as the proxy.
+     */
+    TRUST_PROXY: z.coerce.number().int().min(0).max(10).default(0),
+
     DATA_DIR: z.string().default('./storage-data/db'),
     SEED_SAMPLE_DATA: booleanFromString.default('false'),
   })
@@ -120,6 +133,8 @@ export interface AppConfig extends AppEnv {
   localStorageRoot: string;
   /** Absolute path derived from DATA_DIR. */
   dataDir: string;
+  /** Absolute path derived from WEB_DIST_PATH. */
+  webDistPath: string;
   /** Origins allowed by CORS, parsed from the comma separated CORS_ORIGIN. */
   corsOrigins: string[];
 }
@@ -152,6 +167,7 @@ export function loadConfig(source: NodeJS.ProcessEnv = process.env): AppConfig {
     repoRoot,
     localStorageRoot: resolveFromRoot(parsed.data.STORAGE_LOCAL_ROOT),
     dataDir: resolveFromRoot(parsed.data.DATA_DIR),
+    webDistPath: resolveFromRoot(parsed.data.WEB_DIST_PATH),
     corsOrigins: parsed.data.CORS_ORIGIN.split(',')
       .map((origin) => origin.trim())
       .filter((origin) => origin.length > 0),

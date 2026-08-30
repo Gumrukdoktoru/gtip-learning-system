@@ -1,0 +1,19 @@
+services:
+  akademi:
+    build: .
+    restart: unless-stopped
+    # Read secrets and settings from a .env file beside this one.
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      SERVE_WEB: "true"
+      # One reverse proxy in front (nginx, Caddy, Cloudflare Tunnel).
+      TRUST_PROXY: "1"
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      # Uploaded files and the JSON store live here; keep this volume.
+      - akademi-data:/data
+
+volumes:
+  akademi-data:

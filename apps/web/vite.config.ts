@@ -21,6 +21,14 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    // Keeps the frontend on one origin in development too, so the client can
+    // use the same relative /api/v1 it uses in production.
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+      },
+    },
   },
   test: {
     environment: 'jsdom',
