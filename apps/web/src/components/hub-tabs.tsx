@@ -1,13 +1,14 @@
-export type HubTab = 'all' | 'video' | 'instagram' | 'document';
+export type HubTab = 'all' | 'video' | 'instagram' | 'document' | 'quiz';
 
 export const HUB_TAB_LABELS: Record<HubTab, string> = {
   all: 'Tümü',
   video: 'Videolar',
   instagram: 'Instagram',
   document: 'Belgeler',
+  quiz: 'Test',
 };
 
-const TAB_ORDER: HubTab[] = ['all', 'video', 'instagram', 'document'];
+const TAB_ORDER: HubTab[] = ['all', 'video', 'instagram', 'document', 'quiz'];
 
 export interface HubTabsProps {
   value: HubTab;

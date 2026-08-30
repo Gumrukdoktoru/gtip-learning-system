@@ -9,6 +9,7 @@ import { HubTabs, type HubTab } from '../components/hub-tabs';
 import { MediaCard } from '../components/media-card';
 import { Modal } from '../components/modal';
 import { Pagination } from '../components/pagination';
+import { QuizPanel } from '../components/quiz/quiz-panel';
 import { ResourceCard } from '../components/resource-card';
 import { SectionHeader } from '../components/section-header';
 import { Spinner } from '../components/spinner';
@@ -38,6 +39,7 @@ export function LearningHubPage(): JSX.Element {
   const [openItem, setOpenItem] = useState<MediaItem | null>(null);
 
   const isOverview = tab === 'all';
+  const isQuiz = tab === 'quiz';
   const showVideos = isOverview || tab === 'video';
   const showInstagram = isOverview || tab === 'instagram';
   const showDocuments = isOverview || tab === 'document';
@@ -46,23 +48,28 @@ export function LearningHubPage(): JSX.Element {
   const videos = useMedia({
     source: 'youtube',
     search,
-    enabled: showVideos,
+    enabled: showVideos && !isQuiz,
     pageSize,
   });
   const posts = useMedia({
     source: 'instagram',
     search,
-    enabled: showInstagram,
+    enabled: showInstagram && !isQuiz,
     pageSize: isOverview ? OVERVIEW_PAGE_SIZE : 9,
   });
-  const documents = useResources({ search, enabled: showDocuments, pageSize });
+  const documents = useResources({
+    search,
+    enabled: showDocuments && !isQuiz,
+    pageSize,
+  });
   const { download, downloadingId, error: downloadError } =
     useResourceDownload();
 
   const isLoading =
-    (showVideos && videos.isLoading) ||
+    !isQuiz &&
+    ((showVideos && videos.isLoading) ||
     (showInstagram && posts.isLoading) ||
-    (showDocuments && documents.isLoading);
+    (showDocuments && documents.isLoading));
 
   const totalShown =
     (videos.data?.items.length ?? 0) +
@@ -81,20 +88,24 @@ export function LearningHubPage(): JSX.Element {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <HubTabs value={tab} onChange={setTab} />
 
-        <div className="sm:w-80">
-          <label className="sr-only" htmlFor="hub-search">
-            Ara
-          </label>
-          <input
-            id="hub-search"
-            type="search"
-            className="field"
-            placeholder="Konu, video veya belge ara"
-            value={searchDraft}
-            onChange={(event) => setSearchDraft(event.target.value)}
-          />
-        </div>
+        {isQuiz ? null : (
+          <div className="sm:w-80">
+            <label className="sr-only" htmlFor="hub-search">
+              Ara
+            </label>
+            <input
+              id="hub-search"
+              type="search"
+              className="field"
+              placeholder="Konu, video veya belge ara"
+              value={searchDraft}
+              onChange={(event) => setSearchDraft(event.target.value)}
+            />
+          </div>
+        )}
       </div>
+
+      {isQuiz ? <QuizPanel /> : null}
 
       {errors.map((message) => (
         <Alert key={message} tone="error">
@@ -104,7 +115,28 @@ export function LearningHubPage(): JSX.Element {
 
       {isLoading ? <Spinner /> : null}
 
-      {!isLoading && totalShown === 0 ? (
+      {isOverview && !isLoading ? (
+        <section className="card flex flex-col items-start gap-3 border-brand-200 bg-brand-50 p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-slate-900">
+              Deneme Sınavı
+            </h2>
+            <p className="mt-1 text-sm text-slate-600">
+              Çoktan seçmeli sorularla kendinizi deneyin. Giriş gerekmez,
+              sonucunuz kaydedilmez.
+            </p>
+          </div>
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={() => setTab('quiz')}
+          >
+            Teste başla
+          </button>
+        </section>
+      ) : null}
+
+      {!isQuiz && !isLoading && totalShown === 0 ? (
         <EmptyState
           title={search ? 'Aramanıza uygun içerik yok' : 'Henüz içerik yok'}
           description={

@@ -4,6 +4,7 @@ import { createApp } from '../../src/app.js';
 import { loadConfig, type AppConfig } from '../../src/config/env.js';
 import { createContainer, type Container } from '../../src/container.js';
 import { JsonMediaRepository } from '../../src/repositories/media-repository.js';
+import { JsonQuizRepository } from '../../src/repositories/quiz-repository.js';
 import { JsonTokenRepository } from '../../src/repositories/token-repository.js';
 import { JsonResourceRepository } from '../../src/repositories/resource-repository.js';
 import { JsonUserRepository } from '../../src/repositories/user-repository.js';
@@ -63,6 +64,7 @@ export async function createTestContext({
     resources: new JsonResourceRepository(null),
     media: new JsonMediaRepository(null),
     tokens: new JsonTokenRepository(null),
+    quizQuestions: new JsonQuizRepository(null),
     ...(youtubeFetch ? { youtubeFetch } : {}),
     ...(instagramFetch ? { instagramFetch } : {}),
   });

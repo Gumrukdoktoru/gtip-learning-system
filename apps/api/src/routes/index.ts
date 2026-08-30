@@ -6,16 +6,19 @@ import type { SiteConfig } from '@gtip/shared';
 import type { AuthMiddleware } from '../middleware/auth.js';
 import type { AuthService } from '../services/auth-service.js';
 import type { MediaService } from '../services/media-service.js';
+import type { QuizService } from '../services/quiz-service.js';
 import type { ResourceService } from '../services/resource-service.js';
 import { sendSuccess } from '../utils/api-response.js';
 import { createAuthRouter } from './auth-routes.js';
 import { createMediaRouter } from './media-routes.js';
+import { createQuizRouter } from './quiz-routes.js';
 import { createResourceRouter } from './resource-routes.js';
 
 export interface ApiRouterDeps {
   authService: AuthService;
   resourceService: ResourceService;
   mediaService: MediaService;
+  quizService: QuizService;
   auth: AuthMiddleware;
   upload: Multer;
   storageDriverName: string;
@@ -26,6 +29,7 @@ export function createApiRouter({
   authService,
   resourceService,
   mediaService,
+  quizService,
   auth,
   upload,
   storageDriverName,
@@ -46,6 +50,7 @@ export function createApiRouter({
   router.use('/auth', createAuthRouter(authService, auth));
   router.use('/resources', createResourceRouter(resourceService, auth, upload));
   router.use('/media', createMediaRouter(mediaService, auth, upload));
+  router.use('/quiz', createQuizRouter(quizService, auth));
 
   return router;
 }

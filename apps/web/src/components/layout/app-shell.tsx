@@ -38,6 +38,9 @@ export function AppShell(): JSX.Element {
                 <NavLink to="/yonetim/sosyal" className={navLinkClass}>
                   Sosyal İçerik
                 </NavLink>
+                <NavLink to="/yonetim/sorular" className={navLinkClass}>
+                  Sorular
+                </NavLink>
                 <NavLink to="/yonetim/yukle" className={navLinkClass}>
                   Yeni Kaynak
                 </NavLink>

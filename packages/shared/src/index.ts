@@ -1,6 +1,7 @@
 export * from './constants/storage.js';
 export * from './types/api.js';
 export * from './types/media.js';
+export * from './types/quiz.js';
 export * from './types/resource.js';
 export * from './types/user.js';
 export * from './utils/media-url.js';

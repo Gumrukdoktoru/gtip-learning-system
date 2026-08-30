@@ -1,9 +1,9 @@
 # Öğrenci Çalışma Sayfası (Gümrük Mevzuatı)
 
-Bir eğitim koçunun **YouTube videolarını**, **Instagram gönderilerini** ve
-paylaştığı **PDF/HTML belgeleri** tek bir açık sayfada toplayan tam yığın
-uygulama. Öğrenciler bu sayfaya gelir, arar ve çalışır; giriş yapmaları
-gerekmez.
+Bir eğitim koçunun **YouTube videolarını**, **Instagram gönderilerini**,
+paylaştığı **PDF/HTML belgeleri** ve **çoktan seçmeli deneme sınavlarını** tek
+bir açık sayfada toplayan tam yığın uygulama. Öğrenciler bu sayfaya gelir,
+arar, çalışır ve kendini dener; giriş yapmaları gerekmez.
 
 Depolama düzeni [`docs/storage-usage.md`](docs/storage-usage.md) belgesindeki
 sözleşmeyi uygular:
@@ -18,11 +18,14 @@ sözleşmeyi uygular:
 **Öğrenci (açık sayfa)**
 - Tek arama kutusuyla videolarda, gönderilerde ve belgelerde birlikte arar.
   Arama Türkçe karakter duyarsızdır: `GOZETIM` yazan `Gözetim`i bulur.
-- Sekmelerle daraltır: Tümü · Videolar · Instagram · Belgeler.
+- Sekmelerle daraltır: Tümü · Videolar · Instagram · Belgeler · Test.
+  Ana sayfa her raftan yalnız **son 3**'ünü gösterir; tamamı sekmelerdedir.
 - Videoyu sayfadan çıkmadan izler (çerezsiz `youtube-nocookie` gömme).
 - Instagram gönderisine tıklayıp resmî gömme çerçevesinde okur veya
   Instagram'a gider.
 - PDF/HTML belgeleri indirir; indirme sayacı artar.
+- Deneme sınavı çözer: konu ve zorluk seçer, soruları sırayla yanıtlar, sonunda
+  puanını ve her sorunun doğru cevabıyla açıklamasını görür.
 - Özel kaynakları göremez — API bu kayıtları anonim çağırana 404 döner.
 
 **Eğitmen (yönetim paneli)**
@@ -34,6 +37,22 @@ sözleşmeyi uygular:
   sonradan da değiştirebilir.
 - İçerikleri öne çıkarır (sabitler), kaldırır; kaynakları yayına/özele alır
   (nesne iki önek arasında taşınır) veya siler.
+- Test sorularını panelden tek tek girer: soru, 2-6 şık, doğru cevap, açıklama,
+  konu ve zorluk. Taslak sorular sınavlara girmez.
+
+## Deneme sınavı nasıl çalışır
+
+Sorular **Yönetim → Sorular** ekranından girilir. Bir sınav başlatıldığında API,
+yayımlanmış sorulardan istenen konu/zorluk için rastgele bir set çeker ve
+tarayıcıya **cevapsız** gönderir — doğru şık ve açıklama, öğrenci sınavı
+gönderene kadar sayfaya hiç ulaşmaz. Değerlendirme sunucuda yapılır.
+
+Öğrenci hakkında hiçbir şey saklanmaz. Bir sınav, yalnızca hangi soruların
+çekildiğini tutan kısa ömürlü (2 saat) bir sunucu oturumudur; oturum bir kez
+gönderilebilir, sonra silinir. Giriş, kayıt ve ilerleme takibi yoktur.
+
+Sınav sırasında bir soru panelden silinirse sonuçtan düşülür; kalan sorular
+üzerinden puanlanır.
 
 ## Sosyal içerik nasıl bağlanır
 
@@ -140,7 +159,7 @@ Varsayılan `STORAGE_DRIVER=local` hiçbir AWS kimlik bilgisi istemez; dosyalar
 | --- | --- |
 | `npm run dev` | API ve web sunucusunu birlikte başlatır |
 | `npm run dev:api` / `npm run dev:web` | Yalnızca birini başlatır |
-| `npm test` | Tüm workspace testleri (174 test) |
+| `npm test` | Tüm workspace testleri (201 test) |
 | `npm run typecheck` | Tüm paketlerde `tsc --noEmit` |
 | `npm run lint` | ESLint (flat config) |
 | `npm run build` | shared → api → web sırasıyla derler |
@@ -171,6 +190,13 @@ Tüm yanıtlar ortak zarfı kullanır: `{ success, data? , error? }`.
 | `POST` | `/api/v1/auth/refresh` | herkes |
 | `GET` | `/api/v1/auth/me` | oturum |
 | `GET` | `/api/v1/site` | herkes (başlık, kanal ve profil bağlantıları) |
+| `GET` | `/api/v1/quiz/availability` | herkes (konular ve soru sayıları) |
+| `POST` | `/api/v1/quiz/sessions` | herkes (sınav başlatır, cevapsız sorular) |
+| `POST` | `/api/v1/quiz/sessions/:id/submit` | herkes (değerlendirir) |
+| `GET` | `/api/v1/quiz/questions` | admin |
+| `POST` | `/api/v1/quiz/questions` | admin |
+| `PATCH` | `/api/v1/quiz/questions/:id` | admin |
+| `DELETE` | `/api/v1/quiz/questions/:id` | admin |
 | `GET` | `/api/v1/media` | herkes (bayatsa YouTube'u tazeler) |
 | `POST` | `/api/v1/media/youtube/sync` | admin |
 | `POST` | `/api/v1/media/instagram/sync` | admin |
@@ -216,6 +242,9 @@ yeğlenmiştir.
 - Dosya adı yol ayırıcılarından temizlenir, yerel sürücü ayrıca kökten çıkan
   anahtarları reddeder.
 - Özel kaynaklar anonim çağırana 403 değil 404 döner; varlıkları sızmaz.
+- Sınav soruları tarayıcıya cevapsız gider ve değerlendirme sunucuda yapılır;
+  doğru şık ağ trafiğinden okunamaz. Soru bankasının tamamı yalnız yöneticiye
+  açıktır.
 - Anonim listeleme yanıtlarından `storageKey`, `uploadedById` gibi alanlar
   çıkarılır.
 - `helmet`, CORS beyaz listesi ve iki kademeli rate limit açıktır.
@@ -234,10 +263,11 @@ npm test
 - `packages/shared` — depolama anahtarı üretimi, dosya adı temizleme, arama
   katlama, YouTube/Instagram adres ayrıştırma (41 test)
 - `apps/api` — supertest ile yükleme, listeleme, indirme, güncelleme, silme,
-  yetkilendirme, yerel sürücü, kapak görselleri ve sahte akışlarla YouTube +
-  Instagram senkronizasyonu, anahtar tazeleme dahil (101 test)
-- `apps/web` — API istemcisi zarfı, biçimlendirme, öğrenci sayfasının üç rafı,
-  video/gönderi pencereleri ve arama (28 test)
+  yetkilendirme, yerel sürücü, kapak görselleri, sahte akışlarla YouTube +
+  Instagram senkronizasyonu (anahtar tazeleme dahil) ve soru bankası ile sınav
+  değerlendirmesi (120 test)
+- `apps/web` — API istemcisi zarfı, biçimlendirme, öğrenci sayfasının rafları,
+  video/gönderi pencereleri, arama ve sınav akışı (36 test)
 
 Ağ çağrısı yapan hiçbir test yok: YouTube ve Instagram istemcilerine `fetch`
 enjekte edilir.

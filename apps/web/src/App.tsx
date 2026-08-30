@@ -21,6 +21,9 @@ const AdminUploadPage = lazy(async () => ({
 const AdminSocialPage = lazy(async () => ({
   default: (await import('./pages/admin-social-page')).AdminSocialPage,
 }));
+const AdminQuizPage = lazy(async () => ({
+  default: (await import('./pages/admin-quiz-page')).AdminQuizPage,
+}));
 const NotFoundPage = lazy(async () => ({
   default: (await import('./pages/not-found-page')).NotFoundPage,
 }));
@@ -37,6 +40,7 @@ export function App(): JSX.Element {
             <Route path="yonetim" element={<AdminResourcesPage />} />
             <Route path="yonetim/yukle" element={<AdminUploadPage />} />
             <Route path="yonetim/sosyal" element={<AdminSocialPage />} />
+            <Route path="yonetim/sorular" element={<AdminQuizPage />} />
           </Route>
 
           <Route path="*" element={<NotFoundPage />} />

@@ -43,6 +43,7 @@ export function createApp(container: Container): Express {
       authService: container.authService,
       resourceService: container.resourceService,
       mediaService: container.mediaService,
+      quizService: container.quizService,
       auth: createAuthMiddleware(container.authService),
       upload: createUploadMiddleware(config.MAX_UPLOAD_SIZE_BYTES),
       storageDriverName: container.storage.name,

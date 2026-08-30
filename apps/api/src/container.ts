@@ -10,6 +10,10 @@ import {
   type ResourceRepository,
 } from './repositories/resource-repository.js';
 import {
+  JsonQuizRepository,
+  type QuizRepository,
+} from './repositories/quiz-repository.js';
+import {
   JsonTokenRepository,
   type TokenRepository,
 } from './repositories/token-repository.js';
@@ -20,6 +24,7 @@ import {
 import { AuthService } from './services/auth-service.js';
 import { InstagramGraphClient } from './services/instagram-graph.js';
 import { MediaService } from './services/media-service.js';
+import { QuizService } from './services/quiz-service.js';
 import { ResourceService } from './services/resource-service.js';
 import { YouTubeFeedClient } from './services/youtube-feed.js';
 import { createStorageDriver } from './storage/create-storage-driver.js';
@@ -35,9 +40,11 @@ export interface Container {
   resources: ResourceRepository;
   media: MediaRepository;
   tokens: TokenRepository;
+  quizQuestions: QuizRepository;
   authService: AuthService;
   resourceService: ResourceService;
   mediaService: MediaService;
+  quizService: QuizService;
 }
 
 export interface ContainerOverrides {
@@ -46,6 +53,7 @@ export interface ContainerOverrides {
   resources?: ResourceRepository;
   media?: MediaRepository;
   tokens?: TokenRepository;
+  quizQuestions?: QuizRepository;
   /** Injected by tests so no request ever leaves the process. */
   youtubeFetch?: typeof fetch;
   instagramFetch?: typeof fetch;
@@ -74,6 +82,9 @@ export function createContainer(
   const tokens =
     overrides.tokens ??
     new JsonTokenRepository(path.join(config.dataDir, 'tokens.json'));
+  const quizQuestions =
+    overrides.quizQuestions ??
+    new JsonQuizRepository(path.join(config.dataDir, 'quiz-questions.json'));
 
   const instagramToken = config.INSTAGRAM_ACCESS_TOKEN.trim();
   const instagram =
@@ -136,8 +147,10 @@ export function createContainer(
     resources,
     media,
     tokens,
+    quizQuestions,
     authService,
     resourceService,
     mediaService,
+    quizService: new QuizService({ questions: quizQuestions }),
   };
 }
