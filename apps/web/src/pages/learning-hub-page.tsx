@@ -18,8 +18,8 @@ import { useResourceDownload } from '../hooks/use-resource-download';
 import { useResources } from '../hooks/use-resources';
 import { useSiteConfig } from '../hooks/use-site-config';
 
-/** Overview shows a taste of each shelf; a focused tab shows the full list. */
-const OVERVIEW_PAGE_SIZE = 6;
+/** The overview shows only the newest few of each shelf; a tab shows them all. */
+const OVERVIEW_PAGE_SIZE = 3;
 const TAB_PAGE_SIZE = 12;
 
 /**
@@ -53,7 +53,7 @@ export function LearningHubPage(): JSX.Element {
     source: 'instagram',
     search,
     enabled: showInstagram,
-    pageSize: isOverview ? 3 : 9,
+    pageSize: isOverview ? OVERVIEW_PAGE_SIZE : 9,
   });
   const documents = useResources({ search, enabled: showDocuments, pageSize });
   const { download, downloadingId, error: downloadError } =
