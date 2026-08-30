@@ -11,6 +11,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert } from '../components/alert';
 import { EmptyState } from '../components/empty-state';
 import { Pagination } from '../components/pagination';
+import { QuizImport } from '../components/quiz/quiz-import';
 import { Spinner } from '../components/spinner';
 import { useDebouncedValue } from '../hooks/use-debounced-value';
 import { ApiRequestError } from '../services/api-client';
@@ -227,6 +228,8 @@ export function AdminQuizPage(): JSX.Element {
 
       {actionError ? <Alert tone="error">{actionError}</Alert> : null}
       {notice ? <Alert tone="success">{notice}</Alert> : null}
+
+      <QuizImport onImported={reload} />
 
       <section className="card flex flex-col gap-4 p-6">
         <h2 className="text-base font-semibold text-slate-900">

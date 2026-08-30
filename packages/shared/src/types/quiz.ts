@@ -124,3 +124,38 @@ export interface QuizQuestionListQuery {
   topic?: string;
   difficulty?: QuizDifficulty;
 }
+
+/** One question as read out of an uploaded Markdown or Word file. */
+export interface QuizImportItem {
+  /** 1-based line in the source file where the question started. */
+  lineNumber: number;
+  question: string;
+  options: string[];
+  correctOptionIndex: number | null;
+  explanation: string;
+  topic: string | null;
+  difficulty: QuizDifficulty | null;
+  /** Why this question cannot be imported as it stands. */
+  errors: string[];
+  canImport: boolean;
+}
+
+export interface QuizImportPreview {
+  items: QuizImportItem[];
+  importable: number;
+  skipped: number;
+}
+
+export interface QuizImportResult {
+  created: number;
+  skipped: number;
+  items: QuizImportItem[];
+}
+
+export interface QuizImportOptions {
+  /** Used for questions whose file gives no `Konu:`. */
+  defaultTopic?: string;
+  defaultDifficulty?: QuizDifficulty;
+  /** Import as drafts to review them before they reach students. */
+  isPublished?: boolean;
+}

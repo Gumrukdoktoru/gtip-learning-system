@@ -7,6 +7,10 @@ import {
 import type {
   CreateQuizQuestionInput,
   PaginatedData,
+  QuizImportItem,
+  QuizImportOptions,
+  QuizImportPreview,
+  QuizImportResult,
   QuizAnswerInput,
   QuizAvailability,
   QuizQuestion,
@@ -19,6 +23,8 @@ import type {
 } from '@gtip/shared';
 
 import { BadRequestError, NotFoundError } from '../errors/app-error.js';
+import { parseQuizDocument } from './quiz-import.js';
+import type { ParsedQuizQuestion } from './quiz-import.js';
 import type {
   QuizQuestionQuery,
   QuizRepository,
@@ -219,6 +225,83 @@ export class QuizService {
         items.length === 0 ? 0 : Math.round((correct / items.length) * 100),
       items,
     };
+  }
+
+  /**
+   * Applies the import defaults and decides whether a question is usable.
+   *
+   * A missing topic is an error rather than a silent placeholder: an untitled
+   * question would disappear into the wrong shelf on the start screen.
+   */
+  private toImportItem(
+    parsed: ParsedQuizQuestion,
+    options: QuizImportOptions,
+  ): QuizImportItem {
+    const topic = parsed.topic ?? options.defaultTopic?.trim() ?? null;
+    const errors = [...parsed.errors];
+
+    if (!topic) {
+      errors.push('Konu belirtilmemiş; dosyaya "Konu:" ekleyin veya varsayılan konu girin.');
+    }
+
+    return {
+      lineNumber: parsed.lineNumber,
+      question: parsed.question,
+      options: parsed.options,
+      correctOptionIndex: parsed.correctOptionIndex,
+      explanation: parsed.explanation,
+      topic,
+      difficulty: parsed.difficulty ?? options.defaultDifficulty ?? 'orta',
+      errors,
+      canImport: errors.length === 0,
+    };
+  }
+
+  /** Reads a file without saving anything, so the admin can check it first. */
+  public previewImport(
+    source: string,
+    options: QuizImportOptions = {},
+  ): QuizImportPreview {
+    const items = parseQuizDocument(source).map((parsed) =>
+      this.toImportItem(parsed, options),
+    );
+    const importable = items.filter((item) => item.canImport).length;
+
+    if (items.length === 0) {
+      throw new BadRequestError(
+        'Dosyada soru bulunamadı. Soruların "1." gibi bir numarayla başladığından emin olun.',
+      );
+    }
+
+    return { items, importable, skipped: items.length - importable };
+  }
+
+  /** Imports every question that passed the preview; the rest are reported. */
+  public async importQuestions(
+    source: string,
+    options: QuizImportOptions = {},
+  ): Promise<QuizImportResult> {
+    const { items } = this.previewImport(source, options);
+    let created = 0;
+
+    for (const item of items) {
+      if (!item.canImport || item.correctOptionIndex === null || !item.topic) {
+        continue;
+      }
+
+      await this.createQuestion({
+        question: item.question,
+        options: item.options,
+        correctOptionIndex: item.correctOptionIndex,
+        explanation: item.explanation,
+        topic: item.topic,
+        difficulty: item.difficulty ?? 'orta',
+        isPublished: options.isPublished ?? false,
+      });
+      created += 1;
+    }
+
+    return { created, skipped: items.length - created, items };
   }
 
   public async listQuestions(

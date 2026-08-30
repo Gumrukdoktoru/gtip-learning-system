@@ -364,3 +364,236 @@ describe('taking a practice exam', () => {
     expect(result.body.data.total).toBe(2);
   });
 });
+
+describe('importing a question bank', () => {
+  let ctx: TestContext;
+
+  const MARKDOWN = `## Tarife
+
+1. GTİP kodunun ilk altı hanesi neyi ifade eder?
+A) Ulusal alt açılım
+B) Armonize Sistem (HS) kodu
+C) Kombine Nomanklatür
+Cevap: B
+Açıklama: İlk 6 hane uluslararası HS kodudur.
+
+2. Kota ile tarife kontenjanı arasındaki fark nedir?
+A) İkisi de aynıdır
+**B) Kota miktar kısıtıdır, kontenjan indirimli vergidir**
+Zorluk: zor
+
+3. Bu soruda cevap yok ve içeri alınmamalı
+A) Bir
+B) İki
+`;
+
+  function importRequest(path: string, body: Record<string, string>) {
+    const call = request(ctx.app)
+      .post(`${BASE}/questions/${path}`)
+      .set('Authorization', `Bearer ${ctx.adminToken}`);
+
+    for (const [key, value] of Object.entries(body)) {
+      void call.field(key, value);
+    }
+
+    return call;
+  }
+
+  beforeEach(async () => {
+    ctx = await createTestContext();
+  });
+
+  it('previews a Markdown file without saving anything', async () => {
+    const response = await importRequest('import/preview', {})
+      .attach('file', Buffer.from(MARKDOWN, 'utf8'), {
+        filename: 'sorular.md',
+        contentType: 'text/markdown',
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body.data).toMatchObject({ importable: 2, skipped: 1 });
+
+    const [first, second, third] = response.body.data.items;
+
+    expect(first).toMatchObject({
+      topic: 'Tarife',
+      correctOptionIndex: 1,
+      difficulty: 'orta',
+      canImport: true,
+    });
+    expect(second).toMatchObject({ difficulty: 'zor', canImport: true });
+    expect(third.canImport).toBe(false);
+    expect(third.errors[0]).toContain('Doğru cevap bulunamadı');
+
+    // Preview saves nothing.
+    const bank = await request(ctx.app)
+      .get(`${BASE}/questions`)
+      .set('Authorization', `Bearer ${ctx.adminToken}`);
+
+    expect(bank.body.data.pagination.total).toBe(0);
+  });
+
+  it('imports the usable questions as drafts by default', async () => {
+    const response = await importRequest('import', {})
+      .attach('file', Buffer.from(MARKDOWN, 'utf8'), {
+        filename: 'sorular.md',
+        contentType: 'text/markdown',
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body.data).toMatchObject({ created: 2, skipped: 1 });
+
+    const bank = await request(ctx.app)
+      .get(`${BASE}/questions`)
+      .set('Authorization', `Bearer ${ctx.adminToken}`);
+
+    expect(bank.body.data.pagination.total).toBe(2);
+    expect(
+      bank.body.data.items.every(
+        (item: { isPublished: boolean }) => !item.isPublished,
+      ),
+    ).toBe(true);
+
+    // Drafts stay out of exams until the admin publishes them.
+    const availability = await request(ctx.app).get(`${BASE}/availability`);
+
+    expect(availability.body.data.totalQuestions).toBe(0);
+  });
+
+  it('can publish on import', async () => {
+    await importRequest('import', { isPublished: 'true' }).attach(
+      'file',
+      Buffer.from(MARKDOWN, 'utf8'),
+      { filename: 'sorular.md', contentType: 'text/markdown' },
+    );
+
+    const availability = await request(ctx.app).get(`${BASE}/availability`);
+
+    expect(availability.body.data.totalQuestions).toBe(2);
+  });
+
+  it('fills a missing topic from the default', async () => {
+    const source = '1. Konusu belirtilmemiş bir soru metni\nA) Bir\nB) İki\nCevap: A\n';
+
+    const withoutDefault = await importRequest('import/preview', {}).attach(
+      'file',
+      Buffer.from(source, 'utf8'),
+      { filename: 'sorular.md', contentType: 'text/markdown' },
+    );
+
+    expect(withoutDefault.body.data.items[0].canImport).toBe(false);
+    expect(withoutDefault.body.data.items[0].errors[0]).toContain('Konu');
+
+    const withDefault = await importRequest('import/preview', {
+      defaultTopic: 'Genel',
+    }).attach('file', Buffer.from(source, 'utf8'), {
+      filename: 'sorular.md',
+      contentType: 'text/markdown',
+    });
+
+    expect(withDefault.body.data.items[0]).toMatchObject({
+      topic: 'Genel',
+      canImport: true,
+    });
+  });
+
+  it('accepts pasted text instead of a file', async () => {
+    const response = await request(ctx.app)
+      .post(`${BASE}/questions/import/preview`)
+      .set('Authorization', `Bearer ${ctx.adminToken}`)
+      .send({ source: MARKDOWN, defaultTopic: 'Genel' });
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.importable).toBe(2);
+  });
+
+  it('reads a .docx, taking a bolded option as the answer', async () => {
+    const { default: JSZip } = await import('jszip');
+    const paragraphs = [
+      ['1. Antrepoda süre aşımının sonucu nedir?', false],
+      ['A) Bir şey olmaz', false],
+      ['B) Tasfiye hükümleri uygulanır', true],
+      ['Konu: Rejimler', false],
+    ] as const;
+
+    const body = paragraphs
+      .map(
+        ([text, bold]) =>
+          `<w:p><w:r>${
+            bold ? '<w:rPr><w:b/></w:rPr>' : ''
+          }<w:t>${text}</w:t></w:r></w:p>`,
+      )
+      .join('');
+
+    const zip = new JSZip();
+
+    zip.file(
+      'word/document.xml',
+      `<?xml version="1.0"?><w:document xmlns:w="x"><w:body>${body}</w:body></w:document>`,
+    );
+
+    const docx = await zip.generateAsync({ type: 'nodebuffer' });
+
+    const response = await importRequest('import/preview', {}).attach(
+      'file',
+      docx,
+      {
+        filename: 'sorular.docx',
+        contentType:
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      },
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.items[0]).toMatchObject({
+      question: 'Antrepoda süre aşımının sonucu nedir?',
+      options: ['Bir şey olmaz', 'Tasfiye hükümleri uygulanır'],
+      correctOptionIndex: 1,
+      topic: 'Rejimler',
+      canImport: true,
+    });
+  });
+
+  it('rejects a file that is not a readable .docx', async () => {
+    const response = await importRequest('import/preview', {}).attach(
+      'file',
+      Buffer.from('bu bir zip değil'),
+      {
+        filename: 'sorular.docx',
+        contentType: 'application/msword',
+      },
+    );
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.message).toContain('Word dosyası okunamadı');
+  });
+
+  it('rejects a file with no questions in it', async () => {
+    const response = await importRequest('import/preview', {}).attach(
+      'file',
+      Buffer.from('Sadece düz metin, hiç soru yok.', 'utf8'),
+      { filename: 'sorular.md', contentType: 'text/markdown' },
+    );
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.message).toContain('soru bulunamadı');
+  });
+
+  it('rejects an empty request', async () => {
+    const response = await request(ctx.app)
+      .post(`${BASE}/questions/import/preview`)
+      .set('Authorization', `Bearer ${ctx.adminToken}`)
+      .send({});
+
+    expect(response.status).toBe(400);
+  });
+
+  it('refuses a non-admin', async () => {
+    const response = await request(ctx.app)
+      .post(`${BASE}/questions/import`)
+      .set('Authorization', `Bearer ${ctx.studentToken}`)
+      .send({ source: MARKDOWN, defaultTopic: 'Genel' });
+
+    expect(response.status).toBe(403);
+  });
+});

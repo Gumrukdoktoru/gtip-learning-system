@@ -1,9 +1,12 @@
 import type { Request, RequestHandler, Response } from 'express';
 
+import { BadRequestError } from '../errors/app-error.js';
+import { extractDocxText } from '../services/docx-text.js';
 import {
   createQuizQuestionSchema,
   listQuizQuestionsQuerySchema,
   quizQuestionIdSchema,
+  quizImportSchema,
   quizSessionIdSchema,
   startQuizSchema,
   submitQuizSchema,
@@ -21,6 +24,34 @@ export interface QuizController {
   createQuestion: RequestHandler;
   updateQuestion: RequestHandler;
   removeQuestion: RequestHandler;
+  previewImport: RequestHandler;
+  runImport: RequestHandler;
+}
+
+const DOCX_EXTENSION = /\.docx$/i;
+
+/**
+ * Turns the request into the plain text the parser reads.
+ *
+ * A .docx is unzipped; anything else — .md, .txt, or pasted text — is taken
+ * as UTF-8 as it stands.
+ */
+async function readSource(req: Request): Promise<string> {
+  const { source } = quizImportSchema.parse(req.body);
+
+  if (req.file) {
+    const name = Buffer.from(req.file.originalname, 'latin1').toString('utf8');
+
+    return DOCX_EXTENSION.test(name)
+      ? extractDocxText(req.file.buffer)
+      : req.file.buffer.toString('utf8');
+  }
+
+  if (source && source.trim().length > 0) {
+    return source;
+  }
+
+  throw new BadRequestError('İçe aktarılacak dosya veya metin bulunamadı.');
 }
 
 export function createQuizController(quizService: QuizService): QuizController {
@@ -68,6 +99,25 @@ export function createQuizController(quizService: QuizService): QuizController {
     return sendSuccess(res, { id });
   });
 
+  const previewImport = asyncHandler(async (req: Request, res: Response) => {
+    const options = quizImportSchema.parse(req.body);
+
+    return sendSuccess(
+      res,
+      quizService.previewImport(await readSource(req), options),
+    );
+  });
+
+  const runImport = asyncHandler(async (req: Request, res: Response) => {
+    const options = quizImportSchema.parse(req.body);
+
+    return sendSuccess(
+      res,
+      await quizService.importQuestions(await readSource(req), options),
+      201,
+    );
+  });
+
   return {
     availability,
     start,
@@ -76,5 +126,7 @@ export function createQuizController(quizService: QuizService): QuizController {
     createQuestion,
     updateQuestion,
     removeQuestion,
+    previewImport,
+    runImport,
   };
 }

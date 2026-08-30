@@ -37,8 +37,8 @@ sözleşmeyi uygular:
   sonradan da değiştirebilir.
 - İçerikleri öne çıkarır (sabitler), kaldırır; kaynakları yayına/özele alır
   (nesne iki önek arasında taşınır) veya siler.
-- Test sorularını panelden tek tek girer: soru, 2-6 şık, doğru cevap, açıklama,
-  konu ve zorluk. Taslak sorular sınavlara girmez.
+- Test sorularını panelden tek tek girer veya Markdown/Word dosyasından toplu
+  aktarır (önizleme ile). Taslak sorular sınavlara girmez.
 
 ## Deneme sınavı nasıl çalışır
 
@@ -53,6 +53,49 @@ gönderilebilir, sonra silinir. Giriş, kayıt ve ilerleme takibi yoktur.
 
 Sınav sırasında bir soru panelden silinirse sonuçtan düşülür; kalan sorular
 üzerinden puanlanır.
+
+### Soruları dosyadan içe aktarmak
+
+**Yönetim → Sorular → Dosyadan içe aktar** ile Markdown (`.md`), düz metin
+(`.txt`) veya Word (`.docx`) dosyası yükleyebilir ya da metni doğrudan
+yapıştırabilirsiniz. Önce bir **önizleme** çıkar — hangi soru nasıl anlaşıldı,
+hangisi neden alınamıyor — aktarma ancak siz onayladıktan sonra yapılır.
+Aktarılan sorular varsayılan olarak **taslak** gelir; gözden geçirip yayına
+alırsınız.
+
+Beklenen biçim esnektir:
+
+```markdown
+## Tarife                      ← başlık, altındaki soruların konusu olur
+
+1. GTİP kodunun ilk altı hanesi neyi ifade eder?
+A) Ulusal alt açılım
+B) Armonize Sistem (HS) kodu
+C) Kombine Nomanklatür
+Cevap: B
+Açıklama: İlk 6 hane uluslararası HS kodudur.
+Zorluk: kolay
+```
+
+Kabul edilen yazımlar:
+
+| Öğe | Yazılabilecek biçimler |
+| --- | --- |
+| Soru başlangıcı | `1.` · `1)` · `1-` · `Soru 1:` |
+| Şık | `A)` · `(A)` · `A.` · `A-` · `a)` · başında `-` veya `*` olabilir |
+| Doğru cevap | `Cevap: B` · `Doğru cevap: B` · `Yanıt: B` · `Doğru şık: B` · `Answer: B` |
+| Cevap işareti | Cevap satırı yoksa **kalın** yazılmış şık, `✓` veya `(doğru)` işareti |
+| Konu | `Konu: Tarife` veya `## Tarife` başlığı |
+| Zorluk | `Zorluk: kolay/orta/zor` (`easy/medium/hard` de olur) |
+| Açıklama | `Açıklama:` · `Gerekçe:` · `Not:` — birkaç satır sürebilir |
+
+Soru metni birden fazla satıra yayılabilir. `Konu:` ve `Zorluk:` bir sorunun
+içindeyse o soruya, soruların dışında tek başına duruyorsa altındaki tüm
+sorulara uygulanır. Dosyada hiç konu yoksa formdaki **varsayılan konu** kullanılır.
+
+Word dosyalarında **kalın** yazılmış şık doğru cevap sayılır — Word'de sık
+kullanılan yazım budur. Eski `.doc` biçimi desteklenmez; `.docx` olarak
+kaydedin.
 
 ## Sosyal içerik nasıl bağlanır
 
@@ -159,7 +202,7 @@ Varsayılan `STORAGE_DRIVER=local` hiçbir AWS kimlik bilgisi istemez; dosyalar
 | --- | --- |
 | `npm run dev` | API ve web sunucusunu birlikte başlatır |
 | `npm run dev:api` / `npm run dev:web` | Yalnızca birini başlatır |
-| `npm test` | Tüm workspace testleri (201 test) |
+| `npm test` | Tüm workspace testleri (228 test) |
 | `npm run typecheck` | Tüm paketlerde `tsc --noEmit` |
 | `npm run lint` | ESLint (flat config) |
 | `npm run build` | shared → api → web sırasıyla derler |
@@ -193,6 +236,8 @@ Tüm yanıtlar ortak zarfı kullanır: `{ success, data? , error? }`.
 | `GET` | `/api/v1/quiz/availability` | herkes (konular ve soru sayıları) |
 | `POST` | `/api/v1/quiz/sessions` | herkes (sınav başlatır, cevapsız sorular) |
 | `POST` | `/api/v1/quiz/sessions/:id/submit` | herkes (değerlendirir) |
+| `POST` | `/api/v1/quiz/questions/import/preview` | admin (dosya veya metin; kaydetmez) |
+| `POST` | `/api/v1/quiz/questions/import` | admin |
 | `GET` | `/api/v1/quiz/questions` | admin |
 | `POST` | `/api/v1/quiz/questions` | admin |
 | `PATCH` | `/api/v1/quiz/questions/:id` | admin |
@@ -264,8 +309,8 @@ npm test
   katlama, YouTube/Instagram adres ayrıştırma (41 test)
 - `apps/api` — supertest ile yükleme, listeleme, indirme, güncelleme, silme,
   yetkilendirme, yerel sürücü, kapak görselleri, sahte akışlarla YouTube +
-  Instagram senkronizasyonu (anahtar tazeleme dahil) ve soru bankası ile sınav
-  değerlendirmesi (120 test)
+  Instagram senkronizasyonu (anahtar tazeleme dahil), soru bankası, sınav
+  değerlendirmesi ve Markdown/Word içe aktarma ayrıştırıcısı (147 test)
 - `apps/web` — API istemcisi zarfı, biçimlendirme, öğrenci sayfasının rafları,
   video/gönderi pencereleri, arama ve sınav akışı (36 test)
 

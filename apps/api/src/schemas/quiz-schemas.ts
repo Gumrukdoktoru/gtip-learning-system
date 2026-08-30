@@ -95,3 +95,15 @@ export const quizQuestionIdSchema = z.object({
 export const quizSessionIdSchema = z.object({
   sessionId: z.string().uuid('Geçersiz sınav oturumu.'),
 });
+
+/** Import defaults arrive as multipart form fields, hence the coercions. */
+export const quizImportSchema = z.object({
+  /** Pasted text; ignored when a file is uploaded. */
+  source: z.string().max(1_000_000).optional(),
+  defaultTopic: z.string().trim().max(80).optional(),
+  defaultDifficulty: difficultySchema.optional(),
+  isPublished: z
+    .union([z.boolean(), z.enum(['true', 'false'])])
+    .transform((value) => value === true || value === 'true')
+    .default(false),
+});

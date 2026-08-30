@@ -50,7 +50,7 @@ export function createApiRouter({
   router.use('/auth', createAuthRouter(authService, auth));
   router.use('/resources', createResourceRouter(resourceService, auth, upload));
   router.use('/media', createMediaRouter(mediaService, auth, upload));
-  router.use('/quiz', createQuizRouter(quizService, auth));
+  router.use('/quiz', createQuizRouter(quizService, auth, upload));
 
   return router;
 }
