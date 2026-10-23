@@ -31,6 +31,12 @@
       "skillPath": "skills/productivity/grilling/SKILL.md",
       "computedHash": "ef1641a2047b71b60f1942cd35efb47d3afc9d584dff5a0b01f8c7db923aaa08"
     },
+    "hyperframes": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/hyperframes/SKILL.md",
+      "computedHash": "b6d33de512783d10e54cb408820b72f10c9a7b5300f7a900d0bb27558ae25eb8"
+    },
     "hyperframes-cli": {
       "source": "heygen-com/hyperframes",
       "sourceType": "github",
