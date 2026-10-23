@@ -7,6 +7,12 @@
       "skillPath": "tools/image/ai-image-generation/SKILL.md",
       "computedHash": "094a658fbbfce7701ad8dfcf295bf66a72c564fd793cdebc0e3bbdb1c04b2358"
     },
+    "ai-video-generation": {
+      "source": "magentosh/superpowers",
+      "sourceType": "github",
+      "skillPath": "tools/video/ai-video-generation/SKILL.md",
+      "computedHash": "8524cc49ad3dca2a4502903234061b307636e44b08496e982747cdb9590f5556"
+    },
     "captions-overlay": {
       "source": "heygen-com/hyperframes",
       "sourceType": "github",
