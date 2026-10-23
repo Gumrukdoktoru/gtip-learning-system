@@ -55,6 +55,12 @@
       "skillPath": "skills/engineering/improve-codebase-architecture/SKILL.md",
       "computedHash": "ac2c94885f34ff8492dc12aa4543182f661f32ea1722b8d6b6c2c7045af33ae3"
     },
+    "media-use": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/media-use/SKILL.md",
+      "computedHash": "3f892d62e9abe64575cf34eb76d5cd80309c18e5ab40e3b6f6f5c7d884d03d18"
+    },
     "tdd": {
       "source": "mattpocock/skills",
       "sourceType": "github",
