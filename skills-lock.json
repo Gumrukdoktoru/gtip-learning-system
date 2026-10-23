@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "ai-avatar-video": {
+      "source": "inference-sh/skills",
+      "sourceType": "github",
+      "skillPath": "tools/video/ai-avatar-video/SKILL.md",
+      "computedHash": "c2c410740567d8a5253a45affca2ea29de4c703591fd5928ab8164e1de17e5af"
+    },
     "ai-image-generation": {
       "source": "inference-sh/skills",
       "sourceType": "github",
