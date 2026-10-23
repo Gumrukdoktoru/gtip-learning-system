@@ -67,6 +67,12 @@
       "skillPath": "reddit-automation/SKILL.md",
       "computedHash": "b9541be8aa1d4b0fa2e91730bc93e810c02bfb639aa951ad9a1a7612e4666c02"
     },
+    "setup-matt-pocock-skills": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/setup-matt-pocock-skills/SKILL.md",
+      "computedHash": "1d35d0afa3ded88c9324d38db08b2cff91cd03e0e11d64786bee41385cd7b9fb"
+    },
     "tdd": {
       "source": "mattpocock/skills",
       "sourceType": "github",
