@@ -304,6 +304,19 @@ When working on this codebase:
 9. **Security first**: Consider security implications of changes
 10. **Performance aware**: Consider performance impact of changes
 
+### Language
+
+- Talk to the user in Turkish.
+- Write code, code comments, commit messages and documentation in English.
+
+### HyperFrames Skills
+
+The HyperFrames skills in `.claude/skills/` (`hyperframes`, `hyperframes-cli`, `hyperframes-registry`, `media-use`) run with these settings:
+
+- **Telemetry off.** `.claude/settings.json` sets `HYPERFRAMES_NO_TELEMETRY=1`. Do not run `npx hyperframes feedback` (ratings, missing-feature reports, `--search-miss`) unless the user asks for it.
+- **No automatic skill updates.** `.claude/settings.json` sets `HYPERFRAMES_SKIP_SKILLS=1`, so `hyperframes init` and `hyperframes skills update` leave `.claude/skills/` alone. Add or update skills only with `npx skills add`, so `skills-lock.json` stays accurate.
+- **Ask before installing packages.** `media-use` installs missing Python packages on its own: local MusicGen music pulls `torch` and `transformers` (several GB). Ask the user before any step that would install packages.
+
 ### Common Tasks
 
 **Adding a new API endpoint:**

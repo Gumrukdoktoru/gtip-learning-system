@@ -1,0 +1,6 @@
+{
+  "env": {
+    "HYPERFRAMES_NO_TELEMETRY": "1",
+    "HYPERFRAMES_SKIP_SKILLS": "1"
+  }
+}
