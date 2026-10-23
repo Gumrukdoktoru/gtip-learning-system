@@ -91,6 +91,12 @@
       "skillPath": "skills/engineering/improve-codebase-architecture/SKILL.md",
       "computedHash": "ac2c94885f34ff8492dc12aa4543182f661f32ea1722b8d6b6c2c7045af33ae3"
     },
+    "limrun-xcode": {
+      "source": "limrun-inc/skills",
+      "sourceType": "github",
+      "skillPath": "skills/limrun-xcode/SKILL.md",
+      "computedHash": "34b1b5c1912adffef596cbda0972c5f3c92ca52256f2d40eeb53c4bb0388a6c2"
+    },
     "media-use": {
       "source": "heygen-com/hyperframes",
       "sourceType": "github",
