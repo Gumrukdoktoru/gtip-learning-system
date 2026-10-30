@@ -5,3 +5,4 @@ state/
 output/
 *.sqlite3
 *.sqlite3-*
+assets/private-bootstrap.enc

@@ -20,6 +20,7 @@ from database import Database
 from object_store import ObjectStore
 from daily_planner import DailyPlanner
 from private_import import import_bundle
+from sealed_bootstrap import PACKAGE as SEALED_PACKAGE,import_with_code
 
 ROOT = Path(__file__).resolve().parent
 DAY_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
@@ -80,6 +81,7 @@ def create_app(output=None, db_path=None, password=None, connection_config=None,
     @app.get('/api/automation/status')
     def automation_status():
         return {'persistent_storage':database.persistent,'timezone':'Europe/Istanbul',
+                'code_import_available':SEALED_PACKAGE.is_file(),
                 'scheduled_time':'10:00','scheduler_activation_verified':False,
                 'publishing_enabled':False,**DailyPlanner(database).status()}
 
@@ -99,6 +101,23 @@ def create_app(output=None, db_path=None, password=None, connection_config=None,
             return import_bundle(database,bytes(body))
         except (ValueError,KeyError,zipfile.BadZipFile):
             raise HTTPException(400,'Özel aktarım paketi doğrulanamadı; paylaşım yapılmadı.') from None
+
+    @app.post('/api/automation/bootstrap/code')
+    async def bootstrap_code(request:Request):
+        if not database.persistent:
+            raise HTTPException(409,'Önce kalıcı veritabanı bağlanmalı; özel içerik geçici denemeye aktarılmadı.')
+        body=bytearray()
+        async for chunk in request.stream():
+            body.extend(chunk)
+            if len(body)>1024:raise HTTPException(413,'Aktarım kodu isteği çok uzun.')
+        try:
+            data=json.loads(body)
+            if not isinstance(data,dict) or not isinstance(data.get('code'),str):raise ValueError()
+            return import_with_code(database,data['code'])
+        except FileNotFoundError:
+            raise HTTPException(503,'Şifreli paket henüz bu sunucuda yok; son dağıtımın tamamlanması bekleniyor.') from None
+        except (ValueError,KeyError,zipfile.BadZipFile):
+            raise HTTPException(400,'Aktarım kodu veya paket doğrulanamadı. Kodun tamamını kopyalayın.') from None
 
     @app.middleware("http")
     async def headers(request, call_next):
@@ -181,9 +200,41 @@ def create_app(output=None, db_path=None, password=None, connection_config=None,
     return app
 
 
-AUTOMATION_HTML='''<!doctype html><html lang="tr"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Kalıcı kayıt ve zamanlama</title><style>body{max-width:900px;margin:30px auto;padding:20px;font:17px/1.6 system-ui,sans-serif;background:#f5f7fc;color:#142d59}button{font:inherit;background:#174fb3;color:white;padding:10px 18px;border:0;border-radius:8px}section{background:white;padding:20px;border-radius:12px;margin:20px 0}</style><h1>Kalıcı kayıt ve günlük hazırlık</h1><p><a href="/">← Onay paneli</a></p><section id="status">Kontrol ediliyor…</section><section><h2>Özel kaynak havuzu</h2><p>Kaynaklar ve önceden hazırlanan paketler herkese açık depoya yüklenmez. Hazırlanmış özel aktarım paketi kalıcı veritabanına bir kez alınır.</p><input id="file" type="file" accept=".zip"><p><button id="import" disabled>Özel paketi aktar</button></p><p id="message" role="status"></p></section><p>İçerik yalnızca taslak olarak hazırlanır. Otomatik sosyal paylaşım henüz etkin değildir.</p><script>
-let durable=false;async function refresh(){const r=await fetch('/api/automation/status');const s=await r.json();durable=s.persistent_storage;document.getElementById('status').textContent=(durable?'Kalıcı veritabanı bağlı. ':'Kalıcı veritabanı bekleniyor. ')+'Kaynak: '+s.source_fact_count+' bilgi; tekrar dışında: '+s.reserved_fact_count+' bilgi. Günlük saat: 10.00 Türkiye. Zamanlayıcının canlı etkinliği henüz doğrulanmadı.';document.getElementById('import').disabled=!durable;}
-document.getElementById('import').onclick=async()=>{const file=document.getElementById('file').files[0];const m=document.getElementById('message');if(!file){m.textContent='Özel aktarım dosyasını seçin.';return;}m.textContent='Aktarılıyor…';const r=await fetch('/api/automation/bootstrap',{method:'POST',headers:{'Content-Type':'application/zip'},body:file});if(!r.ok){m.textContent='Aktarım tamamlanamadı. Paket ve kalıcı veritabanı ayarlarını kontrol edin.';return;}m.textContent='Kaynak havuzu ve mevcut paketler alındı. Paylaşım yapılmadı.';await refresh();};refresh().catch(()=>document.getElementById('status').textContent='Durum okunamadı.');
+AUTOMATION_HTML='''<!doctype html><html lang="tr"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Kalıcı kayıt ve zamanlama</title>
+<style>body{max-width:900px;margin:30px auto;padding:20px;font:17px/1.6 system-ui,sans-serif;background:#f5f7fc;color:#142d59}button{font:inherit;background:#174fb3;color:white;padding:10px 18px;border:0;border-radius:8px;cursor:pointer}button:disabled{opacity:.5;cursor:wait}section{background:white;padding:20px;border-radius:12px;margin:20px 0}input[type=password]{box-sizing:border-box;width:100%;padding:12px;border:1px solid #b7c6e1;border-radius:8px;font:inherit}label{display:block;margin:12px 0}details{margin-top:25px}</style>
+<h1>Kalıcı kayıt ve günlük hazırlık</h1><p><a href="/">← Onay paneli</a></p>
+<section id="status">Kontrol ediliyor…</section>
+<section><h2>Aktarım koduyla yükle</h2>
+<p>Size ait aktarım kodunu yapıştırın. Hazır görseller ve tekrar engelleme geçmişi birlikte taşınır.</p>
+<label for="code">Özel aktarım kodu</label><input id="code" type="password" maxlength="128" autocomplete="off" spellcheck="false">
+<p><button id="code-import" disabled>Kodla aktar</button></p><p id="code-message" role="status"></p>
+<details><summary>ZIP dosyasıyla aktarım</summary><input id="file" type="file" accept=".zip">
+<p><button id="import" disabled>Özel paketi aktar</button></p><p id="message" role="status"></p></details></section>
+<p>İçerik yalnızca taslak olarak hazırlanır. Otomatik sosyal paylaşım henüz etkin değildir.</p><script>
+let durable=false,codeAvailable=false;
+function buttons(busy){document.getElementById('import').disabled=busy||!durable;document.getElementById('code-import').disabled=busy||!durable||!codeAvailable;}
+async function refresh(){
+ const r=await fetch('/api/automation/status');if(!r.ok)throw new Error('Durum okunamadı.');const s=await r.json();durable=s.persistent_storage;codeAvailable=s.code_import_available;
+ if(!codeAvailable)document.getElementById('code-message').textContent='Kodlu aktarım için hazır paketin yüklenmesi bekleniyor.';
+ document.getElementById('status').textContent=(durable?'Kalıcı veritabanı bağlı. ':'Kalıcı veritabanı bekleniyor. ')+'Kaynak: '+s.source_fact_count+' bilgi; tekrar dışında: '+s.reserved_fact_count+' bilgi. Günlük saat: 10.00 Türkiye. Zamanlayıcının canlı etkinliği henüz doğrulanmadı.';buttons(false);
+}
+document.getElementById('code-import').onclick=async()=>{
+ const input=document.getElementById('code');const m=document.getElementById('code-message');const code=input.value.trim();
+ if(!code){m.textContent='Aktarım kodunu yapıştırın.';return;}buttons(true);m.textContent='Hazır paketler aktarılıyor…';
+ try{const r=await fetch('/api/automation/bootstrap/code',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});
+ const data=await r.json();if(!r.ok)throw new Error(data.detail||'Aktarım tamamlanamadı.');input.value='';
+ m.textContent=data.prepared_packs+' hazır paket ve kullanım geçmişi aktarıldı. ';
+ const link=document.createElement('a');link.href='/';link.textContent='Onay panelini aç';m.append(link);await refresh();
+ }catch(e){m.textContent=e.message||'Aktarım tamamlanamadı; tekrar deneyin.';}finally{buttons(false);}
+};
+document.getElementById('import').onclick=async()=>{
+ const file=document.getElementById('file').files[0];const m=document.getElementById('message');if(!file){m.textContent='Özel aktarım dosyasını seçin.';return;}
+ buttons(true);m.textContent='Aktarılıyor…';try{const r=await fetch('/api/automation/bootstrap',{method:'POST',headers:{'Content-Type':'application/zip'},body:file});
+ if(!r.ok)throw new Error('Aktarım tamamlanamadı. Paket ve kalıcı veritabanı ayarlarını kontrol edin.');
+ m.textContent='Kaynak havuzu ve mevcut paketler alındı. Paylaşım yapılmadı.';await refresh();}catch(e){m.textContent=e.message;}finally{buttons(false);}
+};
+refresh().catch(()=>document.getElementById('status').textContent='Durum okunamadı.');
 </script></html>'''
 
 

@@ -9,6 +9,7 @@
 !object_store.py
 !daily_planner.py
 !private_import.py
+!sealed_bootstrap.py
 !card_renderer.py
 !daily_worker.py
 !assets/

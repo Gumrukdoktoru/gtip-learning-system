@@ -13,13 +13,13 @@ Bu dağıtım ücretsiz hizmet katmanları için hazırlanmıştır; ücretli ka
 - Varsayılan dala kod yüklendiğinde yalnızca veritabanı bağlantısı ve kaynak hazırlığı kontrol edilir; bilgi seçilmez ve kart üretilmez. Kaynak aktarımı tamamlanmamışsa günlük iş açıkça aktarım beklediğini bildirir. Bağlantı hatası veya eksik sır başarılı kabul edilmez.
 - Taslak görseller, bir kez üretilmiş resimli arka planlara kaynak metinlerinin yazılmasıyla ücretsiz hazırlanır. Sohbetteki görsel üretim aracı sunucudan kendiliğinden çağrılmaz; her gün yeni bir yapay zekâ illüstrasyonu üretildiği iddia edilmez.
 
-Depo herkese açıktır. PDF'ler, gerçek kaynak metinleri, hazır paylaşımlar, veritabanları, onay geçmişi ve sırlar bu depoya eklenmez. Yalnızca kod, genel arka planlar, logo ve lisanslı yazı tipleri bulunur. Özel çalışma alanında hazırlanan iki günlük sekiz görsel ve kaynak havuzu, ayrı özel aktarım paketiyle korunur.
+Depo herkese açıktır. Açık içerik olarak kod, genel arka planlar, logo ve lisanslı yazı tipleri bulunur. Kodlu aktarım, AES-256-GCM ile şifrelenmiş `assets/private-bootstrap.enc` dosyasını destekler. Bu özel veri dosyasının herkese açık depoya yüklenmesi açık kullanıcı izni bekler; varsayılan Git kuralı dosyayı dışlar. Dosya sunucuda mevcut olana kadar kodlu aktarım düğmesi kapalıdır. Rastgele açma anahtarı ayrı özel çalışma alanında tutulur; depoda, Docker imajında, günlüklerde ve HTML içinde bulunmaz. Ham PDF'ler, veritabanları ve hesap sırları depoya eklenmez. Hazırlanan şifreli paket, iki günlük sekiz görseli ve kaynak havuzunu korur.
 
 ## Canlıya geçişte kalan bağlantılar
 
 1. Kullanıcıya ait ücretsiz PostgreSQL hizmeti yetkilendirilir. Bağlantı adresi Render'ın güvenli ortam ayarına `DATABASE_URL`, bu GitHub deposunun Actions sırrına `AUTOMATION_DATABASE_URL` adıyla konur. Neon'un kopyaladığı tek `psql 'postgresql://…'` veya `DATABASE_URL='postgresql://…'` biçimi de veri olarak okunur; komut çalıştırılmaz. GitHub'daki sır yerel çalışma ortamına veya Render'a kendiliğinden aktarılmaz. Gerçek adres sohbete veya kaynak koda yazılmaz. TLS sertifika doğrulaması zorunludur.
 2. Render Blueprint kaynağı olarak `Gumrukdoktoru/gtip-learning-system` deposunun `codex/gumruk-paylasim-ucretsiz` dalı seçilir. Depo kökündeki `render.yaml` ücretsiz web hizmetini ve rastgele panel/parola anahtarlarını tanımlar; ücretli disk içermez. İlk kurulumda `DATABASE_URL` güvenli giriş alanında istenir. Alan adı satın almak gerekmez. Bu dosyanın varlığı hizmetin oluşturulduğu anlamına gelmez.
-3. Servis açıldıktan sonra yetkili `/automation` ekranından hazırlanan özel aktarım paketi alınır. Görsellerin ve kaynakların özetleri doğrulanır; mevcut iki paket yeniden üretilmez. Geçici SQLite denemesine özel içerik aktarımı engellenir. Şifreli bağlantılar için `TOKEN_ENCRYPTION_KEY` sabit tutulur ve güvenli biçimde korunur.
+3. Servis açıldıktan sonra yetkili `/automation` ekranındaki **Kodla aktar** alanına özel çalışma dosyasındaki aktarım kodu yapıştırılır. ZIP indirmek gerekmez. İsteğe bağlı ZIP yükleme de korunur. Açma kodu yalnızca parola korumalı HTTPS isteğinin gövdesinde kullanılır; URL'ye veya günlük çıktısına yazılmaz. Görsellerin ve kaynakların özetleri doğrulanır; mevcut iki paket yeniden üretilmez. Yanlış kod veya değiştirilmiş paketle veri aktarılmaz. Geçici SQLite denemesine özel içerik aktarımı engellenir. Şifreli hesap bağlantıları için `TOKEN_ENCRYPTION_KEY` ayrı bir anahtardır; sabit tutulur ve güvenli biçimde korunur.
 4. `.github/workflows/gunluk-icerik.yml` varsayılan dala alındıktan, Actions etkinleştirildikten ve veritabanı sırrı tanımlandıktan sonra zamanlama çalışabilir. **Özellik dalına dosya yüklemek günlük işi etkinleştirmez.** İlk kod yüklemesi bağlantıyı kontrol eder. Özel aktarım tamamlandıktan sonra elle çalıştırılıp panelde dört kartın ve tekrar engelleme kaydının oluştuğu doğrulanır.
 5. Instagram ve LinkedIn uygulamaları yetkilendirilir, hesap sahibi kendi platform giriş ekranlarında izin verir. Bunlar aşağıdaki ayrı hesap bağlantısı adımlarıdır.
 
@@ -44,7 +44,7 @@ WhatsApp hedefi mevcut bir gruptur. Bu grubun resmî API ile paylaşım uygunlu�
 ```sh
 cd automation
 python3 -m pip install -r requirements-runtime.txt
-python3 -m unittest -v test_connections.py test_panel.py test_daily.py test_private_import.py test_database.py
+python3 -m unittest -v test_connections.py test_panel.py test_daily.py test_private_import.py test_database.py test_sealed_bootstrap.py
 ```
 
 Geliştirme testleri yalnızca geçici/sentetik veriler kullanır. PostgreSQL yoksa yerel SQLite ile panel denenebilir; bu yol canlı kalıcılık sağlamaz. Worker, `DATABASE_URL` olmadan çalışmayı reddeder. Canlı PostgreSQL'de `sslmode=verify-full` kullanılır. Sürücünün derleme zamanındaki varsayılanına güvenmek yerine mevcut işletim sistemi CA dosyası açıkça verilir; özel CA gerekiyorsa `PGSSLROOTCERT` ile seçilir. Sertifika dosyası yoksa doğrulama kapatılmaz, bağlantı reddedilir.
