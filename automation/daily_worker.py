@@ -8,7 +8,7 @@ import sys
 from zoneinfo import ZoneInfo
 
 from card_renderer import build_draft
-from database import Database
+from database import Database,DatabaseConfigError
 from daily_planner import DailyPlanner,PoolExhausted
 from object_store import ObjectStore
 
@@ -59,18 +59,29 @@ if __name__=='__main__':
     if not os.environ.get('DATABASE_URL'):
         print('Kalıcı veritabanı yetkilendirilmedi; günlük iş çalıştırılmadı.',file=sys.stderr)
         raise SystemExit(2)
-    if not os.environ['DATABASE_URL'].startswith(('postgresql://','postgres://')):
-        print('DATABASE_URL yalnızca PostgreSQL adresini içermeli; psql komutu veya dış tırnaklar bulunmamalı.',file=sys.stderr)
-        raise SystemExit(2)
     day=args.day or datetime.now(ZoneInfo('Europe/Istanbul')).date().isoformat()
     try:
         operation=check_storage if args.check_storage else run
         result=operation(Database(Path('/tmp/gumruk-worker.sqlite3')),day)
+    except DatabaseConfigError:
+        message='DATABASE_URL geçerli PostgreSQL adresi içermiyor; Neon bağlantı alanındaki adres veya tek psql bağlantısı kopyalanmalı.'
+        if os.environ.get('GITHUB_ACTIONS')=='true':print('::error::'+message)
+        print(message,file=sys.stderr)
+        raise SystemExit(2)
     except PoolExhausted:
         print('Yeni kaynak havuzu eksik; tekrar seçim ve paylaşım yapılmadı.',file=sys.stderr)
         raise SystemExit(3)
-    except Exception:
+    except Exception as error:
         # Driver errors can include database URLs, usernames or source text.
-        print('Günlük taslak hazırlanamadı; gizli bağlantı veya kaynak değerleri günlüğe yazılmadı.',file=sys.stderr)
+        message='Veritabanı kontrolü veya günlük hazırlık tamamlanamadı; gizli değerler günlüğe yazılmadı.'
+        # Fixed categories allow diagnosis without exposing provider error text.
+        reason=str(error).lower()
+        if 'password authentication failed' in reason:message='Veritabanı kullanıcı/parola doğrulaması reddedildi; Neon bağlantısı yenilenmeli.'
+        elif 'certificate verify failed' in reason or 'certificate verification failed' in reason:
+            message='Veritabanı TLS sertifikası doğrulanamadı; sertifika doğrulaması kapatılmadı.'
+        elif 'could not translate host name' in reason or 'name or service not known' in reason:
+            message='Veritabanı sunucu adresi çözülemedi; bağlantı adresi kontrol edilmeli.'
+        if os.environ.get('GITHUB_ACTIONS')=='true':print('::error::'+message)
+        print(message,file=sys.stderr)
         raise SystemExit(1)
     print(json.dumps(result))
