@@ -4,12 +4,23 @@ import os
 from pathlib import Path
 import re
 import shlex
+import ssl
 import sqlite3
 from urllib.parse import urlsplit
 
 
 class DatabaseConfigError(ValueError):
     pass
+
+
+def trusted_ca_file(config):
+    if config.get('PGSSLROOTCERT'):return config['PGSSLROOTCERT']
+    # Bundled libpq/OpenSSL may have a different default root path than Python.
+    # Give it an existing OS trust bundle instead of relying on "system".
+    for candidate in (ssl.get_default_verify_paths().cafile,
+                      '/etc/ssl/certs/ca-certificates.crt'):
+        if candidate and Path(candidate).is_file():return str(candidate)
+    raise RuntimeError('Güvenilir kök sertifika dosyası bulunamadı; PGSSLROOTCERT ayarlanmalı.')
 
 
 def normalize_database_url(value):
@@ -68,7 +79,7 @@ class Database:
         if self.persistent:
             import psycopg
             raw=psycopg.connect(self.url,sslmode='verify-full',
-                sslrootcert=self.config.get('PGSSLROOTCERT','system'),connect_timeout=15)
+                sslrootcert=trusted_ca_file(self.config),connect_timeout=15)
         else:
             raw=sqlite3.connect(self.path,timeout=20)
         try:

@@ -47,7 +47,7 @@ python3 -m pip install -r requirements-runtime.txt
 python3 -m unittest -v test_connections.py test_panel.py test_daily.py test_private_import.py test_database.py
 ```
 
-Geliştirme testleri yalnızca geçici/sentetik veriler kullanır. PostgreSQL yoksa yerel SQLite ile panel denenebilir; bu yol canlı kalıcılık sağlamaz. Worker, `DATABASE_URL` olmadan çalışmayı reddeder. Canlı PostgreSQL'de `sslmode=verify-full` kullanılır.
+Geliştirme testleri yalnızca geçici/sentetik veriler kullanır. PostgreSQL yoksa yerel SQLite ile panel denenebilir; bu yol canlı kalıcılık sağlamaz. Worker, `DATABASE_URL` olmadan çalışmayı reddeder. Canlı PostgreSQL'de `sslmode=verify-full` kullanılır. Sürücünün derleme zamanındaki varsayılanına güvenmek yerine mevcut işletim sistemi CA dosyası açıkça verilir; özel CA gerekiyorsa `PGSSLROOTCERT` ile seçilir. Sertifika dosyası yoksa doğrulama kapatılmaz, bağlantı reddedilir.
 
 Docker, depo kökünden `docker build -t gumruk-onay ./automation` ile hazırlanır. Yönetilen bulut ortamında paket kurulumu için gereken vekil CA sertifikası `proxy_ca` BuildKit secret olarak verilir; TLS doğrulaması kapatılmaz. Sağlayıcı OAuth girişleri uygulama ve kullanıcı izni olmadan test edilmiş sayılmaz.
 

@@ -1,5 +1,9 @@
 import unittest
-from database import DatabaseConfigError,normalize_database_url
+from pathlib import Path
+import tempfile
+from types import SimpleNamespace
+from unittest.mock import Mock,patch
+from database import Database,DatabaseConfigError,normalize_database_url,trusted_ca_file
 
 
 class DatabaseConfigTests(unittest.TestCase):
@@ -26,6 +30,29 @@ class DatabaseConfigTests(unittest.TestCase):
         for value in ('', 'https://private-password.example.test', 'psql "unfinished-private-password'):
             with self.assertRaises(DatabaseConfigError) as caught:normalize_database_url(value)
             self.assertNotIn('private-password',str(caught.exception))
+
+    def test_postgres_uses_an_existing_python_ca_file_with_full_verification(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp)/'test-root.pem';root.write_text('Fixture for CA path selection only')
+            connect=Mock(return_value=Mock())
+            with patch('database.ssl.get_default_verify_paths',return_value=SimpleNamespace(cafile=str(root))), \
+                 patch.dict('sys.modules',{'psycopg':SimpleNamespace(connect=connect)}):
+                with Database(Path(temp)/'unused.db',{'DATABASE_URL':self.url}).connect():pass
+            self.assertEqual(connect.call_args.kwargs['sslrootcert'],str(root))
+            self.assertEqual(connect.call_args.kwargs['sslmode'],'verify-full')
+
+    def test_custom_ca_override_keeps_full_verification(self):
+        connect=Mock(return_value=Mock())
+        with patch.dict('sys.modules',{'psycopg':SimpleNamespace(connect=connect)}):
+            with Database('/tmp/unused-test.db',{'DATABASE_URL':self.url,
+                          'PGSSLROOTCERT':'/custom/ca.pem'}).connect():pass
+        self.assertEqual(connect.call_args.kwargs['sslrootcert'],'/custom/ca.pem')
+        self.assertEqual(connect.call_args.kwargs['sslmode'],'verify-full')
+
+    def test_no_available_ca_bundle_fails_without_disabling_verification(self):
+        with patch('database.ssl.get_default_verify_paths',return_value=SimpleNamespace(cafile=None)), \
+             patch('database.Path.is_file',return_value=False):
+            with self.assertRaises(RuntimeError):trusted_ca_file({})
 
 
 if __name__=='__main__':unittest.main(verbosity=2)
