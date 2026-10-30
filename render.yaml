@@ -2,10 +2,9 @@ services:
   - type: web
     name: ufuk-cetintas-onay
     branch: codex/gumruk-paylasim-ucretsiz
-    rootDir: automation
     runtime: docker
-    dockerfilePath: ./Dockerfile
-    dockerContext: .
+    dockerfilePath: ./automation/Dockerfile
+    dockerContext: ./automation
     plan: free
     healthCheckPath: /healthz
     envVars:

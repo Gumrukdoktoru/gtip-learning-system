@@ -19,7 +19,11 @@ def normalize_database_url(value):
         try:parts=shlex.split(value)
         except ValueError:raise DatabaseConfigError('Geçersiz PostgreSQL bağlantı biçimi') from None
         if len(parts)==2 and parts[0]=='psql':value=parts[1]
-        elif len(parts)==1:value=parts[0]
+        elif len(parts)==2 and parts[0]=='export' and parts[1].startswith('DATABASE_URL='):
+            value=parts[1].split('=',1)[1]
+        elif len(parts)==1:
+            value=parts[0]
+            if value.startswith('DATABASE_URL='):value=value.split('=',1)[1]
         else:raise DatabaseConfigError('Yalnız PostgreSQL bağlantı adresi kabul edilir')
     try:
         parsed=urlsplit(value)

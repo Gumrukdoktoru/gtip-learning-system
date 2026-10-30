@@ -14,6 +14,10 @@ class DatabaseConfigTests(unittest.TestCase):
     def test_quoted_url_and_surrounding_whitespace_are_accepted(self):
         self.assertEqual(normalize_database_url('  "'+self.url+'"\n'),self.url)
 
+    def test_neon_environment_copy_formats_are_accepted_as_data(self):
+        for prefix in ('DATABASE_URL=','export DATABASE_URL='):
+            self.assertEqual(normalize_database_url(prefix+repr(self.url)),self.url)
+
     def test_extra_commands_and_arguments_are_rejected(self):
         for value in ('psql '+repr(self.url)+' -c SELECT', 'psql '+repr(self.url)+'; echo no'):
             with self.assertRaises(DatabaseConfigError):normalize_database_url(value)

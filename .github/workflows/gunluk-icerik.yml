@@ -40,7 +40,7 @@ jobs:
         working-directory: automation
         shell: bash
         run: |
-          python daily_worker.py --check-storage > storage-status.json
+          python daily_worker.py --check-storage | tee storage-status.json
           python - <<'PY'
           import json,os
           from pathlib import Path
