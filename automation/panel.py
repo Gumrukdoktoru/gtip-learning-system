@@ -7,15 +7,19 @@ import json
 import os
 from pathlib import Path
 import re
-import sqlite3
 import threading
+import zipfile
 from zoneinfo import ZoneInfo
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel
 from social_connections import SocialConnections, connection_router
+from database import Database
+from object_store import ObjectStore
+from daily_planner import DailyPlanner
+from private_import import import_bundle
 
 ROOT = Path(__file__).resolve().parent
 DAY_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
@@ -54,9 +58,11 @@ def create_app(output=None, db_path=None, password=None, connection_config=None,
         raise RuntimeError("Set REVIEW_PANEL_PASSWORD securely before starting the panel.")
     db_path.parent.mkdir(parents=True, exist_ok=True)
     lock = threading.Lock()
-    with sqlite3.connect(db_path) as db:
-        db.execute("""CREATE TABLE IF NOT EXISTS decisions (
-            id INTEGER PRIMARY KEY, day TEXT NOT NULL, content_sha256 TEXT NOT NULL,
+    database=Database(db_path,connection_config)
+    objects=ObjectStore(database)
+    with database.connect() as db:
+        db.execute(f"""CREATE TABLE IF NOT EXISTS decisions (
+            id {database.identity_column}, day TEXT NOT NULL, content_sha256 TEXT NOT NULL,
             decision TEXT NOT NULL, note TEXT NOT NULL, decided_at TEXT NOT NULL)""")
     security = HTTPBasic()
 
@@ -71,6 +77,29 @@ def create_app(output=None, db_path=None, password=None, connection_config=None,
     manager=SocialConnections(db_path,connection_config,connection_transport)
     app.include_router(connection_router(manager))
 
+    @app.get('/api/automation/status')
+    def automation_status():
+        return {'persistent_storage':database.persistent,'timezone':'Europe/Istanbul',
+                'scheduled_time':'10:00','scheduler_activation_verified':False,
+                'publishing_enabled':False,**DailyPlanner(database).status()}
+
+    @app.get('/automation',response_class=HTMLResponse)
+    def automation_page():
+        return AUTOMATION_HTML
+
+    @app.post('/api/automation/bootstrap')
+    async def bootstrap(request:Request):
+        if not database.persistent:
+            raise HTTPException(409,'Önce kalıcı veritabanı yetkilendirilmeli; özel içerik geçici denemeye aktarılmadı.')
+        body=bytearray()
+        async for chunk in request.stream():
+            body.extend(chunk)
+            if len(body)>24*1024*1024:raise HTTPException(413,'Aktarım paketi boyut sınırını aşıyor.')
+        try:
+            return import_bundle(database,bytes(body))
+        except (ValueError,KeyError,zipfile.BadZipFile):
+            raise HTTPException(400,'Özel aktarım paketi doğrulanamadı; paylaşım yapılmadı.') from None
+
     @app.middleware("http")
     async def headers(request, call_next):
         response = await call_next(request)
@@ -83,6 +112,7 @@ def create_app(output=None, db_path=None, password=None, connection_config=None,
     def folder_for(day):
         if not DAY_RE.fullmatch(day):
             raise HTTPException(404)
+        if database.persistent:objects.hydrate(day,output)
         folder = (output / day).resolve()
         if not folder.is_relative_to(output) or not (folder / "paket.json").is_file():
             raise HTTPException(404)
@@ -93,7 +123,7 @@ def create_app(output=None, db_path=None, password=None, connection_config=None,
         pack = json.loads((folder / "paket.json").read_text())
         actual_hash = current_content_hash(folder)
         valid = hmac.compare_digest(actual_hash, pack["content_sha256"])
-        with sqlite3.connect(db_path) as db:
+        with database.connect() as db:
             record = db.execute("SELECT decision,note,decided_at,content_sha256 FROM decisions "
                                 "WHERE day=? ORDER BY id DESC LIMIT 1", (day,)).fetchone()
         state = "draft"
@@ -110,11 +140,12 @@ def create_app(output=None, db_path=None, password=None, connection_config=None,
 
     @app.get("/api/packages")
     def packages():
+        days=objects.days() if database.persistent else [p.name for p in sorted(output.iterdir(),reverse=True)
+            if p.is_dir() and DAY_RE.fullmatch(p.name) and (p/'paket.json').is_file()]
         return {"daily_preview_time":"10:00", "timezone":"Europe/Istanbul",
                 "schedule_enabled":False,
-                "packages":[describe(p.name) for p in sorted(output.iterdir(), reverse=True)
-                            if p.is_dir() and DAY_RE.fullmatch(p.name)
-                            and (p / "paket.json").is_file()]}
+                "persistent_storage":database.persistent,
+                "packages":[describe(day) for day in days]}
 
     @app.post("/api/packages/{day}/review")
     def review(day: str, body: Decision):
@@ -127,7 +158,7 @@ def create_app(output=None, db_path=None, password=None, connection_config=None,
             if not item["manifest_valid"] or not hmac.compare_digest(item["content_sha256"], body.content_sha256):
                 raise HTTPException(409, "İçerik değişti. Yeni önizleme hazırlanıp tekrar incelenmeli.")
             now = datetime.now(ZoneInfo("Europe/Istanbul")).isoformat()
-            with sqlite3.connect(db_path) as db:
+            with database.connect() as db:
                 db.execute("INSERT INTO decisions(day,content_sha256,decision,note,decided_at) "
                            "VALUES (?,?,?,?,?)", (day, body.content_sha256, body.decision, body.note, now))
         return describe(day)
@@ -142,7 +173,7 @@ def create_app(output=None, db_path=None, password=None, connection_config=None,
 
     @app.get("/", response_class=HTMLResponse)
     def index():
-        if os.environ.get('DEMO_MODE','').lower()=='true':
+        if os.environ.get('DEMO_MODE','').lower()=='true' and not database.persistent:
             notice='<p class="notice"><strong>Ücretsiz deneme:</strong> Bu sürümde sunucu uykuya geçebilir; onaylar ve hesap bağlantıları yeniden başlatmada kaybolabilir. Günlük otomasyon henüz etkin değildir.</p>'
             return PANEL_HTML.replace('<main>','<main>'+notice)
         return PANEL_HTML
@@ -150,9 +181,15 @@ def create_app(output=None, db_path=None, password=None, connection_config=None,
     return app
 
 
+AUTOMATION_HTML='''<!doctype html><html lang="tr"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Kalıcı kayıt ve zamanlama</title><style>body{max-width:900px;margin:30px auto;padding:20px;font:17px/1.6 system-ui,sans-serif;background:#f5f7fc;color:#142d59}button{font:inherit;background:#174fb3;color:white;padding:10px 18px;border:0;border-radius:8px}section{background:white;padding:20px;border-radius:12px;margin:20px 0}</style><h1>Kalıcı kayıt ve günlük hazırlık</h1><p><a href="/">← Onay paneli</a></p><section id="status">Kontrol ediliyor…</section><section><h2>Özel kaynak havuzu</h2><p>Kaynaklar ve önceden hazırlanan paketler herkese açık depoya yüklenmez. Hazırlanmış özel aktarım paketi kalıcı veritabanına bir kez alınır.</p><input id="file" type="file" accept=".zip"><p><button id="import" disabled>Özel paketi aktar</button></p><p id="message" role="status"></p></section><p>İçerik yalnızca taslak olarak hazırlanır. Otomatik sosyal paylaşım henüz etkin değildir.</p><script>
+let durable=false;async function refresh(){const r=await fetch('/api/automation/status');const s=await r.json();durable=s.persistent_storage;document.getElementById('status').textContent=(durable?'Kalıcı veritabanı bağlı. ':'Kalıcı veritabanı bekleniyor. ')+'Kaynak: '+s.source_fact_count+' bilgi; tekrar dışında: '+s.reserved_fact_count+' bilgi. Günlük saat: 10.00 Türkiye. Zamanlayıcının canlı etkinliği henüz doğrulanmadı.';document.getElementById('import').disabled=!durable;}
+document.getElementById('import').onclick=async()=>{const file=document.getElementById('file').files[0];const m=document.getElementById('message');if(!file){m.textContent='Özel aktarım dosyasını seçin.';return;}m.textContent='Aktarılıyor…';const r=await fetch('/api/automation/bootstrap',{method:'POST',headers:{'Content-Type':'application/zip'},body:file});if(!r.ok){m.textContent='Aktarım tamamlanamadı. Paket ve kalıcı veritabanı ayarlarını kontrol edin.';return;}m.textContent='Kaynak havuzu ve mevcut paketler alındı. Paylaşım yapılmadı.';await refresh();};refresh().catch(()=>document.getElementById('status').textContent='Durum okunamadı.');
+</script></html>'''
+
+
 PANEL_HTML = '''<!doctype html><html lang="tr"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Gümrük Koçu · Onay paneli</title><style>
 *{box-sizing:border-box}body{margin:0;background:#f8f5ec;color:#163a36;font:16px/1.55 system-ui,sans-serif}header{padding:25px 30px;background:#133936;color:#f8f5ec}header p{margin:8px 0 0;color:#d9ed8d}main{max-width:1380px;margin:auto;padding:25px}button,a{color:inherit}button{background:#163a36;color:#f8f5ec;border:0;border-radius:8px;padding:12px 18px;font:inherit;cursor:pointer}button.reject{background:#774c3c}button:disabled{opacity:.4;cursor:not-allowed}section{padding:20px;border:1px solid #cbd3c5;border-radius:12px;margin:20px 0;background:#fffdf7}textarea{width:100%;font:inherit;padding:10px;margin:15px 0;min-height:80px;border:1px solid #cbd3c5;border-radius:8px}iframe{width:100%;height:75vh;min-height:480px;border:1px solid #cbd3c5;border-radius:10px;background:#fff}.notice{padding:14px 18px;background:#e8eddd;border-radius:8px}h1{margin:0;font-size:25px}h2{margin:0 0 10px}.actions{display:flex;gap:10px;flex-wrap:wrap}.tag{font-weight:700}#messages{padding:12px 0}label{display:block;margin:12px 0}a:focus,button:focus{outline:3px solid #e8a07c;outline-offset:3px}</style>
-<header><h1>UFUK ÇETİNTAŞ · Onay paneli</h1><p>Günlük tercih: 10.00 · Türkiye saati</p><p><a href="/connections">Hesap bağlantıları →</a></p></header><main><p class="notice">Kararlar kaydedilir. Günlük zamanlayıcı ve otomatik paylaşım henüz etkin değildir. Hesap bağlantılarını ayrı ekrandan yönetebilirsiniz. Verdiğiniz onay yalnızca incelenen içerik sürümünü kapsar.</p><div id="messages" role="status" aria-live="polite"></div><div id="packs"></div></main>
+<header><h1>UFUK ÇETİNTAŞ · Onay paneli</h1><p>Günlük tercih: 10.00 · Türkiye saati</p><p><a href="/connections">Hesap bağlantıları →</a> · <a href="/automation">Günlük hazırlık durumu →</a></p></header><main><p class="notice">Kararlar kaydedilir. Günlük zamanlayıcı ve otomatik paylaşım henüz etkin değildir. Hesap bağlantılarını ayrı ekrandan yönetebilirsiniz. Verdiğiniz onay yalnızca incelenen içerik sürümünü kapsar.</p><div id="messages" role="status" aria-live="polite"></div><div id="packs"></div></main>
 <script>
 const labels={draft:'Onay bekliyor',approved:'Onaylandı · hesap bağlantısı bekleniyor',rejected:'Düzeltme istendi',changed_requires_new_review:'İçerik değişti · yeniden inceleme gerekli'};
 function el(tag,text,cls){const e=document.createElement(tag);if(text)e.textContent=text;if(cls)e.className=cls;return e}

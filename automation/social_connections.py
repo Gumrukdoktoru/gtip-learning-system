@@ -10,7 +10,6 @@ import json
 import os
 from pathlib import Path
 import secrets
-import sqlite3
 import time
 from urllib.parse import urlencode, urlsplit
 
@@ -18,6 +17,7 @@ from cryptography.fernet import Fernet
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 import httpx
+from database import Database
 
 
 class ConnectionFailure(Exception):
@@ -56,7 +56,10 @@ class ConnectionStore:
     def __init__(self,db_path,config):
         self.db_path=Path(db_path)
         self.db_path.parent.mkdir(parents=True,exist_ok=True)
+        self.database=Database(db_path,config)
         supplied=config.get('TOKEN_ENCRYPTION_KEY')
+        if self.database.persistent and not supplied:
+            raise ConnectionFailure('Kalıcı veritabanı için TOKEN_ENCRYPTION_KEY güvenli sunucu ayarına eklenmeli.')
         if supplied:
             if len(supplied)<32:
                 raise ConnectionFailure('TOKEN_ENCRYPTION_KEY en az 32 rastgele karakter olmalıdır.')
@@ -86,7 +89,7 @@ class ConnectionStore:
             ''')
 
     def connect(self):
-        return sqlite3.connect(self.db_path,timeout=15)
+        return self.database.connect()
 
     def new_state(self,provider):
         state=secrets.token_urlsafe(32)
@@ -109,9 +112,13 @@ class ConnectionStore:
     def save(self,provider,account_id,display_name,token,scopes,confirmed,expires_at):
         encrypted=self.cipher.encrypt(token.encode())
         with self.connect() as db:
-            db.execute('''INSERT OR REPLACE INTO social_accounts
+            db.execute('''INSERT INTO social_accounts
                 (provider,account_id,display_name,encrypted_token,scopes,permissions_confirmed,expires_at,connected_at)
-                VALUES (?,?,?,?,?,?,?,?)''',
+                VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(provider) DO UPDATE SET
+                account_id=excluded.account_id,display_name=excluded.display_name,
+                encrypted_token=excluded.encrypted_token,scopes=excluded.scopes,
+                permissions_confirmed=excluded.permissions_confirmed,expires_at=excluded.expires_at,
+                connected_at=excluded.connected_at''',
                 (provider,account_id,display_name,encrypted,json.dumps(scopes),int(confirmed),expires_at,
                  datetime.now(timezone.utc).isoformat()))
 
@@ -275,7 +282,7 @@ def connection_router(manager):
     def page():
         import html
         reference=''
-        if manager.config.get('DEMO_MODE','').lower()=='true':
+        if manager.config.get('DEMO_MODE','').lower()=='true' and not manager.store.database.persistent:
             reference+='<p class="notice"><strong>Ücretsiz deneme:</strong> Hesap bağlantıları bu sürümde kalıcı değildir; sunucu yeniden başladığında yeniden yetkilendirme gerekebilir. Günlük otomasyon henüz etkin değildir.</p>'
         if manager.linkedin_profile_url:
             reference+='<p>LinkedIn hedef profili: <code>'+html.escape(manager.linkedin_profile_url)+'</code></p>'

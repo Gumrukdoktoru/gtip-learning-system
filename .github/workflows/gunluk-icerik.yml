@@ -1,0 +1,40 @@
+name: Günlük kaynaklı içerik taslağı
+on:
+  schedule:
+    # 07:00 UTC = 10:00 Europe/Istanbul. GitHub schedules can be delayed.
+    - cron: '0 7 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: gumruk-daily-draft
+  cancel-in-progress: false
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      DATABASE_URL: ${{ secrets.AUTOMATION_DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Kalıcı kayıt yetkisini kontrol et
+        id: ready
+        shell: bash
+        run: |
+          if [ -n "$DATABASE_URL" ]; then
+            echo 'enabled=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'enabled=false' >> "$GITHUB_OUTPUT"
+            echo 'Veritabanı izni henüz verilmedi; içerik seçimi veya paylaşım yapılmadı.'
+          fi
+      - uses: actions/setup-python@v5
+        if: steps.ready.outputs.enabled == 'true'
+        with:
+          python-version: '3.12'
+      - name: Bağımlılıkları kur
+        if: steps.ready.outputs.enabled == 'true'
+        run: python -m pip install -r automation/requirements-runtime.txt
+      - name: İki süre ve iki makamdan taslak oluştur
+        if: steps.ready.outputs.enabled == 'true'
+        working-directory: automation
+        run: python daily_worker.py

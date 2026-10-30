@@ -1,46 +1,53 @@
-# Ufuk Çetintaş — günlük içerik ve hesap bağlantı paneli
+# Ufuk Çetintaş — günlük içerik ve onay paneli
 
-Bu dal, kullanıcı adına hazırlanmış **ücretsiz deneme** dağıtımıdır. `CLAUDE.md` ve mevcut GTIP proje dosyaları korunur. Servis kökü `automation/`, Render Blueprint dosyası depo kökündeki `render.yaml` dosyasıdır. Kullanıcı onayı olmadan ücretli bir hizmet başlatılmaz.
+Her gün iki süre ve iki makam bilgisinden, kullanıcı onayını bekleyen özel bir paket hazırlanır. Süreler mavi, makamlar turuncudur; kullanıcının logosu korunur. Altı süre ve altı makam yerleşimi arasından aynı gün dört farklı düzen seçilir; aynı kategoride ardışık günlerde aynı düzen kullanılmaz. Görsel kütüphanesi sonlu olduğu için düzenler ilerleyen günlerde yeniden kullanılabilir. Hazırlanan bilgi ise yayımlanmamış olsa da tekrar seçilmez.
 
-## Hazır olanlar
+Bu dal ücretsiz hizmet katmanları için hazırlanmıştır; ücretli kaynak oluşturmaz. Gerçek veritabanı, canlı zamanlayıcı ve sosyal hesap bağlantıları henüz etkinleştirilmemiştir. Sosyal medyaya gönderim uygulaması da bu sürümde tamamlanmamıştır; panelde onay vermek paylaşım başlatmaz.
 
-- Özel çalışma alanında kullanıcının logosuyla iki günlük toplam sekiz farklı görsel hazırlanmıştır; süreler mavi, makamlar turuncudur. Bu herkese açık depoya gerçek görseller, metinler veya PDF alıntıları eklenmemiştir.
-- Özel çalışma alanındaki içerik kaydı, hazırlanan bilgileri sonraki günler için seçim dışı tutar. Bu kayıt herkese açık depoda bulunmaz.
-- Parola korumalı önizleme ve onay paneli. Metin, görsel veya hedef değişirse eski onay geçersiz olur.
-- Instagram `gumrukkocunuz` için hedef hesap kontrolü ve Instagram/LinkedIn OAuth bağlantı akışı.
-- LinkedIn kişisel profil adresi yalnızca hedef referansıdır; kullanıcı izni ve gerçek hesap kimliği yerine geçmez.
-- Şifreli hesap izni saklama, tek kullanımlık ve süreli OAuth state, hassas callback URL'leri için kapalı erişim günlüğü.
-- Kalıcı disk desteği ve özel başlangıç verileri için mevcut dosyaları değiştirmeyen aktarım mekanizması. Bu herkese açık dağıtımda başlangıçta içerik paneli boştur.
+## Kalıcı kayıt ve günlük hazırlık
 
-Gerçek hesaplar henüz bağlanmadı. Otomatik sosyal medya paylaşımı ve her gün 10.00 zamanlayıcısı henüz etkin değildir. WhatsApp hedefi gruptur; mevcut gruba resmî API uygunluğu henüz doğrulanmamıştır.
+- Render ücretsiz web hizmeti, parola korumalı önizleme ve onay ekranını çalıştırır. Yerel dosyalar yalnızca geçici önbellektir.
+- Kullanıcıya ait bir PostgreSQL veritabanı; kaynak havuzunu, hazırlanmış görselleri, tekrar engelleme kaydını, onayları ve şifreli hesap bağlantılarını saklar. Örneğin Neon'un ücretsiz katmanı kullanılabilir. Kota veya sağlayıcı koşulları değişirse ücretli plana kendiliğinden geçilmez.
+- GitHub Actions işi `07:00 UTC`, yani Türkiye saatiyle `10:00` için tanımlıdır. İş yalnızca taslak hazırlar; sosyal hesap izni kullanmaz, paylaşım yapmaz. GitHub zamanlanmış işleri gecikebilir; tam 10.00 teslim garantisi yoktur. Herkese açık depolarda uzun süreli hareketsizlik zamanlamayı durdurabilir; çalışması izlenmelidir.
+- Hazırlama işlemi tekrar çalıştırılırsa aynı günün paketi korunur. Kaynak havuzu biterse önceki bilgiler yeniden kullanılmaz; iş açıklayıcı hata ile durur.
+- Taslak görseller, bir kez üretilmiş resimli arka planlara kaynak metinlerinin yazılmasıyla ücretsiz hazırlanır. Sohbetteki görsel üretim aracı sunucudan kendiliğinden çağrılmaz; her gün yeni bir yapay zekâ illüstrasyonu üretildiği iddia edilmez.
 
-## Dağıtım
+Depo herkese açıktır. PDF'ler, gerçek kaynak metinleri, hazır paylaşımlar, veritabanları, onay geçmişi ve sırlar bu depoya eklenmez. Yalnızca kod, genel arka planlar, logo ve lisanslı yazı tipleri bulunur. Özel çalışma alanında hazırlanan iki günlük sekiz görsel ve kaynak havuzu, ayrı özel aktarım paketiyle korunur.
 
-Render'da `Gumrukdoktoru/gtip-learning-system` deposunu ve **codex/gumruk-paylasim-ucretsiz** dalını Blueprint kaynağı olarak seçin. `render.yaml`, ücretsiz web hizmetini seçer; ücretli disk tanımlamaz. Bir hizmet otomatik olarak oluşturulmuş değildir.
+## Canlıya geçişte kalan bağlantılar
 
-Bu bir bağlantı/panel denemesidir. Ücretsiz hizmet boşta uyuyabilir ve yerel dosyaları yeniden başlatmada kaybedebilir. Bu nedenle bu sürüm günlük 10.00 çalışmasını, hesap bağlantılarının kalıcılığını veya onay geçmişinin kalıcılığını henüz sağlamaz. Tam günlük otomasyon için ücretsiz sınırlar içinde kalıcı veri ve zamanlayıcı çözümü ayrıca tamamlanmalıdır. Kullanıcının iki hazır paketi ve tekrar engelleme kaydı özel çalışma alanında korunur; bu denemeye taşınarak riske atılmaz.
+1. Kullanıcıya ait ücretsiz PostgreSQL hizmeti yetkilendirilir. Bağlantı adresi Render'ın güvenli ortam ayarına `DATABASE_URL`, bu GitHub deposunun Actions sırrına `AUTOMATION_DATABASE_URL` adıyla konur. Gerçek adres sohbete veya kaynak koda yazılmaz. TLS sertifika doğrulaması zorunludur.
+2. Render Blueprint kaynağı olarak `Gumrukdoktoru/gtip-learning-system` deposunun `codex/gumruk-paylasim-ucretsiz` dalı seçilir. Depo kökündeki `render.yaml` ücretsiz web hizmetini ve rastgele panel/parola anahtarlarını tanımlar; ücretli disk içermez. Alan adı satın almak gerekmez. Bu dosyanın varlığı hizmetin oluşturulduğu anlamına gelmez.
+3. Servis açıldıktan sonra yetkili `/automation` ekranından hazırlanan özel aktarım paketi alınır. Görsellerin ve kaynakların özetleri doğrulanır; mevcut iki paket yeniden üretilmez. Geçici SQLite denemesine özel içerik aktarımı engellenir. Şifreli bağlantılar için `TOKEN_ENCRYPTION_KEY` sabit tutulur ve güvenli biçimde korunur.
+4. `.github/workflows/gunluk-icerik.yml` varsayılan dala alındıktan, Actions etkinleştirildikten ve veritabanı sırrı tanımlandıktan sonra zamanlama çalışabilir. **Özellik dalına dosya yüklemek günlük işi etkinleştirmez.** Önce elle çalıştırılıp panelde dört kartın ve tekrar engelleme kaydının oluştuğu doğrulanır.
+5. Instagram ve LinkedIn uygulamaları yetkilendirilir, hesap sahibi kendi platform giriş ekranlarında izin verir. Bunlar aşağıdaki ayrı hesap bağlantısı adımlarıdır.
 
-Render'ın verdiği HTTPS adresi kullanılır; ayrıca alan adı almak gerekmez. Panel kullanıcı adı `reviewer`'dır. `REVIEW_PANEL_PASSWORD` ve `TOKEN_ENCRYPTION_KEY`, Render tarafından güvenli ortam ayarlarında rastgele oluşturulur; kaynak kodda gerçek değer bulunmaz.
+Panel kullanıcı adı `reviewer`'dır. Render'ın oluşturduğu `REVIEW_PANEL_PASSWORD` güvenli ayarlardan alınır. `/healthz` kimlik doğrulama gerektirmeyen, hiçbir içerik veya sır döndürmeyen sağlık kontrolüdür. Diğer sayfalar ve dosyalar parolalıdır. Uygulama, ihtiyaç duyduğu tabloları oluşturur; elle SQL çalıştırmak gerekmez.
 
-Servis açıldıktan sonra hesap sahibi, platform uygulama ayarlarını güvenli sunucu ortamına ekler:
+## Hesap bağlantıları
 
-| Ayar | Açıklama |
+| Güvenli sunucu ayarı | Açıklama |
 |---|---|
-| `INSTAGRAM_APP_ID` | Instagram Login için platform uygulaması kimliği |
-| `INSTAGRAM_APP_SECRET` | Platform uygulaması sırrı |
+| `INSTAGRAM_APP_ID` | Instagram Login uygulaması kimliği |
+| `INSTAGRAM_APP_SECRET` | Instagram uygulaması sırrı |
 | `LINKEDIN_CLIENT_ID` | LinkedIn uygulaması kimliği |
 | `LINKEDIN_CLIENT_SECRET` | LinkedIn uygulaması sırrı |
+| `PUBLIC_BASE_URL` | Panelin gerçek HTTPS adresi |
 
-OAuth dönüş adresleri `/auth/instagram/callback` ve `/auth/linkedin/callback` yollarıdır. Panelin `/connections` ekranı gerçek tam adresleri gösterir. Hesap sahibi platformun kendi giriş ekranında izin verir. Hesap bağlantısı paylaşım başlatmaz.
+`/connections` ekranı OAuth dönüş adreslerini ve eksik ayarları gösterir. Instagram hedefi `gumrukkocunuz` olarak kontrol edilir. LinkedIn kişisel profil URL'si yalnızca referanstır; kullanıcı izni ve gerçek hesap kimliği yerine geçmez. OAuth izinleri tek kullanımlık süreli state ile alınır; belirteçler veritabanında şifreli saklanır. Callback erişim günlüğü kapalıdır.
+
+WhatsApp hedefi mevcut bir gruptur. Bu grubun resmî API ile paylaşım uygunluğu henüz doğrulanmamıştır; grup bağlantısının hazır olduğu söylenmez.
 
 ## Geliştirme ve doğrulama
 
 ```sh
 cd automation
 python3 -m pip install -r requirements-runtime.txt
-python3 -m unittest -v test_connections.py test_panel.py
+python3 -m unittest -v test_connections.py test_panel.py test_daily.py test_private_import.py
 ```
 
-Docker, depo kökünden `docker build -t gumruk-onay ./automation` ile hazırlanır. Yönetilen bulut ortamında paket kurulumu için gerekli vekil CA sertifikası `proxy_ca` BuildKit secret olarak verilmelidir; TLS doğrulaması kapatılmaz. Canlı sağlayıcı OAuth girişleri uygulama ve kullanıcı izni olmadan test edilmiş sayılmaz.
+Geliştirme testleri yalnızca geçici/sentetik veriler kullanır. PostgreSQL yoksa yerel SQLite ile panel denenebilir; bu yol canlı kalıcılık sağlamaz. Worker, `DATABASE_URL` olmadan çalışmayı reddeder. Canlı PostgreSQL'de `sslmode=verify-full` kullanılır.
 
-Bu içerikler sağlanan kitapçıklarla kontrol edilmiştir; resmî güncel mevzuatla bağımsız teyit yapılmamıştır. Kaynak sayfaları ve kesim tarihi özel manifestolarda tutulur; yayın görsellerinde kitapçık adı veya kesim tarihi yer almaz.
+Docker, depo kökünden `docker build -t gumruk-onay ./automation` ile hazırlanır. Yönetilen bulut ortamında paket kurulumu için gereken vekil CA sertifikası `proxy_ca` BuildKit secret olarak verilir; TLS doğrulaması kapatılmaz. Sağlayıcı OAuth girişleri uygulama ve kullanıcı izni olmadan test edilmiş sayılmaz.
+
+Kaynak havuzu yüklenen PDF metinleriyle kontrol edilmiştir; resmî güncel mevzuatla bağımsız teyit yapılmamıştır. Eş anlamlı ifadelerin ayrıştırılması kusursuz bir hukuki mükerrerlik incelemesi değildir; günlük kullanıcı onayı sürer. Kitapçık adı ve kaynak kesim tarihi yayın görsellerine veya paylaşım metnine eklenmez. Hukuki dayanak korunur.

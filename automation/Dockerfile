@@ -9,8 +9,9 @@ RUN --mount=type=secret,id=proxy_ca \
     else \
       pip install --no-cache-dir -r requirements-runtime.txt; \
     fi
-COPY panel.py social_connections.py serve.py ./
+COPY panel.py social_connections.py serve.py database.py object_store.py daily_planner.py private_import.py card_renderer.py daily_worker.py ./
 COPY config.json ./
+COPY assets ./assets
 COPY seed ./seed
 EXPOSE 10000
 CMD ["python", "serve.py"]

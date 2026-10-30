@@ -5,5 +5,13 @@
 !social_connections.py
 !serve.py
 !config.json
+!database.py
+!object_store.py
+!daily_planner.py
+!private_import.py
+!card_renderer.py
+!daily_worker.py
+!assets/
+!assets/**
 !seed/
 !seed/README.md
