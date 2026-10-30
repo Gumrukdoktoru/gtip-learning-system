@@ -1,0 +1,9 @@
+**
+!Dockerfile
+!requirements-runtime.txt
+!panel.py
+!social_connections.py
+!serve.py
+!config.json
+!seed/
+!seed/README.md
