@@ -2,7 +2,7 @@
 
 Her gün iki süre ve iki makam bilgisinden, kullanıcı onayını bekleyen özel bir paket hazırlanır. Süreler mavi, makamlar turuncudur; kullanıcının logosu korunur. Altı süre ve altı makam yerleşimi arasından aynı gün dört farklı düzen seçilir; aynı kategoride ardışık günlerde aynı düzen kullanılmaz. Görsel kütüphanesi sonlu olduğu için düzenler ilerleyen günlerde yeniden kullanılabilir. Hazırlanan bilgi ise yayımlanmamış olsa da tekrar seçilmez.
 
-Bu dal ücretsiz hizmet katmanları için hazırlanmıştır; ücretli kaynak oluşturmaz. Gerçek veritabanı, canlı zamanlayıcı ve sosyal hesap bağlantıları henüz etkinleştirilmemiştir. Sosyal medyaya gönderim uygulaması da bu sürümde tamamlanmamıştır; panelde onay vermek paylaşım başlatmaz.
+Bu dağıtım ücretsiz hizmet katmanları için hazırlanmıştır; ücretli kaynak oluşturmaz. Canlı bağlantıların çalıştığı ayrıca doğrulanmalıdır. Sosyal hesap bağlantıları ve sosyal medyaya gönderim uygulaması henüz tamamlanmamıştır; panelde onay vermek paylaşım başlatmaz.
 
 ## Kalıcı kayıt ve günlük hazırlık
 
@@ -10,16 +10,17 @@ Bu dal ücretsiz hizmet katmanları için hazırlanmıştır; ücretli kaynak ol
 - Kullanıcıya ait bir PostgreSQL veritabanı; kaynak havuzunu, hazırlanmış görselleri, tekrar engelleme kaydını, onayları ve şifreli hesap bağlantılarını saklar. Örneğin Neon'un ücretsiz katmanı kullanılabilir. Kota veya sağlayıcı koşulları değişirse ücretli plana kendiliğinden geçilmez.
 - GitHub Actions işi `07:00 UTC`, yani Türkiye saatiyle `10:00` için tanımlıdır. İş yalnızca taslak hazırlar; sosyal hesap izni kullanmaz, paylaşım yapmaz. GitHub zamanlanmış işleri gecikebilir; tam 10.00 teslim garantisi yoktur. Herkese açık depolarda uzun süreli hareketsizlik zamanlamayı durdurabilir; çalışması izlenmelidir.
 - Hazırlama işlemi tekrar çalıştırılırsa aynı günün paketi korunur. Kaynak havuzu biterse önceki bilgiler yeniden kullanılmaz; iş açıklayıcı hata ile durur.
+- Varsayılan dala kod yüklendiğinde yalnızca veritabanı bağlantısı ve kaynak hazırlığı kontrol edilir; bilgi seçilmez ve kart üretilmez. Kaynak aktarımı tamamlanmamışsa günlük iş açıkça aktarım beklediğini bildirir. Bağlantı hatası veya eksik sır başarılı kabul edilmez.
 - Taslak görseller, bir kez üretilmiş resimli arka planlara kaynak metinlerinin yazılmasıyla ücretsiz hazırlanır. Sohbetteki görsel üretim aracı sunucudan kendiliğinden çağrılmaz; her gün yeni bir yapay zekâ illüstrasyonu üretildiği iddia edilmez.
 
 Depo herkese açıktır. PDF'ler, gerçek kaynak metinleri, hazır paylaşımlar, veritabanları, onay geçmişi ve sırlar bu depoya eklenmez. Yalnızca kod, genel arka planlar, logo ve lisanslı yazı tipleri bulunur. Özel çalışma alanında hazırlanan iki günlük sekiz görsel ve kaynak havuzu, ayrı özel aktarım paketiyle korunur.
 
 ## Canlıya geçişte kalan bağlantılar
 
-1. Kullanıcıya ait ücretsiz PostgreSQL hizmeti yetkilendirilir. Bağlantı adresi Render'ın güvenli ortam ayarına `DATABASE_URL`, bu GitHub deposunun Actions sırrına `AUTOMATION_DATABASE_URL` adıyla konur. Gerçek adres sohbete veya kaynak koda yazılmaz. TLS sertifika doğrulaması zorunludur.
-2. Render Blueprint kaynağı olarak `Gumrukdoktoru/gtip-learning-system` deposunun `codex/gumruk-paylasim-ucretsiz` dalı seçilir. Depo kökündeki `render.yaml` ücretsiz web hizmetini ve rastgele panel/parola anahtarlarını tanımlar; ücretli disk içermez. Alan adı satın almak gerekmez. Bu dosyanın varlığı hizmetin oluşturulduğu anlamına gelmez.
+1. Kullanıcıya ait ücretsiz PostgreSQL hizmeti yetkilendirilir. Bağlantı adresi Render'ın güvenli ortam ayarına `DATABASE_URL`, bu GitHub deposunun Actions sırrına `AUTOMATION_DATABASE_URL` adıyla konur. GitHub'daki sır yerel çalışma ortamına veya Render'a kendiliğinden aktarılmaz. Gerçek adres sohbete veya kaynak koda yazılmaz. TLS sertifika doğrulaması zorunludur.
+2. Render Blueprint kaynağı olarak `Gumrukdoktoru/gtip-learning-system` deposunun `codex/gumruk-paylasim-ucretsiz` dalı seçilir. Depo kökündeki `render.yaml` ücretsiz web hizmetini ve rastgele panel/parola anahtarlarını tanımlar; ücretli disk içermez. İlk kurulumda `DATABASE_URL` güvenli giriş alanında istenir. Alan adı satın almak gerekmez. Bu dosyanın varlığı hizmetin oluşturulduğu anlamına gelmez.
 3. Servis açıldıktan sonra yetkili `/automation` ekranından hazırlanan özel aktarım paketi alınır. Görsellerin ve kaynakların özetleri doğrulanır; mevcut iki paket yeniden üretilmez. Geçici SQLite denemesine özel içerik aktarımı engellenir. Şifreli bağlantılar için `TOKEN_ENCRYPTION_KEY` sabit tutulur ve güvenli biçimde korunur.
-4. `.github/workflows/gunluk-icerik.yml` varsayılan dala alındıktan, Actions etkinleştirildikten ve veritabanı sırrı tanımlandıktan sonra zamanlama çalışabilir. **Özellik dalına dosya yüklemek günlük işi etkinleştirmez.** Önce elle çalıştırılıp panelde dört kartın ve tekrar engelleme kaydının oluştuğu doğrulanır.
+4. `.github/workflows/gunluk-icerik.yml` varsayılan dala alındıktan, Actions etkinleştirildikten ve veritabanı sırrı tanımlandıktan sonra zamanlama çalışabilir. **Özellik dalına dosya yüklemek günlük işi etkinleştirmez.** İlk kod yüklemesi bağlantıyı kontrol eder. Özel aktarım tamamlandıktan sonra elle çalıştırılıp panelde dört kartın ve tekrar engelleme kaydının oluştuğu doğrulanır.
 5. Instagram ve LinkedIn uygulamaları yetkilendirilir, hesap sahibi kendi platform giriş ekranlarında izin verir. Bunlar aşağıdaki ayrı hesap bağlantısı adımlarıdır.
 
 Panel kullanıcı adı `reviewer`'dır. Render'ın oluşturduğu `REVIEW_PANEL_PASSWORD` güvenli ayarlardan alınır. `/healthz` kimlik doğrulama gerektirmeyen, hiçbir içerik veya sır döndürmeyen sağlık kontrolüdür. Diğer sayfalar ve dosyalar parolalıdır. Uygulama, ihtiyaç duyduğu tabloları oluşturur; elle SQL çalıştırmak gerekmez.

@@ -8,7 +8,7 @@ import unittest
 from database import Database
 from daily_planner import DailyPlanner,PoolExhausted
 from object_store import ObjectStore
-from daily_worker import run
+from daily_worker import check_storage,run
 from panel import current_content_hash
 from social_connections import ConnectionStore
 
@@ -40,6 +40,32 @@ class DailyTests(unittest.TestCase):
         self.assertEqual(first,second)
         self.assertEqual(sum(x['kind']=='duration' for x in first),2)
         self.assertEqual(self.planner.status()['reserved_fact_count'],4)
+
+    def test_storage_check_does_not_select_or_prepare_content(self):
+        result=check_storage(self.database,'2026-11-01')
+        self.assertTrue(result['database_connected']);self.assertTrue(result['eligible'])
+        self.assertEqual(self.planner.status()['reserved_fact_count'],0)
+        self.assertEqual(ObjectStore(self.database).days(),[])
+
+    def test_empty_storage_waits_for_private_import(self):
+        empty=Database(self.root/'empty.sqlite3',{})
+        result=check_storage(empty,'2026-11-01')
+        self.assertFalse(result['eligible']);self.assertEqual(result['status'],'private_pool_required')
+        self.assertEqual(DailyPlanner(empty).status()['reserved_fact_count'],0)
+
+    def test_storage_check_does_not_recycle_an_insufficient_pool(self):
+        small=Database(self.root/'small-check.sqlite3',{});p=DailyPlanner(small)
+        p.import_facts(self.data[:3])
+        result=check_storage(small,'2026-11-01')
+        self.assertFalse(result['eligible']);self.assertEqual(result['status'],'pool_exhausted')
+        self.assertEqual(p.status()['reserved_fact_count'],0)
+
+    def test_storage_check_preserves_existing_pack_with_no_unused_facts(self):
+        small=Database(self.root/'used-check.sqlite3',{});p=DailyPlanner(small)
+        p.import_facts(self.data[:4]);run(small,'2026-11-01')
+        result=check_storage(small,'2026-11-01')
+        self.assertTrue(result['eligible']);self.assertEqual(result['status'],'existing_draft_preserved')
+        self.assertEqual(p.status()['reserved_fact_count'],4)
 
     def test_next_day_never_reuses_prepared_facts(self):
         a,_=self.planner.reserve('2026-11-01');b,_=self.planner.reserve('2026-11-02')

@@ -1,5 +1,11 @@
 name: Günlük kaynaklı içerik taslağı
 on:
+  push:
+    branches:
+      - claude/claude-md-mipv7ifn1eib2ln7-01RXTFdDBsREEVkDM2mpNvpo
+    paths:
+      - '.github/workflows/gunluk-icerik.yml'
+      - 'automation/**'
   schedule:
     # 07:00 UTC = 10:00 Europe/Istanbul. GitHub schedules can be delayed.
     - cron: '0 7 * * *'
@@ -18,23 +24,41 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Kalıcı kayıt yetkisini kontrol et
-        id: ready
         shell: bash
         run: |
-          if [ -n "$DATABASE_URL" ]; then
-            echo 'enabled=true' >> "$GITHUB_OUTPUT"
-          else
-            echo 'enabled=false' >> "$GITHUB_OUTPUT"
-            echo 'Veritabanı izni henüz verilmedi; içerik seçimi veya paylaşım yapılmadı.'
+          if [ -z "$DATABASE_URL" ]; then
+            echo '::error::AUTOMATION_DATABASE_URL güvenli depo ayarı eksik; bağlantı doğrulanamadı.'
+            exit 1
           fi
       - uses: actions/setup-python@v5
-        if: steps.ready.outputs.enabled == 'true'
         with:
           python-version: '3.12'
       - name: Bağımlılıkları kur
-        if: steps.ready.outputs.enabled == 'true'
         run: python -m pip install -r automation/requirements-runtime.txt
+      - name: Veritabanı bağlantısını ve özel kaynak hazırlığını kontrol et
+        id: storage
+        working-directory: automation
+        shell: bash
+        run: |
+          python daily_worker.py --check-storage > storage-status.json
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          result=json.loads(Path('storage-status.json').read_text())
+          print(json.dumps(result))
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out:
+              out.write('eligible='+str(result['eligible']).lower()+'\n')
+          message='Veritabanı bağlantısı doğrulandı. '
+          if not result['eligible']:
+              message+='Özel kaynak aktarımı veya havuz yenilemesi bekleniyor; kart seçilmedi ve paylaşım yapılmadı.'
+          elif os.environ['GITHUB_EVENT_NAME']=='push':
+              message+='Kod yüklemesi yalnızca bağlantıyı kontrol etti; günlük içerik değiştirilmedi.'
+          else:
+              message+='Günlük taslak hazırlığına devam ediliyor; sosyal paylaşım yapılmaz.'
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as out:
+              out.write(message+'\n')
+          PY
       - name: İki süre ve iki makamdan taslak oluştur
-        if: steps.ready.outputs.enabled == 'true'
+        if: github.event_name != 'push' && steps.storage.outputs.eligible == 'true'
         working-directory: automation
         run: python daily_worker.py
