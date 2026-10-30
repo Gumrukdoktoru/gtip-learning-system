@@ -16,7 +16,7 @@ Gerçek hesaplar henüz bağlanmadı. Otomatik sosyal medya paylaşımı ve her 
 
 ## Dağıtım
 
-Render'da bu özel depoyu ve **codex/gumruk-paylasim-kurulum** dalını Blueprint kaynağı olarak seçin. `render.yaml` tek servis, Docker, 1 GB kalıcı disk ve Starter planını tanımlar. **Plan ücretlidir; son ücret ve servis oluşturma onayı hesap sahibine aittir.** Bir hizmet otomatik olarak oluşturulmuş değildir.
+Render'da `Gumrukdoktoru/gtip-learning-system` deposunu ve **codex/gumruk-paylasim-kurulum** dalını Blueprint kaynağı olarak seçin. `render.yaml` tek servis, Docker, 1 GB kalıcı disk ve Starter planını tanımlar. **Plan ücretlidir; son ücret ve servis oluşturma onayı hesap sahibine aittir.** Bir hizmet otomatik olarak oluşturulmuş değildir.
 
 Render'ın verdiği HTTPS adresi kullanılır; ayrıca alan adı almak gerekmez. Panel kullanıcı adı `reviewer`'dır. `REVIEW_PANEL_PASSWORD` ve `TOKEN_ENCRYPTION_KEY`, Render tarafından güvenli ortam ayarlarında rastgele oluşturulur; kaynak kodda gerçek değer bulunmaz.
 

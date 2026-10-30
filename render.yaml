@@ -1,6 +1,7 @@
 services:
   - type: web
     name: ufuk-cetintas-onay
+    branch: codex/gumruk-paylasim-kurulum
     rootDir: automation
     runtime: docker
     dockerfilePath: ./Dockerfile
