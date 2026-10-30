@@ -1,20 +1,18 @@
 services:
   - type: web
     name: ufuk-cetintas-onay
-    branch: codex/gumruk-paylasim-kurulum
+    branch: codex/gumruk-paylasim-ucretsiz
     rootDir: automation
     runtime: docker
     dockerfilePath: ./Dockerfile
     dockerContext: .
-    plan: starter
+    plan: free
     healthCheckPath: /healthz
-    disk:
-      name: onay-verileri
-      mountPath: /var/data
-      sizeGB: 1
     envVars:
       - key: DATA_DIR
-        value: /var/data
+        value: /tmp/gumruk-onay
+      - key: DEMO_MODE
+        value: "true"
       - key: INSTAGRAM_EXPECTED_USERNAME
         value: gumrukkocunuz
       - key: REVIEW_PANEL_PASSWORD

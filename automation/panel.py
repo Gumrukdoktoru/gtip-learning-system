@@ -142,6 +142,9 @@ def create_app(output=None, db_path=None, password=None, connection_config=None,
 
     @app.get("/", response_class=HTMLResponse)
     def index():
+        if os.environ.get('DEMO_MODE','').lower()=='true':
+            notice='<p class="notice"><strong>Ücretsiz deneme:</strong> Bu sürümde sunucu uykuya geçebilir; onaylar ve hesap bağlantıları yeniden başlatmada kaybolabilir. Günlük otomasyon henüz etkin değildir.</p>'
+            return PANEL_HTML.replace('<main>','<main>'+notice)
         return PANEL_HTML
 
     return app

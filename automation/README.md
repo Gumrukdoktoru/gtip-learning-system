@@ -1,6 +1,6 @@
 # Ufuk Çetintaş — günlük içerik ve hesap bağlantı paneli
 
-Bu dal, kullanıcı adına hazırlanmış dağıtım paketidir. `CLAUDE.md` ve mevcut GTIP proje dosyaları korunur. Servis kökü `automation/`, Render Blueprint dosyası depo kökündeki `render.yaml` dosyasıdır.
+Bu dal, kullanıcı adına hazırlanmış **ücretsiz deneme** dağıtımıdır. `CLAUDE.md` ve mevcut GTIP proje dosyaları korunur. Servis kökü `automation/`, Render Blueprint dosyası depo kökündeki `render.yaml` dosyasıdır. Kullanıcı onayı olmadan ücretli bir hizmet başlatılmaz.
 
 ## Hazır olanlar
 
@@ -16,7 +16,9 @@ Gerçek hesaplar henüz bağlanmadı. Otomatik sosyal medya paylaşımı ve her 
 
 ## Dağıtım
 
-Render'da `Gumrukdoktoru/gtip-learning-system` deposunu ve **codex/gumruk-paylasim-kurulum** dalını Blueprint kaynağı olarak seçin. `render.yaml` tek servis, Docker, 1 GB kalıcı disk ve Starter planını tanımlar. **Plan ücretlidir; son ücret ve servis oluşturma onayı hesap sahibine aittir.** Bir hizmet otomatik olarak oluşturulmuş değildir.
+Render'da `Gumrukdoktoru/gtip-learning-system` deposunu ve **codex/gumruk-paylasim-ucretsiz** dalını Blueprint kaynağı olarak seçin. `render.yaml`, ücretsiz web hizmetini seçer; ücretli disk tanımlamaz. Bir hizmet otomatik olarak oluşturulmuş değildir.
+
+Bu bir bağlantı/panel denemesidir. Ücretsiz hizmet boşta uyuyabilir ve yerel dosyaları yeniden başlatmada kaybedebilir. Bu nedenle bu sürüm günlük 10.00 çalışmasını, hesap bağlantılarının kalıcılığını veya onay geçmişinin kalıcılığını henüz sağlamaz. Tam günlük otomasyon için ücretsiz sınırlar içinde kalıcı veri ve zamanlayıcı çözümü ayrıca tamamlanmalıdır. Kullanıcının iki hazır paketi ve tekrar engelleme kaydı özel çalışma alanında korunur; bu denemeye taşınarak riske atılmaz.
 
 Render'ın verdiği HTTPS adresi kullanılır; ayrıca alan adı almak gerekmez. Panel kullanıcı adı `reviewer`'dır. `REVIEW_PANEL_PASSWORD` ve `TOKEN_ENCRYPTION_KEY`, Render tarafından güvenli ortam ayarlarında rastgele oluşturulur; kaynak kodda gerçek değer bulunmaz.
 

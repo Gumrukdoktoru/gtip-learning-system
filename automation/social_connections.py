@@ -275,8 +275,10 @@ def connection_router(manager):
     def page():
         import html
         reference=''
+        if manager.config.get('DEMO_MODE','').lower()=='true':
+            reference+='<p class="notice"><strong>Ücretsiz deneme:</strong> Hesap bağlantıları bu sürümde kalıcı değildir; sunucu yeniden başladığında yeniden yetkilendirme gerekebilir. Günlük otomasyon henüz etkin değildir.</p>'
         if manager.linkedin_profile_url:
-            reference='<p>LinkedIn hedef profili: <code>'+html.escape(manager.linkedin_profile_url)+'</code></p>'
+            reference+='<p>LinkedIn hedef profili: <code>'+html.escape(manager.linkedin_profile_url)+'</code></p>'
         return CONNECTION_HTML.replace('<div id="accounts">',reference+'<div id="accounts">')
 
     @router.get('/auth/{provider}/start')

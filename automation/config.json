@@ -7,11 +7,28 @@
   "prepared_fact_reuse": "never_select_for_another_day",
   "tonight_pack_date": "2026-10-30",
   "next_prepared_pack_date": "2026-10-31",
-  "instagram": {"username": "gumrukkocunuz", "profile_url": "https://www.instagram.com/gumrukkocunuz/", "account_type": "professional_business_or_creator", "enabled": false, "account_connected": false},
-  "linkedin": {"display_name": "Ufuk Çetintaş", "profile_url": "https://www.linkedin.com/in/ufuk-%C3%A7etinta%C5%9F-g%C3%BCmr%C3%BCk-ko%C3%A7u-88370522b/", "profile_url_source": "user_provided", "publish_target": "personal_profile", "enabled": false, "account_connected": false},
+  "instagram": {
+    "username": "gumrukkocunuz",
+    "profile_url": "https://www.instagram.com/gumrukkocunuz/",
+    "account_type": "professional_business_or_creator",
+    "enabled": false,
+    "account_connected": false
+  },
+  "linkedin": {
+    "display_name": "Ufuk Çetintaş",
+    "profile_url": "https://www.linkedin.com/in/ufuk-%C3%A7etinta%C5%9F-g%C3%BCmr%C3%BCk-ko%C3%A7u-88370522b/",
+    "profile_url_source": "user_provided",
+    "publish_target": "personal_profile",
+    "enabled": false,
+    "account_connected": false
+  },
   "whatsapp": {
     "target_preference": "group",
     "publishing_method": "not_yet_verified",
     "enabled": false
+  },
+  "cost_policy": {
+    "hosting_preference": "free",
+    "paid_services_require_explicit_approval": true
   }
 }
