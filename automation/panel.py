@@ -82,6 +82,7 @@ def create_app(output=None, db_path=None, password=None, connection_config=None,
     def automation_status():
         return {'persistent_storage':database.persistent,'timezone':'Europe/Istanbul',
                 'code_import_available':SEALED_PACKAGE.is_file(),
+                'prepared_pack_count':len(objects.days()),
                 'scheduled_time':'10:00','scheduler_activation_verified':False,
                 'publishing_enabled':False,**DailyPlanner(database).status()}
 
@@ -205,7 +206,7 @@ AUTOMATION_HTML='''<!doctype html><html lang="tr"><meta charset="utf-8">
 <style>body{max-width:900px;margin:30px auto;padding:20px;font:17px/1.6 system-ui,sans-serif;background:#f5f7fc;color:#142d59}button{font:inherit;background:#174fb3;color:white;padding:10px 18px;border:0;border-radius:8px;cursor:pointer}button:disabled{opacity:.5;cursor:wait}section{background:white;padding:20px;border-radius:12px;margin:20px 0}input[type=password]{box-sizing:border-box;width:100%;padding:12px;border:1px solid #b7c6e1;border-radius:8px;font:inherit}label{display:block;margin:12px 0}details{margin-top:25px}</style>
 <h1>Kalıcı kayıt ve günlük hazırlık</h1><p><a href="/">← Onay paneli</a></p>
 <section id="status">Kontrol ediliyor…</section>
-<section><h2>Aktarım koduyla yükle</h2>
+<section id="import-section"><h2>Aktarım koduyla yükle</h2>
 <p>Size ait aktarım kodunu yapıştırın. Hazır görseller ve tekrar engelleme geçmişi birlikte taşınır.</p>
 <label for="code">Özel aktarım kodu</label><input id="code" type="password" maxlength="128" autocomplete="off" spellcheck="false">
 <p><button id="code-import" disabled>Kodla aktar</button></p><p id="code-message" role="status"></p>
@@ -216,6 +217,7 @@ let durable=false,codeAvailable=false;
 function buttons(busy){document.getElementById('import').disabled=busy||!durable;document.getElementById('code-import').disabled=busy||!durable||!codeAvailable;}
 async function refresh(){
  const r=await fetch('/api/automation/status');if(!r.ok)throw new Error('Durum okunamadı.');const s=await r.json();durable=s.persistent_storage;codeAvailable=s.code_import_available;
+ document.getElementById('import-section').hidden=s.source_fact_count>0&&s.reserved_fact_count>=8&&s.prepared_pack_count>=2;
  if(!codeAvailable)document.getElementById('code-message').textContent='Kodlu aktarım için hazır paketin yüklenmesi bekleniyor.';
  document.getElementById('status').textContent=(durable?'Kalıcı veritabanı bağlı. ':'Kalıcı veritabanı bekleniyor. ')+'Kaynak: '+s.source_fact_count+' bilgi; tekrar dışında: '+s.reserved_fact_count+' bilgi. Günlük saat: 10.00 Türkiye. Zamanlayıcının canlı etkinliği henüz doğrulanmadı.';buttons(false);
 }

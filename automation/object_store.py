@@ -48,6 +48,9 @@ class ObjectStore:
         for name in [*pack['assets_sha256'],'onizleme.html','metinler.txt']:
             target=(folder/name).resolve()
             if not target.is_relative_to(folder):raise ValueError('Invalid object path')
+            if (name in pack['assets_sha256'] and target.is_file()
+                    and hashlib.sha256(target.read_bytes()).hexdigest()==pack['assets_sha256'][name]):
+                continue
             entry=self.get(day+'/'+name)
             if entry is None:
                 if name in pack['assets_sha256']:raise ValueError('Required image missing')

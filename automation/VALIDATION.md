@@ -1,6 +1,6 @@
 # Doğrulama — 30 Ekim 2026
 
-- 54 davranış testi geçti: kimlik doğrulama, OAuth hata gizleme, şifreli saklama, onay geçerliliği, iki süre + iki makam seçimi, eşzamanlı seçim, geçmiş kullanım, tasarım dönüşümü, özel aktarım doğrulaması, içerik seçmeyen bağlantı kontrolü, Neon bağlantı biçimlerinin güvenli ayrıştırılması, tam TLS doğrulamasını koruyan CA dosyası seçimi ve kodla şifreli paket aktarımı.
+- 61 davranış testi geçti: mevcut onay, kaynak, tekrar engelleme ve TLS kontrollerine ek olarak otomatik şifreli aktarım; alıcının genel anahtarının kalıcılığı, gizli anahtarın sarılması, hatalı alıcı ve değiştirilmiş pakette durma, aynı aktarımın çoğaltılmaması ve tamamlandıktan sonra gizli anahtarın silinmesi doğrulandı.
 - Docker dağıtım paketi derlendi. Sertifika doğrulaması kapatılmadı.
 - Geçici, gerçek PostgreSQL 16 üzerinde `verify-full` TLS ile kaynak seçimi, görsel saklama ve şifreli hesap belirteci doğrulandı. Uygulama konteyneri tamamen silinip yenisi oluşturulduğunda görseller, onay, hesap kaydı ve tekrar engelleme geçmişi korundu. Bu entegrasyon kontrolünde tüm hesaplar ve onaylanan içerikler sentetik test verisiydi; sosyal paylaşım yapılmadı.
 - Kullanıcının özel kaynak paketinin içe aktarımı ayrı geçici veritabanında doğrulandı: 1.526 kaynak kaydı, mevcut iki paketin sekiz görseli ve sekiz kullanım kaydı. Görsellerin özeti değişmedi; yeniden çizilmedi. Aktarımı tekrarlamak kayıtları çoğaltmadı. Gerçek kaynak ve görseller yalnızca şifreli aktarım dosyasında yer alır.
