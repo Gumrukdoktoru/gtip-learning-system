@@ -25,3 +25,14 @@ npm run data:mevzuat -- ../2027gmnot/GUMRUK_MEVZUATI_TUMU.md
 ```
 
 Kaynağı belirlenemeyen maddeler "Madde N" olarak, bulunduğu konunun altında gösterilir.
+
+## Sınav sorularını yenileme
+
+`sorular-madde.json` ve `sorular-diger.json`, madde esaslı bir derleme sayfasının HTML'inden üretilir
+(soru kökü, şıklar, doğru cevap ve bağlı madde; kaynağın gerekçe metinleri alınmaz):
+
+```bash
+python3 apps/web/scripts/build-sorular-data.py kanun.html yonetmelik.json diger.json --dogrula ../gmcikmislar/GM_SINAVLARI_DERLEMESI.md
+```
+
+Maddesi derlemede ayrılamayan sorular "Sorular" bölümünde ayrı başlıklar altında tutulur.

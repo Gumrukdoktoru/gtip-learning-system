@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
+import { OtherQuestions } from './components/other-questions';
 import { Reader } from './components/reader';
 import { ReaderContext } from './components/reader-context';
 import { SearchResults } from './components/search-results';
 import { Sidebar } from './components/sidebar';
 import { useHashRoute } from './hooks/use-hash-route';
-import { useIndex, useSearch, useTopic } from './hooks/use-mevzuat';
+import { useIndex, useOtherQuestions, useSearch, useTopic } from './hooks/use-mevzuat';
 import type { MevzuatIndex, ReaderMode } from './types/mevzuat';
-import { articleHash } from './utils/route';
+import { QUESTIONS_HASH, articleHash } from './utils/route';
 
 const MIN_FONT = 14;
 const MAX_FONT = 26;
@@ -23,7 +24,7 @@ function buildLookup(index: MevzuatIndex): Lookup {
   for (const topic of index.topics) for (const article of topic.articles) topicOf.set(article.id, topic.id);
   const gk = index.gk.map((entry) => entry.id);
   const gy = index.gy.map((entry) => entry.id);
-  return { topicOf, knownRefs: new Set([...gk, ...gy]), order: { konu: [...topicOf.keys()], gk, gy } };
+  return { topicOf, knownRefs: new Set([...gk, ...gy]), order: { konu: [...topicOf.keys()], gk, gy, soru: [] } };
 }
 
 function modeForArticle(id: string, current: ReaderMode): ReaderMode {
@@ -45,12 +46,15 @@ export function App(): JSX.Element {
   const activeId = route.kind === 'article' ? route.id : route.kind === 'home' ? (lookup?.order.konu[0] ?? null) : null;
   const activeTopic = route.kind === 'topic' ? route.id : activeId ? (lookup?.topicOf.get(activeId) ?? null) : null;
   const topic = useTopic(lookup ? activeTopic : null, retry);
-  const searching = term.trim().length >= 2;
-  const search = useSearch(index.data, term, mode);
+  const questionsView = route.kind === 'questions';
+  const searching = !questionsView && term.trim().length >= 2;
+  const search = useSearch(index.data, questionsView ? '' : term, mode);
+  const otherQuestions = useOtherQuestions(questionsView);
 
   useEffect(() => setTerm(''), [route]);
   useEffect(() => {
-    if (route.kind === 'topic') setMode('konu');
+    if (route.kind === 'questions') setMode('soru');
+    else if (route.kind === 'topic') setMode('konu');
     else if (route.kind === 'article') setMode((current) => modeForArticle(route.id, current));
   }, [route]);
   useEffect(() => {
@@ -61,8 +65,8 @@ export function App(): JSX.Element {
   }, [fontSize]);
 
   const context = useMemo(
-    () => ({ knownRefs: lookup?.knownRefs ?? new Set<string>(), term: searching ? term.trim() : '' }),
-    [lookup, searching, term],
+    () => ({ knownRefs: lookup?.knownRefs ?? new Set<string>(), term: searching || questionsView ? term.trim() : '' }),
+    [lookup, searching, questionsView, term],
   );
 
   if (index.error) {
@@ -83,7 +87,9 @@ export function App(): JSX.Element {
     setMode(next);
     setTerm('');
     const first = lookup.order[next][0];
-    if (next !== 'konu' && first && !(activeId && lookup.order[next].includes(activeId))) {
+    if (next === 'soru') window.location.hash = QUESTIONS_HASH;
+    else if (questionsView) window.location.hash = articleHash(first ?? lookup.order.konu[0] ?? '');
+    else if (next !== 'konu' && first && !(activeId && lookup.order[next].includes(activeId))) {
       window.location.hash = articleHash(first);
     }
   };
@@ -140,7 +146,9 @@ export function App(): JSX.Element {
               </span>
             </div>
           </div>
-          {searching ? (
+          {questionsView ? (
+            <OtherQuestions groups={otherQuestions} term={term} />
+          ) : searching ? (
             <SearchResults term={term.trim()} result={search} />
           ) : (
             <Reader

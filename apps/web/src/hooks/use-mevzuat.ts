@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { loadAllTopics, loadIndex, loadTopic } from '../services/mevzuat-data';
-import type { ArticleBlock, MevzuatIndex, ReaderMode, Topic } from '../types/mevzuat';
+import { loadAllTopics, loadArticleQuestions, loadIndex, loadOtherQuestions, loadTopic } from '../services/mevzuat-data';
+import type { ArticleBlock, ExamGroup, MevzuatIndex, Question, ReaderMode, Topic } from '../types/mevzuat';
 import { trLower } from '../utils/text';
 
 export interface Loadable<T> {
@@ -40,7 +40,7 @@ export interface SearchHit {
   article: ArticleBlock;
 }
 
-const MODE_SOURCE: Record<ReaderMode, string | null> = { konu: null, gk: 'GK', gy: 'GY' };
+const MODE_SOURCE: Record<ReaderMode, string | null> = { konu: null, gk: 'GK', gy: 'GY', soru: null };
 const searchText = new WeakMap<ArticleBlock, string>();
 
 function articleText(article: ArticleBlock): string {
@@ -71,4 +71,16 @@ export function useSearch(index: MevzuatIndex | null, term: string, mode: Reader
   const all = useLoad(active && index ? () => loadAllTopics(index) : null, active ? 'all-topics' : 'idle');
   if (!active || !all.data) return { data: null, error: all.error };
   return { data: findHits(all.data, term, mode), error: null };
+}
+
+const NO_QUESTIONS: Question[] = [];
+
+/** Bir maddeye bağlı çıkmış sınav soruları (dosya bir kez indirilir). */
+export function useArticleQuestions(articleId: string): Question[] {
+  const all = useLoad(loadArticleQuestions, 'article-questions');
+  return all.data?.[articleId] ?? NO_QUESTIONS;
+}
+
+export function useOtherQuestions(enabled: boolean): Loadable<ExamGroup[]> {
+  return useLoad(enabled ? loadOtherQuestions : null, enabled ? 'other-questions' : 'idle');
 }

@@ -1,4 +1,4 @@
-import type { MevzuatIndex, RefMap, Topic } from '../types/mevzuat';
+import type { ArticleQuestions, ExamGroup, MevzuatIndex, RefMap, Topic } from '../types/mevzuat';
 
 const DATA_BASE = `${import.meta.env.BASE_URL}data/`;
 const cache = new Map<string, Promise<unknown>>();
@@ -31,4 +31,12 @@ export function loadAllTopics(index: MevzuatIndex): Promise<Topic[]> {
 
 export function loadRefs(): Promise<RefMap> {
   return loadJson<RefMap>('refs.json');
+}
+
+export function loadArticleQuestions(): Promise<ArticleQuestions> {
+  return loadJson<ArticleQuestions>('sorular-madde.json');
+}
+
+export function loadOtherQuestions(): Promise<ExamGroup[]> {
+  return loadJson<ExamGroup[]>('sorular-diger.json');
 }

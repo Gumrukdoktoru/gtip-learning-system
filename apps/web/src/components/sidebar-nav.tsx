@@ -42,6 +42,14 @@ export function SidebarNav(props: SidebarNavProps): JSX.Element {
     container.current?.querySelector('[aria-current="page"]')?.scrollIntoView({ block: 'nearest' });
   }, [activeId, mode]);
 
+  if (mode === 'soru') {
+    return (
+      <p className="px-2 text-[13px] leading-relaxed text-ink-soft">
+        Kanun ve Yönetmelik maddelerine bağlanamayan sınav soruları sağda, sınavlara göre listelenir. Maddeye bağlı sorular ilgili
+        maddenin altındadır.
+      </p>
+    );
+  }
   if (mode !== 'konu') {
     return (
       <nav ref={container} aria-label={mode === 'gk' ? 'Kanun maddeleri' : 'Yönetmelik maddeleri'}>

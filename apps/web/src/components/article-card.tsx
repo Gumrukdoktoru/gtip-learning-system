@@ -1,5 +1,7 @@
 import type { ArticleBlock } from '../types/mevzuat';
 import { articleHash } from '../utils/route';
+import { useArticleQuestions } from '../hooks/use-mevzuat';
+import { QuestionList } from './question-list';
 import { RichText } from './rich-text';
 
 const SOURCE_STYLE: Record<string, string> = {
@@ -16,6 +18,7 @@ interface ArticleCardProps {
 
 export function ArticleCard({ article, context }: ArticleCardProps): JSX.Element {
   const tone = SOURCE_STYLE[article.src] ?? SOURCE_STYLE[''];
+  const questions = useArticleQuestions(article.id);
   return (
     <article
       id={article.id}
@@ -44,6 +47,14 @@ export function ArticleCard({ article, context }: ArticleCardProps): JSX.Element
           </p>
         ))}
       </div>
+      {questions.length > 0 && (
+        <section className="mt-7 border-t border-paper-line pt-5">
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.15em] text-ink-soft">
+            Çıkmış sınav soruları ({questions.length})
+          </h3>
+          <QuestionList questions={questions} />
+        </section>
+      )}
     </article>
   );
 }

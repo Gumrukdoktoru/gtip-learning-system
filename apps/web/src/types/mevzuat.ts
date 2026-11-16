@@ -1,5 +1,5 @@
 export type SourceCode = 'GK' | 'GY' | '';
-export type ReaderMode = 'konu' | 'gk' | 'gy';
+export type ReaderMode = 'konu' | 'gk' | 'gy' | 'soru';
 
 export interface ArticleBlock {
   t: 'a';
@@ -60,3 +60,20 @@ export interface RefPreviewData {
 }
 
 export type RefMap = Record<string, RefPreviewData>;
+
+export interface Question {
+  id: string;
+  /** "Soru 46 · Gümrük Müşavir Yardımcılığı Sınavı · 20 Ekim 2012" */
+  sinav: string;
+  kok: string[];
+  siklar: string[];
+  /** Doğru şıkkın harfi; iptal vb. durumlarda açıklama metni. */
+  cevap: string;
+}
+
+export type ArticleQuestions = Record<string, Question[]>;
+
+export interface ExamGroup {
+  sinav: string;
+  sorular: Question[];
+}
