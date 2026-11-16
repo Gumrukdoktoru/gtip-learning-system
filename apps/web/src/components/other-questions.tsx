@@ -54,6 +54,12 @@ export function OtherQuestions({ title, groups, term }: OtherQuestionsProps): JS
             </summary>
             {expanded && (
               <div className="mt-3">
+                {group.toplam !== undefined && (
+                  <p className="mb-3 text-xs text-ink-soft">
+                    {group.toplam} sorunun {group.sorular.length} tanesi mevcut.
+                    {group.eksik && group.eksik.length > 0 && ` Kaynaklarda bulunamayan sorular: ${group.eksik.join(', ')}.`}
+                  </p>
+                )}
                 <QuestionList questions={group.sorular.slice(0, needle.length >= 2 ? 30 : undefined)} />
               </div>
             )}

@@ -85,5 +85,8 @@ export type ArticleQuestions = Record<string, Question[]>;
 export interface ExamGroup {
   sinav: string;
   yil?: number;
+  /** Kitapçıktaki soru sayısı ve kaynaklarda bulunamayan soru numaraları. */
+  toplam?: number;
+  eksik?: number[];
   sorular: Question[];
 }

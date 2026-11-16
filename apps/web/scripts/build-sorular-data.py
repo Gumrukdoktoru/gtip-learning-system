@@ -135,6 +135,57 @@ class ArticleMatcher:
 
 
 UNKNOWN_EXAM: list[dict] = []
+SUPPLEMENT_FILE = Path(__file__).resolve().parent / "ek-sinavlar.json"
+
+
+def merge_supplement(exams: dict[str, dict[int, dict]]) -> int:
+    """Sınav PDF'lerinden çıkarılan soruları (ek-sinavlar.json) yalnızca eksik numaralara ekler."""
+    if not SUPPLEMENT_FILE.exists():
+        return 0
+    added = 0
+    for exam in json.loads(SUPPLEMENT_FILE.read_text(encoding="utf-8")):
+        items = exams.setdefault(exam["sinav"], {})
+        for question in exam["sorular"]:
+            if question["no"] in items:
+                continue
+            items[question["no"]] = {
+                "id": "", "sinav": f"Soru {question['no']} · {exam['sinav']}",
+                "kok": question["kok"], "siklar": question["siklar"], "cevap": question["cevap"], "kaynak": "pdf",
+            }
+            added += 1
+    return added
+
+
+MISC_GROUP = "Diğer sınav ve kaynaklardan tekil sorular"
+
+
+def build_booklets(exams: dict[str, dict[int, dict]], year) -> list[dict]:
+    """Tam kitapçıkları (>= 40 soru) sıra numarasıyla, eksik numaraları belirterek döndürür.
+
+    Birkaç soruluk parça gruplar ve kitapçık boyunu aşan numaralar tek bir "tekil sorular"
+    başlığında toplanır; kitapçıklarda zaten bulunan sorular oraya tekrar yazılmaz.
+    """
+    booklets, loose = [], []
+    for name, items in sorted(exams.items(), key=lambda pair: (year(pair[0]), pair[0])):
+        if len(items) < 40 or name.startswith("Sınavı belirtilmemiş"):
+            loose += items.values()
+            continue
+        size = 100 if len(items) > 80 else 80 if len(items) > 50 else 50
+        inside = {n: q for n, q in items.items() if 1 <= n <= size}
+        loose += [q for n, q in items.items() if n not in inside]
+        booklets.append({
+            "sinav": name, "yil": year(name), "toplam": size,
+            "eksik": [n for n in range(1, size + 1) if n not in inside],
+            "sorular": [inside[n] for n in sorted(inside)],
+        })
+    seen = {squash(" ".join(q["kok"]))[:80] for b in booklets for q in b["sorular"]}
+    extra = []
+    for question in loose:
+        key = squash(" ".join(question["kok"]))[:80]
+        if key not in seen:
+            seen.add(key)
+            extra.append(question)
+    return booklets + [{"sinav": MISC_GROUP, "yil": 0, "sorular": extra}]
 
 
 def exam_key(question: dict) -> tuple[str, int]:
@@ -164,10 +215,11 @@ def main() -> None:
     by_article: dict[str, list[dict]] = {}
     exams: dict[str, dict[int, dict]] = {}
     for container, _, question in scan(law_html) + scan(regulation_html):
-        if not container or not question["siklar"]:
+        if not container:
             continue
         key = article_id(container)
-        by_article.setdefault(key, []).append(question)
+        if question["siklar"]:
+            by_article.setdefault(key, []).append(question)
         name, number = exam_key(question)
         entry = exams.setdefault(name, {}).setdefault(number, {**question, "madde": []})
         code, _, no = key.partition("-")
@@ -179,13 +231,12 @@ def main() -> None:
     groups: dict[str, list[dict]] = {}
     matched = 0
     for _, group, question in scan(other_html):
-        if not question["siklar"]:
-            continue
-        related = matcher.best(question)
+        related = matcher.best(question) if question["siklar"] else None
         if related:
             question["ilgili"] = related
             matched += 1
-        groups.setdefault(group, []).append(question)
+        if question["siklar"]:
+            groups.setdefault(group, []).append(question)
         name, number = exam_key(question)
         exams.setdefault(name, {}).setdefault(number, question)
 
@@ -201,18 +252,18 @@ def main() -> None:
         found = re.findall(r"(?:19|20)\d\d", name)
         return int(found[-1]) if found else 0
 
-    exam_list = [
-        {"sinav": name, "yil": year(name), "sorular": [items[n] for n in sorted(items)]}
-        for name, items in sorted(exams.items(), key=lambda pair: (year(pair[0]), pair[0]))
-    ]
+    added = merge_supplement(exams)
+    exam_list = build_booklets(exams, year)
+    print(f"ek kaynaktan (PDF) tamamlanan soru: {added}")
     other = [{"sinav": name, "sorular": items} for name, items in groups.items()]
     for file, payload in (("sorular-madde.json", by_article), ("sorular-diger.json", other), ("sorular-sinav.json", exam_list)):
         (DATA_DIR / file).write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
 
     print(f"madde soruları: {total}; derlemede karşılığı olan: {attached}; karşılığı olmayan madde: {len(missing)}")
     print(f"diğer sorular: {sum(len(g['sorular']) for g in other)}; otomatik ilgili madde bulunan: {matched}")
-    years = sorted({e["yil"] for e in exam_list})
-    print(f"sınavlar: {len(exam_list)} sınav, {sum(len(e['sorular']) for e in exam_list)} soru, yıllar: {years}")
+    for exam in exam_list:
+        gaps = exam.get("eksik", [])
+        print(f"  {exam['sinav'][:60]:60} {len(exam['sorular'])}/{exam.get('toplam', '-')} eksik: {gaps if len(gaps) <= 12 else str(len(gaps)) + ' soru'}")
     if exam_files:
         verify([q for e in exam_list for q in e["sorular"]], exam_files)
 
