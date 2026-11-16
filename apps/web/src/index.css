@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --reading-size: 18px;
+}
+
+body {
+  @apply bg-paper text-ink antialiased;
+}
+
+mark {
+  @apply rounded-sm bg-amber-200 px-0.5 text-inherit;
+}

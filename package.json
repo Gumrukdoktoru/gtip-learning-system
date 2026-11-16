@@ -1,0 +1,12 @@
+{
+  "name": "gtip-learning-system",
+  "private": true,
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev": "npm run dev -w @gtip/web",
+    "build": "npm run build -w @gtip/web",
+    "test": "npm run test -w @gtip/web",
+    "lint": "npm run lint -w @gtip/web",
+    "data:mevzuat": "python3 apps/web/scripts/build-mevzuat-data.py"
+  }
+}
