@@ -11,12 +11,14 @@ kendi gerekçe/yorum metinleri alınmaz.
 
 Çıktı (apps/web/public/data):
     sorular-madde.json   {madde kimliği: [soru, ...]}
-    sorular-diger.json   [{sinav, sorular: [...]}]  (Kanun/Yönetmelik dışı sorular)
+    sorular-diger.json   [{sinav, sorular: [...]}]  (Kanun/Yönetmelik dışı sorular; "ilgili": otomatik eşleşen madde)
+    sorular-sinav.json   [{sinav, yil, sorular: [...]}] (bütün sorular, sınavlara göre)
 """
 from __future__ import annotations
 
 import html
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -89,6 +91,62 @@ def verify(questions: list[dict], exam_files: list[Path]) -> None:
     print(f"doğrulama: {len(checked)} sorudan {hits} tanesinin kökü eldeki sınav dosyalarında bulundu")
 
 
+STOP_PREFIXES = {"aşağı", "hangi", "göre", "ilişk", "doğru", "yanlı", "değil", "olara", "tarif", "gümrü", "madde", "sayıl", "yukar", "veril", "ifade"}
+MATCH_THRESHOLD = 0.35  # altındaki eşleşmeler güvenilir değil
+
+
+def tokens(text: str) -> set[str]:
+    words = re.findall(r"[0-9a-zçğıöşü]{4,}", text.lower().replace("İ", "i").replace("I", "ı"))
+    return {w[:6] for w in words if w[:5] not in STOP_PREFIXES}
+
+
+class ArticleMatcher:
+    """Maddeye bağlı olmayan soruyu, derlemedeki en benzer maddeyle eşleştirir (TF-IDF benzeri)."""
+
+    def __init__(self) -> None:
+        self.articles: list[tuple[str, str, set[str]]] = []
+        for path in sorted(DATA_DIR.glob("konu-*.json")):
+            topic = json.loads(path.read_text(encoding="utf-8"))
+            for block in topic["blocks"]:
+                if block["t"] == "a":
+                    name = " · ".join(x for x in (block["doc"], block["label"], block["title"]) if x)
+                    self.articles.append((block["id"], name, tokens(block["title"] + " " + " ".join(block["p"]))))
+        counts: dict[str, int] = {}
+        for _, _, bag in self.articles:
+            for token in bag:
+                counts[token] = counts.get(token, 0) + 1
+        total = len(self.articles)
+        self.idf = {token: math.log(total / count) for token, count in counts.items()}
+        self.norms = [math.sqrt(sum(self.idf[t] ** 2 for t in bag)) or 1.0 for _, _, bag in self.articles]
+
+    def best(self, question: dict) -> dict | None:
+        answer = [o for o in question["siklar"] if o.startswith(question["cevap"] + ")")] if len(question["cevap"]) == 1 else []
+        bag = {t for t in tokens(" ".join(question["kok"] + answer)) if t in self.idf}
+        norm = math.sqrt(sum(self.idf[t] ** 2 for t in bag))
+        if len(bag) < 4 or not norm:
+            return None
+        score, at = max(
+            (sum(self.idf[t] ** 2 for t in bag & other) / (norm * self.norms[i]), i)
+            for i, (_, _, other) in enumerate(self.articles)
+        )
+        if score < MATCH_THRESHOLD:
+            return None
+        return {"id": self.articles[at][0], "ad": self.articles[at][1], "puan": round(score, 2)}
+
+
+UNKNOWN_EXAM: list[dict] = []
+
+
+def exam_key(question: dict) -> tuple[str, int]:
+    """'Soru 46 · Sınav · tarih' -> ('Sınav · tarih', 46)"""
+    head, _, rest = question["sinav"].partition(" · ")
+    number = re.search(r"\d+", head)
+    if not rest:  # sınav bilgisi olmayan sorular tek başlıkta toplanır
+        UNKNOWN_EXAM.append(question)
+        return "Sınavı belirtilmemiş sorular", len(UNKNOWN_EXAM)
+    return rest, int(number.group()) if number else 0
+
+
 def main() -> None:
     args = sys.argv[1:]
     exam_files: list[Path] = []
@@ -101,32 +159,62 @@ def main() -> None:
     regulation_html = json.loads(Path(args[1]).read_text(encoding="utf-8"))["html"]
     other_html = json.loads(Path(args[2]).read_text(encoding="utf-8"))["html"]
 
+    topics = json.loads((DATA_DIR / "index.json").read_text(encoding="utf-8"))["topics"]
+    labels = {a["id"]: a["label"] for t in topics for a in t["articles"]}
     by_article: dict[str, list[dict]] = {}
+    exams: dict[str, dict[int, dict]] = {}
     for container, _, question in scan(law_html) + scan(regulation_html):
-        if container and question["siklar"]:
-            by_article.setdefault(article_id(container), []).append(question)
-    groups: dict[str, list[dict]] = {}
-    for _, group, question in scan(other_html):
-        if question["siklar"]:
-            groups.setdefault(group, []).append(question)
+        if not container or not question["siklar"]:
+            continue
+        key = article_id(container)
+        by_article.setdefault(key, []).append(question)
+        name, number = exam_key(question)
+        entry = exams.setdefault(name, {}).setdefault(number, {**question, "madde": []})
+        code, _, no = key.partition("-")
+        link = {"id": key if key in labels else "", "ad": labels.get(key, f"{code.upper()} Madde {no.replace('-', '/')}")}
+        if link not in entry["madde"]:
+            entry["madde"].append(link)
 
-    known = {a["id"] for t in json.loads((DATA_DIR / "index.json").read_text(encoding="utf-8"))["topics"] for a in t["articles"]}
-    missing = sorted(k for k in by_article if k not in known)
+    matcher = ArticleMatcher()
+    groups: dict[str, list[dict]] = {}
+    matched = 0
+    for _, group, question in scan(other_html):
+        if not question["siklar"]:
+            continue
+        related = matcher.best(question)
+        if related:
+            question["ilgili"] = related
+            matched += 1
+        groups.setdefault(group, []).append(question)
+        name, number = exam_key(question)
+        exams.setdefault(name, {}).setdefault(number, question)
+
+    missing = sorted(k for k in by_article if k not in labels)
     for key in missing:  # derlemede karşılığı olmayan maddeler: sorular kaybolmasın
         code, _, number = key.partition("-")
         groups[f"Maddesi derlemede ayrılamayan sorular · {code.upper()} Madde {number.replace('-', '/')}"] = by_article[key]
-    attached = sum(len(v) for k, v in by_article.items() if k in known)
     total = sum(len(v) for v in by_article.values())
-    by_article = {k: v for k, v in by_article.items() if k in known}
-    (DATA_DIR / "sorular-madde.json").write_text(json.dumps(by_article, ensure_ascii=False), encoding="utf-8")
-    other = [{"sinav": name, "sorular": items} for name, items in groups.items()]
-    (DATA_DIR / "sorular-diger.json").write_text(json.dumps(other, ensure_ascii=False), encoding="utf-8")
+    by_article = {k: v for k, v in by_article.items() if k in labels}
+    attached = sum(len(v) for v in by_article.values())
 
-    print(f"madde soruları: {total} ({len(by_article) + len(missing)} madde); derlemede karşılığı olan: {attached}")
-    print(f"karşılığı olmayan madde: {len(missing)} -> {', '.join(missing[:40])}")
-    print(f"diğer sorular: {sum(len(g['sorular']) for g in other)} ({len(other)} sınav)")
+    def year(name: str) -> int:
+        found = re.findall(r"(?:19|20)\d\d", name)
+        return int(found[-1]) if found else 0
+
+    exam_list = [
+        {"sinav": name, "yil": year(name), "sorular": [items[n] for n in sorted(items)]}
+        for name, items in sorted(exams.items(), key=lambda pair: (year(pair[0]), pair[0]))
+    ]
+    other = [{"sinav": name, "sorular": items} for name, items in groups.items()]
+    for file, payload in (("sorular-madde.json", by_article), ("sorular-diger.json", other), ("sorular-sinav.json", exam_list)):
+        (DATA_DIR / file).write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+
+    print(f"madde soruları: {total}; derlemede karşılığı olan: {attached}; karşılığı olmayan madde: {len(missing)}")
+    print(f"diğer sorular: {sum(len(g['sorular']) for g in other)}; otomatik ilgili madde bulunan: {matched}")
+    years = sorted({e["yil"] for e in exam_list})
+    print(f"sınavlar: {len(exam_list)} sınav, {sum(len(e['sorular']) for e in exam_list)} soru, yıllar: {years}")
     if exam_files:
-        verify([q for v in by_article.values() for q in v] + [q for g in other for q in g["sorular"]], exam_files)
+        verify([q for e in exam_list for q in e["sorular"]], exam_files)
 
 
 if __name__ == "__main__":

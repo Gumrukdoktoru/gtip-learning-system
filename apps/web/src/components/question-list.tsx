@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Question } from '../types/mevzuat';
 import { useReaderContext } from './reader-context';
+import { articleHash } from '../utils/route';
 import { splitHits } from '../utils/text';
 
 function Marked({ text }: { text: string }): JSX.Element {
@@ -28,6 +29,19 @@ function QuestionItem({ question }: { question: Question }): JSX.Element {
             </p>
           );
         })}
+        {(question.madde ?? []).map((link) => (
+          <p key={link.ad} className="mt-1 text-xs text-ink-soft">
+            Madde: {link.id ? <a className="font-semibold underline" href={articleHash(link.id)}>{link.ad}</a> : link.ad}
+          </p>
+        ))}
+        {question.ilgili && (
+          <p className="mt-1 text-xs text-ink-soft">
+            İlgili olabilecek madde (otomatik eşleşme):{' '}
+            <a className="font-semibold underline" href={articleHash(question.ilgili.id)}>
+              {question.ilgili.ad}
+            </a>
+          </p>
+        )}
         <button
           type="button"
           onClick={() => setRevealed(!revealed)}

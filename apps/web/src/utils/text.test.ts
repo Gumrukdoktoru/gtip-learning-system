@@ -39,6 +39,7 @@ describe('parseHash', () => {
     expect(parseHash('#konu-2')).toEqual({ kind: 'topic', id: 2 });
     expect(parseHash('#m5')).toEqual({ kind: 'article', id: 'gk-5' });
     expect(parseHash('')).toEqual({ kind: 'home' });
-    expect(parseHash('#diger-sorular')).toEqual({ kind: 'questions' });
+    expect(parseHash('#diger-sorular')).toEqual({ kind: 'questions', view: 'diger' });
+    expect(parseHash('#sinavlar')).toEqual({ kind: 'questions', view: 'sinav' });
   });
 });

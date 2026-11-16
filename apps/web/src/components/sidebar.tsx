@@ -5,13 +5,15 @@ const MODES: { mode: ReaderMode; label: string }[] = [
   { mode: 'konu', label: 'Konular' },
   { mode: 'gk', label: 'Kanun' },
   { mode: 'gy', label: 'Yönetmelik' },
-  { mode: 'soru', label: 'Sorular' },
+  { mode: 'soru', label: 'Diğer sorular' },
+  { mode: 'sinav', label: 'Sınavlar' },
 ];
 const PLACEHOLDER: Record<ReaderMode, string> = {
   konu: 'Tüm derlemede ara…',
   gk: 'Kanun maddelerinde ara…',
   gy: 'Yönetmelikte ara…',
   soru: 'Diğer sorularda ara…',
+  sinav: 'Bütün sınav sorularında ara…',
 };
 
 interface SidebarProps {
@@ -32,14 +34,14 @@ export function Sidebar(props: SidebarProps): JSX.Element {
   const allOpen = openTopics.size === index.topics.length;
   return (
     <aside className="flex flex-col gap-3 lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)]">
-      <div className="grid grid-cols-4 gap-1 rounded-md bg-black/5 p-1" role="group" aria-label="Görüntülenecek dizin">
+      <div className="flex flex-wrap gap-1 rounded-md bg-black/5 p-1" role="group" aria-label="Görüntülenecek dizin">
         {MODES.map(({ mode: value, label }) => (
           <button
             key={value}
             type="button"
             aria-pressed={value === mode}
             onClick={() => onModeChange(value)}
-            className={`rounded px-1 py-1.5 text-[11px] font-semibold ${value === mode ? 'bg-ink text-white' : 'hover:bg-black/5'}`}
+            className={`flex-1 whitespace-nowrap rounded px-2 py-1.5 text-xs font-semibold ${value === mode ? 'bg-ink text-white' : 'hover:bg-black/5'}`}
           >
             {label}
           </button>

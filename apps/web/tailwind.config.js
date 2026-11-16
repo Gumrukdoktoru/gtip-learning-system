@@ -4,14 +4,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink: { DEFAULT: '#14213d', soft: '#2b3a5c', mute: '#64708a' },
-        paper: { DEFAULT: '#f6f4ee', card: '#fffdf8', line: '#e2ddd0' },
-        kanun: '#8a1c2b',
-        yonetmelik: '#0f6b6b',
-        diger: '#6b5b2e',
+        ink: { DEFAULT: '#2a1840', soft: '#4a3566', mute: '#7b6c91' },
+        paper: { DEFAULT: '#ece6f5', card: '#ffffff', line: '#d6cbe6' },
+        kanun: '#b3261e',
+        yonetmelik: '#1d5fa8',
+        diger: '#8a5a00',
       },
       fontFamily: {
-        read: ['"Iowan Old Style"', 'Georgia', '"Times New Roman"', 'serif'],
+        read: ['Charter', '"Bitstream Charter"', 'Cambria', 'Georgia', 'serif'],
       },
     },
   },

@@ -8,6 +8,8 @@
 
 body {
   @apply bg-paper text-ink antialiased;
+  background-image: linear-gradient(180deg, #e3d9f2 0, #ece6f5 320px);
+  background-repeat: no-repeat;
 }
 
 mark {

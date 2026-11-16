@@ -1,5 +1,5 @@
 export type SourceCode = 'GK' | 'GY' | '';
-export type ReaderMode = 'konu' | 'gk' | 'gy' | 'soru';
+export type ReaderMode = 'konu' | 'gk' | 'gy' | 'soru' | 'sinav';
 
 export interface ArticleBlock {
   t: 'a';
@@ -69,11 +69,21 @@ export interface Question {
   siklar: string[];
   /** Doğru şıkkın harfi; iptal vb. durumlarda açıklama metni. */
   cevap: string;
+  /** Sorunun bağlı olduğu maddeler (id boşsa madde derlemede ayrı açılamıyor). */
+  madde?: ArticleLink[];
+  /** Metin benzerliğiyle otomatik bulunan ilgili madde. */
+  ilgili?: ArticleLink;
+}
+
+export interface ArticleLink {
+  id: string;
+  ad: string;
 }
 
 export type ArticleQuestions = Record<string, Question[]>;
 
 export interface ExamGroup {
   sinav: string;
+  yil?: number;
   sorular: Question[];
 }

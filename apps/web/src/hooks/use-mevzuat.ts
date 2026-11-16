@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { loadAllTopics, loadArticleQuestions, loadIndex, loadOtherQuestions, loadTopic } from '../services/mevzuat-data';
+import { loadAllTopics, loadArticleQuestions, loadIndex, loadExamGroups, loadTopic } from '../services/mevzuat-data';
 import type { ArticleBlock, ExamGroup, MevzuatIndex, Question, ReaderMode, Topic } from '../types/mevzuat';
 import { trLower } from '../utils/text';
 
@@ -40,7 +40,7 @@ export interface SearchHit {
   article: ArticleBlock;
 }
 
-const MODE_SOURCE: Record<ReaderMode, string | null> = { konu: null, gk: 'GK', gy: 'GY', soru: null };
+const MODE_SOURCE: Record<ReaderMode, string | null> = { konu: null, gk: 'GK', gy: 'GY', soru: null, sinav: null };
 const searchText = new WeakMap<ArticleBlock, string>();
 
 function articleText(article: ArticleBlock): string {
@@ -81,6 +81,7 @@ export function useArticleQuestions(articleId: string): Question[] {
   return all.data?.[articleId] ?? NO_QUESTIONS;
 }
 
-export function useOtherQuestions(enabled: boolean): Loadable<ExamGroup[]> {
-  return useLoad(enabled ? loadOtherQuestions : null, enabled ? 'other-questions' : 'idle');
+/** kind null ise hiçbir şey yüklenmez. */
+export function useExamGroups(kind: 'diger' | 'sinav' | null): Loadable<ExamGroup[]> {
+  return useLoad(kind ? () => loadExamGroups(kind) : null, kind ? `exam-groups-${kind}` : 'idle');
 }

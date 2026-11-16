@@ -5,7 +5,7 @@ import { ReaderContext } from './components/reader-context';
 import { SearchResults } from './components/search-results';
 import { Sidebar } from './components/sidebar';
 import { useHashRoute } from './hooks/use-hash-route';
-import { useIndex, useOtherQuestions, useSearch, useTopic } from './hooks/use-mevzuat';
+import { useExamGroups, useIndex, useSearch, useTopic } from './hooks/use-mevzuat';
 import type { MevzuatIndex, ReaderMode } from './types/mevzuat';
 import { QUESTIONS_HASH, articleHash } from './utils/route';
 
@@ -24,7 +24,7 @@ function buildLookup(index: MevzuatIndex): Lookup {
   for (const topic of index.topics) for (const article of topic.articles) topicOf.set(article.id, topic.id);
   const gk = index.gk.map((entry) => entry.id);
   const gy = index.gy.map((entry) => entry.id);
-  return { topicOf, knownRefs: new Set([...gk, ...gy]), order: { konu: [...topicOf.keys()], gk, gy, soru: [] } };
+  return { topicOf, knownRefs: new Set([...gk, ...gy]), order: { konu: [...topicOf.keys()], gk, gy, soru: [], sinav: [] } };
 }
 
 function modeForArticle(id: string, current: ReaderMode): ReaderMode {
@@ -49,11 +49,11 @@ export function App(): JSX.Element {
   const questionsView = route.kind === 'questions';
   const searching = !questionsView && term.trim().length >= 2;
   const search = useSearch(index.data, questionsView ? '' : term, mode);
-  const otherQuestions = useOtherQuestions(questionsView);
+  const otherQuestions = useExamGroups(route.kind === 'questions' ? route.view : null);
 
   useEffect(() => setTerm(''), [route]);
   useEffect(() => {
-    if (route.kind === 'questions') setMode('soru');
+    if (route.kind === 'questions') setMode(route.view === 'sinav' ? 'sinav' : 'soru');
     else if (route.kind === 'topic') setMode('konu');
     else if (route.kind === 'article') setMode((current) => modeForArticle(route.id, current));
   }, [route]);
@@ -87,7 +87,7 @@ export function App(): JSX.Element {
     setMode(next);
     setTerm('');
     const first = lookup.order[next][0];
-    if (next === 'soru') window.location.hash = QUESTIONS_HASH;
+    if (next === 'soru' || next === 'sinav') window.location.hash = QUESTIONS_HASH[next === 'sinav' ? 'sinav' : 'diger'];
     else if (questionsView) window.location.hash = articleHash(first ?? lookup.order.konu[0] ?? '');
     else if (next !== 'konu' && first && !(activeId && lookup.order[next].includes(activeId))) {
       window.location.hash = articleHash(first);
@@ -106,7 +106,7 @@ export function App(): JSX.Element {
 
   return (
     <ReaderContext.Provider value={context}>
-      <header className="flex flex-wrap items-center justify-between gap-2 bg-ink px-5 py-3.5 text-white sm:px-9">
+      <header className="flex flex-wrap items-center justify-between gap-2 bg-gradient-to-r from-[#2a1840] to-[#5b2a86] px-5 py-3.5 text-white sm:px-9">
         <span className="text-xs font-semibold tracking-[0.22em]">GÜMRÜK MEVZUATI OKUYUCU</span>
         <span className="text-xs text-white/70">
           {index.data.topics.length} konu · {lookup.topicOf.size} madde
@@ -147,7 +147,11 @@ export function App(): JSX.Element {
             </div>
           </div>
           {questionsView ? (
-            <OtherQuestions groups={otherQuestions} term={term} />
+            <OtherQuestions
+              title={route.kind === 'questions' && route.view === 'sinav' ? 'Çıkmış sınavlar (2010–2026)' : 'Diğer sınav soruları'}
+              groups={otherQuestions}
+              term={term}
+            />
           ) : searching ? (
             <SearchResults term={term.trim()} result={search} />
           ) : (

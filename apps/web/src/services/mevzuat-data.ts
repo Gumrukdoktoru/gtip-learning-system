@@ -37,6 +37,6 @@ export function loadArticleQuestions(): Promise<ArticleQuestions> {
   return loadJson<ArticleQuestions>('sorular-madde.json');
 }
 
-export function loadOtherQuestions(): Promise<ExamGroup[]> {
-  return loadJson<ExamGroup[]>('sorular-diger.json');
+export function loadExamGroups(kind: 'diger' | 'sinav'): Promise<ExamGroup[]> {
+  return loadJson<ExamGroup[]>(`sorular-${kind}.json`);
 }

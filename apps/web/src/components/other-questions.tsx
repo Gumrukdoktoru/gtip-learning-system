@@ -5,6 +5,7 @@ import { trLower } from '../utils/text';
 import { QuestionList } from './question-list';
 
 interface OtherQuestionsProps {
+  title: string;
   groups: Loadable<ExamGroup[]>;
   term: string;
 }
@@ -14,14 +15,14 @@ function matches(question: Question, needle: string): boolean {
 }
 
 /** Kanun/Yönetmelik maddesine bağlanamayan sorular, sınavlara göre. */
-export function OtherQuestions({ groups, term }: OtherQuestionsProps): JSX.Element {
+export function OtherQuestions({ title, groups, term }: OtherQuestionsProps): JSX.Element {
   const [open, setOpen] = useState<ReadonlySet<string>>(new Set());
   const needle = trLower(term.trim());
   const visible = useMemo(() => {
     const all = groups.data ?? [];
     if (needle.length < 2) return all;
     return all
-      .map((group) => ({ sinav: group.sinav, sorular: group.sorular.filter((q) => matches(q, needle)) }))
+      .map((group) => ({ ...group, sorular: group.sorular.filter((q) => matches(q, needle)) }))
       .filter((group) => group.sorular.length > 0);
   }, [groups.data, needle]);
 
@@ -30,7 +31,7 @@ export function OtherQuestions({ groups, term }: OtherQuestionsProps): JSX.Eleme
   const total = visible.reduce((sum, group) => sum + group.sorular.length, 0);
   return (
     <>
-      <h2 className="mb-1 font-read text-3xl">Diğer sınav soruları</h2>
+      <h2 className="mb-1 font-read text-3xl">{title}</h2>
       <p className="mb-5 text-sm text-ink-soft" aria-live="polite">
         {total} soru · {visible.length} başlık
       </p>
