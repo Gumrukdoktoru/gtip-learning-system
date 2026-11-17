@@ -106,7 +106,7 @@ export interface Question {
   madde?: ArticleLink[];
   /** Metin benzerliğiyle otomatik bulunan ilgili madde. */
   ilgili?: ArticleLink;
-  /** Notlardaki dayanak hüküm (otomatik seçilir). */
+  /** Notlardaki dayanak hüküm (otomatik seçilir). id: madde kimliği ya da "konu-<konu kimliği>". */
   dayanak?: ArticleLink & { metin: string };
 }
 
@@ -116,6 +116,12 @@ export interface ArticleLink {
 }
 
 export type ArticleQuestions = Record<string, Question[]>;
+
+/**
+ * Konu kimliği -> o konunun çıkmış soruları (sorular-konu.json). Değer metin ise soruların
+ * tutulduğu eş konunun kimliğidir (aynı faslın başka klasördeki sayfası).
+ */
+export type TopicQuestions = Record<string, Question[] | string>;
 
 export interface ExamGroup {
   sinav: string;

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { loadTopics, loadArticleQuestions, loadIndex, loadExamGroups, loadTopic } from '../services/mevzuat-data';
+import { loadTopics, loadArticleQuestions, loadIndex, loadExamGroups, loadTopic, loadTopicQuestions } from '../services/mevzuat-data';
 import type { ArticleBlock, ExamGroup, MevzuatIndex, Question, ReaderMode, Topic } from '../types/mevzuat';
 import { trLower } from '../utils/text';
 
@@ -101,6 +101,15 @@ const NO_QUESTIONS: Question[] = [];
 export function useArticleQuestions(articleId: string): Question[] {
   const all = useLoad(loadArticleQuestions, 'article-questions');
   return all.data?.[articleId] ?? NO_QUESTIONS;
+}
+
+/** Bir konu sayfasının (Tarife, Sair Mevzuat vb.) çıkmış soruları; dosya ilk gereken konuda bir kez indirilir. */
+export function useTopicQuestions(topicId: number | null): Question[] {
+  const all = useLoad(topicId === null ? null : loadTopicQuestions, topicId === null ? 'idle' : 'topic-questions');
+  if (topicId === null || !all.data) return NO_QUESTIONS;
+  const entry = all.data[String(topicId)];
+  const list = typeof entry === 'string' ? all.data[entry] : entry;
+  return Array.isArray(list) ? list : NO_QUESTIONS;
 }
 
 /** kind null ise hiçbir şey yüklenmez. */

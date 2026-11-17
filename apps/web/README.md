@@ -55,6 +55,23 @@ python3 apps/web/scripts/build-sorular-data.py kanun.html yonetmelik.json diger.
 
 Maddesi derlemede ayrılamayan sorular "Sorular" bölümünde ayrı başlıklar altında tutulur.
 
-Aynı betik, sınav kitapçıklarındaki soruları `scripts/soru-konulari.json` içindeki anahtar ifadelere göre konulara ayırıp
-Tarife ve Sair Mevzuat sekmelerine "ÇIKMIŞ SORULAR" klasörleri olarak ekler (`ek-90x-1.json`). Mevzuat verisi her yenilendiğinde
-bu betik de yeniden çalıştırılmalıdır; aksi halde bu klasörler dizinde bulunmaz.
+### Konu notlarından dayanak ve "bu konunun çıkmış soruları"
+
+Aynı betik, Kanun/Yönetmelik maddesine bağlı olmayan sorular için dayanağı diğer not dosyalarında (`ek-*.json`: Tarife, Sair Mevzuat,
+Genelge, Hesaplama) **pasaj düzeyinde** arar (`PassageMatcher`):
+
+- Birim: paragraf / tablo satırı / madde fıkrası (satır sonlarından bölünmüş paragraflar cümle sonuna kadar birleştirilir; metin değiştirilmez).
+  Soru kartı içeren klasörler (çıkmış soru ve alıştırma bankaları) birim üretmez.
+- Simge -> birim ters dizini; puan, soru kökü + doğru şıkkın IDF ağırlığının pasajda bulunan oranıdır. Tarife kodları (`96.03`, `8471.30`),
+  fasıl (`13. fasıl`), madde (`md. 4`) ve yorum kuralı (`GYK 3`) ayrı simgelerdir.
+- Tek bir faslı ya da genel yorum kurallarını açıkça anan tarife sorusu o faslın **Tarife Kitabı** konusuna bağlanır (dayanak pasajı
+  bulunamasa bile); aynı faslın "Tarife Cetveli — Fasıllar" ve "Sunum" sayfaları aynı soru listesini gösterir.
+- Diğer sorular yalnızca eşik aşılırsa bağlanır (puan, ortak sözcük çifti sayısı, şıkların pasajda geçmesi). Soru kökü bir mevzuatı
+  adıyla anıyorsa dayanak yalnızca o mevzuatın notundan seçilir (`scripts/soru-konulari.json` → `kaynak_capalari`).
+  Eşiğin altında kalan soru dayanaksız bırakılır; metin üretilmez.
+
+Çıktılar: sorulara eklenen `dayanak` (`id`: `konu-<konu>` ya da konu içindeki maddenin kimliği), `sorular-konu.json`
+(`{konu kimliği: [soru, ...]}`; değer metinse soruların tutulduğu eş konunun kimliği) ve sekme başına, hiçbir konuya bağlanamayan
+soruları toplayan tek konuluk "ÇIKMIŞ SORULAR — Konusu eşleştirilemeyenler" klasörleri (`ek-90x-1.json`). Okuyucu, kimliği 1000 ve
+üzeri olan konu sayfalarının sonunda "Bu konunun çıkmış soruları (n)" bölümünü gösterir. Mevzuat verisi her yenilendiğinde bu betik de
+yeniden çalıştırılmalıdır; aksi halde bu klasörler dizinde bulunmaz.

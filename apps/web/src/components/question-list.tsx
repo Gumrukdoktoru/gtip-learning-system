@@ -12,6 +12,7 @@ function Marked({ text }: { text: string }): JSX.Element {
 function QuestionItem({ question }: { question: Question }): JSX.Element {
   const [revealed, setRevealed] = useState(false);
   const letterAnswer = question.cevap.length === 1;
+  const fromNotes = question.dayanak?.id.startsWith('konu-') ?? false;
   return (
     <details className="mb-2 rounded-md border border-paper-line bg-white/70 px-4 py-2.5 font-sans text-[15px] leading-relaxed">
       <summary className="cursor-pointer text-[13px] font-semibold text-ink-soft">{question.sinav}</summary>
@@ -64,10 +65,15 @@ function QuestionItem({ question }: { question: Question }): JSX.Element {
                   </a>
                 </p>
                 <p className="mt-1">
-                  <strong>Gerekçe:</strong> Doğru şık, aşağıdaki hükümle örtüşmektedir.
+                  <strong>Gerekçe:</strong>{' '}
+                  {fromNotes ? 'Sorunun konusu, notlarınızın aşağıdaki bölümünde geçmektedir.' : 'Doğru şık, aşağıdaki hükümle örtüşmektedir.'}
                 </p>
                 <blockquote className="mt-2 border-l-2 border-emerald-300 pl-3 font-read italic">“{question.dayanak.metin}”</blockquote>
-                <p className="mt-2 text-xs text-ink-mute">Dayanak hüküm, notlarınızdaki ilgili maddeden otomatik seçilmiştir.</p>
+                <p className="mt-2 text-xs text-ink-mute">
+                  {fromNotes
+                    ? 'Dayanak pasajı, notlarınızdaki ilgili konudan otomatik seçilmiştir; bağlantı konunun tamamını açar.'
+                    : 'Dayanak hüküm, notlarınızdaki ilgili maddeden otomatik seçilmiştir.'}
+                </p>
               </>
             ) : (
               <p className="mt-2 text-ink-soft">Bu soru için notlarda dayanak hüküm eşleştirilemedi.</p>

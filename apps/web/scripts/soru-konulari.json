@@ -1,35 +1,252 @@
 {
- "aciklama": "Sınav kitapçıklarındaki çıkmış sorular, soru kökü ve şıklarında geçen anahtar ifadelere göre bu konu başlıklarına dağıtılır (ilk eşleşen başlık). Elle hazırlanmıştır; ifadeler küçük harfle yazılır.",
+ "aciklama": "Sınav kitapçıklarındaki soruların hangi sekmeyle (Sair Mevzuat / Tarife) ilgili olduğu, soru kökü ve şıklarında geçen bu anahtar ifadelerle belirlenir (küçük harf). Sorular konularına bu listeyle değil, notlardaki dayanak pasajına göre dağıtılır (sorular-konu.json); hiçbir konuya bağlanamayanlar sekme başına tek konuda ('konu_basligi') toplanır. Elle hazırlanmıştır.",
  "klasorler": [
   {
    "sekme": "sair",
-   "baslik": "ÇIKMIŞ SORULAR — Sair mevzuat (sınav kitapçıklarından, konu konu)",
+   "baslik": "ÇIKMIŞ SORULAR — Konusu eşleştirilemeyenler (Sair mevzuat)",
    "konular": [
-    {"baslik": "Kaçakçılıkla Mücadele Kanunu (5607)", "ifadeler": ["kaçakçılık", "5607"]},
-    {"baslik": "Katma Değer Vergisi (KDV) Kanunu", "ifadeler": ["katma değer vergisi", "kdv kanun", "3065 sayılı"]},
-    {"baslik": "Özel Tüketim Vergisi (ÖTV) Kanunu", "ifadeler": ["özel tüketim vergisi", "ötv kanun", "4760 sayılı"]},
-    {"baslik": "Kambiyo: Türk Parası Kıymetini Koruma (1567, 32 sayılı Karar)", "ifadeler": ["türk parası", "kambiyo", "32 sayılı karar", "1567 sayılı", "ihracat bedel"]},
-    {"baslik": "İthalatta haksız rekabet: damping ve sübvansiyon", "ifadeler": ["damping", "sübvansiyon", "haksız rekabet"]},
-    {"baslik": "Korunma önlemleri, gözetim, kota ve tarife kontenjanı", "ifadeler": ["korunma önlem", "gözetim uygulama", "ithalatta gözetim", "tarife kontenjan", "kota"]},
-    {"baslik": "Serbest bölgeler", "ifadeler": ["serbest bölge"]},
-    {"baslik": "Yatırım teşvik ve devlet yardımları", "ifadeler": ["yatırım teşvik", "teşvik belgesi", "yatırımlarda devlet yardım"]},
-    {"baslik": "Onaylanmış kişi statüsü ve yetkilendirilmiş yükümlü", "ifadeler": ["onaylanmış kişi", "yetkilendirilmiş yükümlü"]},
-    {"baslik": "Ürün güvenliği, teknik düzenlemeler ve TAREKS", "ifadeler": ["tareks", "ürün güvenliği", "teknik düzenleme", "ce işareti", "uygunluk denetim"]},
-    {"baslik": "Menşe, A.TR, gümrük birliği ve serbest ticaret anlaşmaları", "ifadeler": ["a.tr", "menşe", "eur.1", "eur-med", "eur.med", "gümrük birliği", "kümülasyon", "tedarikçi beyan", "serbest ticaret anlaşma", "form a", "genelleştirilmiş tercihler"]},
-    {"baslik": "Teslim ve ödeme şekilleri (Incoterms, akreditif)", "ifadeler": ["incoterms", "teslim şekl", "akreditif", "ödeme şekl", "vesaik mukabili", "mal mukabili"]},
-    {"baslik": "İthalat Rejimi Kararı ve ithalat mevzuatı", "ifadeler": ["ithalat rejim", "ithalat tebliğ"]},
-    {"baslik": "Kaynak Kullanımını Destekleme Fonu (KKDF)", "ifadeler": ["kkdf", "kaynak kullanımını destekleme"]},
-    {"baslik": "Doğrudan yabancı yatırımlar", "ifadeler": ["yabancı yatırım", "4875 sayılı"]},
-    {"baslik": "Amme alacaklarının tahsili (6183)", "ifadeler": ["6183", "amme alacak"]}
-   ]
+    {
+     "baslik": "Kaçakçılıkla Mücadele Kanunu (5607)",
+     "ifadeler": [
+      "kaçakçılık",
+      "5607"
+     ]
+    },
+    {
+     "baslik": "Katma Değer Vergisi (KDV) Kanunu",
+     "ifadeler": [
+      "katma değer vergisi",
+      "kdv kanun",
+      "3065 sayılı"
+     ]
+    },
+    {
+     "baslik": "Özel Tüketim Vergisi (ÖTV) Kanunu",
+     "ifadeler": [
+      "özel tüketim vergisi",
+      "ötv kanun",
+      "4760 sayılı"
+     ]
+    },
+    {
+     "baslik": "Kambiyo: Türk Parası Kıymetini Koruma (1567, 32 sayılı Karar)",
+     "ifadeler": [
+      "türk parası",
+      "kambiyo",
+      "32 sayılı karar",
+      "1567 sayılı",
+      "ihracat bedel"
+     ]
+    },
+    {
+     "baslik": "İthalatta haksız rekabet: damping ve sübvansiyon",
+     "ifadeler": [
+      "damping",
+      "sübvansiyon",
+      "haksız rekabet"
+     ]
+    },
+    {
+     "baslik": "Korunma önlemleri, gözetim, kota ve tarife kontenjanı",
+     "ifadeler": [
+      "korunma önlem",
+      "gözetim uygulama",
+      "ithalatta gözetim",
+      "tarife kontenjan",
+      "kota"
+     ]
+    },
+    {
+     "baslik": "Serbest bölgeler",
+     "ifadeler": [
+      "serbest bölge"
+     ]
+    },
+    {
+     "baslik": "Yatırım teşvik ve devlet yardımları",
+     "ifadeler": [
+      "yatırım teşvik",
+      "teşvik belgesi",
+      "yatırımlarda devlet yardım"
+     ]
+    },
+    {
+     "baslik": "Onaylanmış kişi statüsü ve yetkilendirilmiş yükümlü",
+     "ifadeler": [
+      "onaylanmış kişi",
+      "yetkilendirilmiş yükümlü"
+     ]
+    },
+    {
+     "baslik": "Ürün güvenliği, teknik düzenlemeler ve TAREKS",
+     "ifadeler": [
+      "tareks",
+      "ürün güvenliği",
+      "teknik düzenleme",
+      "ce işareti",
+      "uygunluk denetim"
+     ]
+    },
+    {
+     "baslik": "Menşe, A.TR, gümrük birliği ve serbest ticaret anlaşmaları",
+     "ifadeler": [
+      "a.tr",
+      "menşe",
+      "eur.1",
+      "eur-med",
+      "eur.med",
+      "gümrük birliği",
+      "kümülasyon",
+      "tedarikçi beyan",
+      "serbest ticaret anlaşma",
+      "form a",
+      "genelleştirilmiş tercihler"
+     ]
+    },
+    {
+     "baslik": "Teslim ve ödeme şekilleri (Incoterms, akreditif)",
+     "ifadeler": [
+      "incoterms",
+      "teslim şekl",
+      "akreditif",
+      "ödeme şekl",
+      "vesaik mukabili",
+      "mal mukabili"
+     ]
+    },
+    {
+     "baslik": "İthalat Rejimi Kararı ve ithalat mevzuatı",
+     "ifadeler": [
+      "ithalat rejim",
+      "ithalat tebliğ"
+     ]
+    },
+    {
+     "baslik": "Kaynak Kullanımını Destekleme Fonu (KKDF)",
+     "ifadeler": [
+      "kkdf",
+      "kaynak kullanımını destekleme"
+     ]
+    },
+    {
+     "baslik": "Doğrudan yabancı yatırımlar",
+     "ifadeler": [
+      "yabancı yatırım",
+      "4875 sayılı"
+     ]
+    },
+    {
+     "baslik": "Amme alacaklarının tahsili (6183)",
+     "ifadeler": [
+      "6183",
+      "amme alacak"
+     ]
+    }
+   ],
+   "konu_basligi": "Konusu eşleştirilemeyen çıkmış sorular — Sair mevzuat"
   },
   {
    "sekme": "tarife",
-   "baslik": "ÇIKMIŞ SORULAR — Tarife (sınav kitapçıklarından, yıl yıl)",
-   "yil_yil": true,
+   "baslik": "ÇIKMIŞ SORULAR — Konusu eşleştirilemeyenler (Tarife)",
    "konular": [
-    {"baslik": "Tarife", "ifadeler": ["tarife pozisyon", "tarife cetvel", "fasıl", "fasl", "genel yorum kural", "armonize sistem", "pozisyonunda sınıflandır", "hangi pozisyon"]}
-   ]
+    {
+     "baslik": "Tarife",
+     "ifadeler": [
+      "tarife pozisyon",
+      "tarife cetvel",
+      "fasıl",
+      "fasl",
+      "genel yorum kural",
+      "armonize sistem",
+      "pozisyonunda sınıflandır",
+      "hangi pozisyon"
+     ]
+    }
+   ],
+   "konu_basligi": "Konusu eşleştirilemeyen çıkmış sorular — Tarife"
+  }
+ ],
+ "kaynak_capalari_aciklama": "Soru kökü belirli bir mevzuatı adıyla anıyorsa (soru: düzenli ifade), dayanak yalnızca adı 'konu' ifadesine uyan klasör/konu/maddeden seçilir. 'konu' null ise o mevzuat bu notlarda yoktur; soru konu notlarına bağlanmaz (Kanun/Yönetmelik soruları madde sayfalarında gösterilir).",
+ "kaynak_capalari": [
+  {
+   "soru": "kolaylaştırılması yönetmeliği|yetkilendirilmiş yükümlü",
+   "konu": null
+  },
+  {
+   "soru": "4458|gümrük kanunu|gümrük yönetmeliği",
+   "konu": null
+  },
+  {
+   "soru": "3065|katma değer vergi|\\bkdv\\b",
+   "konu": "kdv|katma değer"
+  },
+  {
+   "soru": "4760|özel tüketim vergi|\\bötv\\b",
+   "konu": "ötv|özel tüketim|ozel tuketim"
+  },
+  {
+   "soru": "5607|kaçakçılıkla mücadele",
+   "konu": "5607|kaçak"
+  },
+  {
+   "soru": "1567|türk parası",
+   "konu": "türk parası|32 sayılı"
+  },
+  {
+   "soru": "6183|amme alacak",
+   "konu": "6183|amme"
+  },
+  {
+   "soru": "3577|haksız rekabet",
+   "konu": "haksız rekabet"
+  },
+  {
+   "soru": "4875|doğrudan yabancı yatırım",
+   "konu": "yabancı yatırım"
+  },
+  {
+   "soru": "ithalat rejim",
+   "konu": "ithalat rejimi"
+  },
+  {
+   "soru": "serbest bölge",
+   "konu": "serbest bölge"
+  },
+  {
+   "soru": "yatırım teşvik|teşvik belgesi|yatırımlarda devlet yardım",
+   "konu": "yatırım|teşvik"
+  },
+  {
+   "soru": "dahilde işleme",
+   "konu": "dah[iı]lde [iı][sş]leme"
+  },
+  {
+   "soru": "korunma önlem",
+   "konu": "korunma"
+  },
+  {
+   "soru": "gözetim uygulama|ithalatta gözetim",
+   "konu": "gözetim"
+  },
+  {
+   "soru": "incoterms|teslim şekl",
+   "konu": "teslim şekil|incoterms"
+  },
+  {
+   "soru": "onaylanmış kişi",
+   "konu": "onaylanmış kişi"
+  },
+  {
+   "soru": "kaynak kullanımını destekleme|kkdf",
+   "konu": "kaynak kullanım|kkdf"
+  },
+  {
+   "soru": "ihracı yasak",
+   "konu": "yasak"
+  },
+  {
+   "soru": "kayda bağlı",
+   "konu": "kayda ba[gğ]l[ıi]"
   }
  ]
 }
