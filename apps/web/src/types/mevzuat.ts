@@ -108,7 +108,13 @@ export interface Question {
   ilgili?: ArticleLink;
   /** Notlardaki dayanak hüküm (otomatik seçilir). id: madde kimliği ya da "konu-<konu kimliği>". */
   dayanak?: ArticleLink & { metin: string };
+  /** Fasıl sayfalarında: faslın soruyla ilişkisi (doğru cevap/kök bu fasılda ya da fasıl yalnızca diğer şıklarda). */
+  rol?: QuestionRole;
+  /** Ders notundaki çözüm (Tarife Kitabının "çıkmış soru örnekleri"nden). */
+  cozum?: string[];
 }
+
+export type QuestionRole = 'dogru' | 'secenek';
 
 export interface ArticleLink {
   id: string;
@@ -119,7 +125,8 @@ export type ArticleQuestions = Record<string, Question[]>;
 
 /**
  * Konu kimliği -> o konunun çıkmış soruları (sorular-konu.json). Değer metin ise soruların
- * tutulduğu eş konunun kimliğidir (aynı faslın başka klasördeki sayfası).
+ * tutulduğu eş konunun kimliğidir (aynı faslın başka klasördeki sayfası). Boş liste yalnızca
+ * tarife fasıllarında bulunur: "bu fasıl için çıkmış soru bulunamadı" satırı gösterilir.
  */
 export type TopicQuestions = Record<string, Question[] | string>;
 

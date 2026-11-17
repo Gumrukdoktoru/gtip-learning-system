@@ -64,14 +64,42 @@ Genelge, Hesaplama) **pasaj düzeyinde** arar (`PassageMatcher`):
   Soru kartı içeren klasörler (çıkmış soru ve alıştırma bankaları) birim üretmez.
 - Simge -> birim ters dizini; puan, soru kökü + doğru şıkkın IDF ağırlığının pasajda bulunan oranıdır. Tarife kodları (`96.03`, `8471.30`),
   fasıl (`13. fasıl`), madde (`md. 4`) ve yorum kuralı (`GYK 3`) ayrı simgelerdir.
-- Tek bir faslı ya da genel yorum kurallarını açıkça anan tarife sorusu o faslın **Tarife Kitabı** konusuna bağlanır (dayanak pasajı
-  bulunamasa bile); aynı faslın "Tarife Cetveli — Fasıllar" ve "Sunum" sayfaları aynı soru listesini gösterir.
+- Tarife soruları fasıllara metin benzerliğiyle değil kuralla bağlanır (aşağıdaki "Tarife fasıllarının çıkmış soruları" bölümü).
 - Diğer sorular yalnızca eşik aşılırsa bağlanır (puan, ortak sözcük çifti sayısı, şıkların pasajda geçmesi). Soru kökü bir mevzuatı
   adıyla anıyorsa dayanak yalnızca o mevzuatın notundan seçilir (`scripts/soru-konulari.json` → `kaynak_capalari`).
   Eşiğin altında kalan soru dayanaksız bırakılır; metin üretilmez.
 
 Çıktılar: sorulara eklenen `dayanak` (`id`: `konu-<konu>` ya da konu içindeki maddenin kimliği), `sorular-konu.json`
 (`{konu kimliği: [soru, ...]}`; değer metinse soruların tutulduğu eş konunun kimliği) ve sekme başına, hiçbir konuya bağlanamayan
-soruları toplayan tek konuluk "ÇIKMIŞ SORULAR — Konusu eşleştirilemeyenler" klasörleri (`ek-90x-1.json`). Okuyucu, kimliği 1000 ve
+soruları toplayan tek konuluk "ÇIKMIŞ SORULAR — Konusu eşleştirilemeyenler" klasörleri (`ek-90x-1.json`; Tarife sekmesinde "Genel tarife bilgisi"). Okuyucu, kimliği 1000 ve
 üzeri olan konu sayfalarının sonunda "Bu konunun çıkmış soruları (n)" bölümünü gösterir. Mevzuat verisi her yenilendiğinde bu betik de
 yeniden çalıştırılmalıdır; aksi halde bu klasörler dizinde bulunmaz.
+
+### Tarife fasıllarının çıkmış soruları
+
+Tarife sekmesindeki her fasıl sayfası (Fasıl 01–97 ve Genel Yorum Kuralları) o faslın çıkmış sorularını iki başlıkta gösterir:
+"Doğru cevabı bu fasılda olan / bu fasılı soran sorular" (`rol: dogru`) ve "Bu fasılın şıklarda (çeldirici olarak) geçtiği sorular"
+(`rol: secenek`). Hiç sorusu olmayan fasılda "Bu fasıl için kaynaklarda çıkmış soru bulunamadı." satırı çıkar (`sorular-konu.json`
+içinde boş liste). Sorular **Tarife Kitabı** konusunda tutulur; aynı faslın "Tarife Cetveli — Fasıllar" ve "Sunum" sayfaları aynı listeyi gösterir.
+
+Üç kaynak birleştirilir ve tekrarlar ayıklanır (`scripts/tarife-fasil-kurali.py`): sınav kitapçıklarındaki tarife soruları,
+kullanıcının yüklediği "Tarife ile ilgili geçmiş yıl sınav soruları" PDF'i (`scripts/tarife-cikmis-sorular.json`) ve Tarife Kitabının
+fasıl fasıl "çıkmış soru örneği" kartları. Aynı sorunun birden fazla sürümü varsa harf cevabı olan, sonra kitapçık sürümü (dayanak ve
+madde bağlantısı için) tutulur; kitaptaki çözüm soruya `cozum` olarak eklenir. Kaynaklar farklı cevap veriyorsa derleyici bunu yazar.
+
+Fasıl kuralı: `NN.NN`, `NNNN.NN`, 12 haneli GTİP, "NNNN pozisyonu", "Fasıl N", "N. fasıl", "N–M fasıl" → NN faslı. Kökte ya da doğru
+şıkta geçen fasıl `dogru`, yalnızca diğer şıklarda geçen fasıl `secenek` olur; kitabın soruyu örnek verdiği fasıl da `dogru` sayılır.
+Genel yorum kuralı anan sorular Genel Yorum Kuralları sayfasına gider. Kodun biçimini soran sorularda şıklardaki kodlar, vergi hesaplama
+sorularında pozisyonlar fasıl sayılmaz; romen rakamlı "Bölüm" tek başına fasıl işareti değildir. Hiçbir fasla bağlanmayan sorular
+"ÇIKMIŞ SORULAR — Genel tarife bilgisi" klasöründeki tek konuda toplanır.
+
+PDF'i yeniden okumak için (PyMuPDF; yüklenen dosya güvenilmeyen veri olduğundan `-I` ile):
+
+```bash
+python3 -I apps/web/scripts/extract-tarife-pdf.py <tarife-sorulari.pdf> -o apps/web/scripts/tarife-cikmis-sorular.json
+```
+
+Sütunlar koordinatla ayrılır, sorular ardışık numarayla tanınır, cevaplar yalnızca belgenin sonundaki cevap anahtarından alınır
+(anahtarda yoksa boş bırakılır). Sınav etiketi kalın ara başlıklardan gelir; son başlıktan (2019) sonraki başlıksız sorular etiketsizdir.
+Derlemenin tamamı "ÇIKMIŞ SORULAR — Tarife (fasıl fasıl)" klasöründe "Tarife çıkmış sorular — tümü (n soru)" konusudur; aynı belgenin
+sütunları karışık ham sayfa dökümü konuları, içerik PDF ile aynı çıktığında derleyici tarafından kaldırılır.

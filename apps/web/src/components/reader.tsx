@@ -47,9 +47,9 @@ export function Reader({ topic, activeId, whole, previousId, nextId, onRetry }: 
     return (
       <>
         <h2 className="mb-5 font-read text-3xl">{context}</h2>
-        {questions.length > 0 && <TopicQuestionsJump count={questions.length} />}
+        {questions && questions.length > 0 && <TopicQuestionsJump count={questions.length} />}
         <BlockList blocks={loaded.blocks} />
-        {questions.length > 0 && <TopicQuestions topicId={loaded.id} questions={questions} />}
+        {questions && <TopicQuestions topicId={loaded.id} questions={questions} />}
       </>
     );
   }

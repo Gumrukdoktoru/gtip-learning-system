@@ -76,8 +76,14 @@ function QuestionItem({ question }: { question: Question }): JSX.Element {
                 </p>
               </>
             ) : (
-              <p className="mt-2 text-ink-soft">Bu soru için notlarda dayanak hüküm eşleştirilemedi.</p>
+              !question.cozum?.length && <p className="mt-2 text-ink-soft">Bu soru için notlarda dayanak hüküm eşleştirilemedi.</p>
             )}
+            {(question.cozum ?? []).map((line, i) => (
+              <p key={i} className="mt-2">
+                {i === 0 && <strong>Çözüm (Tarife Kitabı notunuzdan): </strong>}
+                <Marked text={line} />
+              </p>
+            ))}
           </div>
         )}
       </div>

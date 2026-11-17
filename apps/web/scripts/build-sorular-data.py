@@ -14,7 +14,12 @@ kendi gerekçe/yorum metinleri alınmaz.
     sorular-diger.json   [{sinav, sorular: [...]}]  (Kanun/Yönetmelik dışı sorular; "ilgili": otomatik eşleşen madde)
     sorular-sinav.json   [{sinav, yil, sorular: [...]}] (bütün sorular, sınavlara göre)
     sorular-konu.json    {konu kimliği: [soru, ...]}  (Tarife, Sair Mevzuat vb. konularının çıkmış soruları)
-    ek-90x-1.json        sekme başına, hiçbir konuya bağlanamayan çıkmış sorular
+    ek-90x-1.json        sekme başına, hiçbir konuya bağlanamayan çıkmış sorular (Tarife: genel tarife bilgisi soruları)
+
+Tarife fasılları kuralla doldurulur (tarife-fasil-kurali.py): sınav kitapçıkları, tarife-cikmis-sorular.json
+(extract-tarife-pdf.py çıktısı) ve Tarife Kitabının fasıl fasıl "çıkmış soru örneği" kartları tekrarsız hâle getirilir;
+soru, kökünde/doğru şıkkında geçen fasla "dogru", yalnızca diğer şıklarda geçen fasla "secenek" rolüyle bağlanır.
+PDF derlemesinin tamamı "Tarife çıkmış sorular — tümü" konusunda verilir; aynı belgenin ham sayfa dökümü konuları kaldırılır.
 
 Madde dayanağı olmayan sorular için dayanak, diğer not dosyalarının (ek-*.json) pasajlarında aranır
 (PassageMatcher); eşiğin altında kalan soru dayanaksız bırakılır, metin üretilmez.
@@ -22,6 +27,7 @@ Madde dayanağı olmayan sorular için dayanak, diğer not dosyalarının (ek-*.
 from __future__ import annotations
 
 import html
+import importlib.util
 import json
 import math
 import re
@@ -543,6 +549,120 @@ SUBJECT_FILE = Path(__file__).resolve().parent / "soru-konulari.json"
 SUBJECT_FOLDER_BASE = 900  # mevzuat derleyicisinin klasör numaralarıyla çakışmaz
 
 
+TARIFF_PDF_FILE = Path(__file__).resolve().parent / "tarife-cikmis-sorular.json"
+TARIFF_ALL_TITLE = "Tarife çıkmış sorular — tümü"
+RAW_PDF_TOPIC_RE = re.compile(r"geçmiş yıl tarife soruları \(s\. ")
+CARD_TOPIC_RE = re.compile(r"^Çıkmış sorular — (?:Fasıl (\d{2})\b|Genel Yorum Kuralları)")
+PICTURE_NOTE = "(Bu sorunun görseli kaynak belgededir; burada gösterilemiyor.)"
+ROLE_ORDER = ("dogru", "secenek")
+
+
+def load_tariff_rule():
+    """Fasıl kuralı ve tekrar ayıklama (tarife-fasil-kurali.py)."""
+    spec = importlib.util.spec_from_file_location("tarife_fasil_kurali", Path(__file__).resolve().parent / "tarife-fasil-kurali.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def title_tr(text: str) -> str:
+    """'2011 MESLEKİ YETERLİLİK SINAVI' -> '2011 Mesleki Yeterlilik Sınavı'"""
+    return " ".join(w[:1] + lower_tr(w[1:]) for w in text.split())
+
+
+def pdf_label(question: dict) -> str:
+    exam = title_tr(question["sinav"]) if question["sinav"] else "Tarife geçmiş yıl soruları (sınavı belirtilmemiş)"
+    return f"{exam} · derleme sorusu {question['no']}"
+
+
+def load_pdf_questions() -> list[dict]:
+    """Kullanıcının yüklediği tarife soru derlemesi (extract-tarife-pdf.py çıktısı)."""
+    if not TARIFF_PDF_FILE.exists():
+        return []
+    return json.loads(TARIFF_PDF_FILE.read_text(encoding="utf-8"))
+
+
+def tariff_entries(matcher: "PassageMatcher", anchors: list[dict]) -> list[dict]:
+    """PDF derlemesindeki sorular ile Tarife Kitabının fasıl fasıl "çıkmış soru örneği" kartları."""
+    entries = []
+    for item in load_pdf_questions():
+        question = {"id": f"tarife-pdf-{item['no']}", "sinav": pdf_label(item), "kok": item["kok"], "siklar": item["siklar"], "cevap": item["cevap"]}
+        entries.append({"soru": question, "kaynak": "pdf", "etiket": item["sinav"], "ev": set(), "gorsel": bool(item.get("gorsel"))})
+    for path in sorted(DATA_DIR.glob("ek-*.json")):
+        for topic in json.loads(path.read_text(encoding="utf-8")):
+            info = matcher.topic_info.get(topic["id"])
+            card = CARD_TOPIC_RE.match(info[3]) if info and info[0] == "tarife" else None
+            if not card:
+                continue
+            name = f"Fasıl {card.group(1)}" if card.group(1) else "Genel Yorum Kuralları"
+            for order, block in enumerate((b for b in topic["blocks"] if b["t"] == "q"), 1):
+                question = {"id": f"tarife-kitap-{topic['id']}-{order}", "sinav": f"Tarife Kitabı · {name} · çıkmış soru örneği {order}",
+                            "kok": block["kok"], "siklar": block["siklar"], "cevap": block["cevap"]}
+                entries.append({"soru": question, "kaynak": "kart", "etiket": "", "ev": {card.group(1) or "gyk"}, "cozum": block.get("cozum") or []})
+    for entry in entries:
+        ground, _ = matcher.link(entry["soru"], True, anchors)
+        if ground:
+            entry["soru"]["dayanak"] = {k: ground[k] for k in ("id", "ad", "metin")}
+    return entries
+
+
+def distribute_tariff(matcher: "PassageMatcher", pool: list[dict], spare: dict[str, dict], anchors: list[dict], outside: list[str], year) -> tuple[dict[str, list[dict]], list[dict]]:
+    """Tarife sorularını (kitapçık + PDF derlemesi + kitap kartları) tekrarsız hâle getirip fasıllara dağıtır.
+
+    Dönen değer: ({fasıl ya da "gyk": [soru (rol: dogru | secenek), ...]}, fasla bağlı olmayan genel sorular).
+    """
+    rule = load_tariff_rule()
+    extra = tariff_entries(matcher, anchors)
+    taken = {id(e["soru"]) for e in pool}
+    for entry in extra:  # anahtar ifade taşımayan, ama derlemede/kitapta aynen bulunan kitapçık soruları
+        twin = spare.get(rule.squash(" ".join(entry["soru"]["kok"] + entry["soru"]["siklar"])))
+        if twin and id(twin["soru"]) not in taken:
+            taken.add(id(twin["soru"]))
+            pool.append(twin)
+    pool = [e for e in pool if not MONEY_RE.search(lower_tr(" ".join(e["soru"]["kok"])))]
+    merged, stats = rule.dedupe(pool + extra)
+    lists: dict[str, dict[str, list[dict]]] = {key: {role: [] for role in ROLE_ORDER} for key in matcher.chapter_home}
+    general: list[dict] = []
+    conflicts = []
+    for item in merged:
+        question = dict(item["soru"])
+        if item.get("gorsel") and item["kaynak"] == "pdf":
+            question["kok"] = question["kok"] + [PICTURE_NOTE]
+        if item.get("cozum"):
+            question["cozum"] = item["cozum"]
+        if item.get("celiski"):
+            conflicts.append(f"{question['sinav'][:70]}: " + "; ".join(f"{m['kaynak']}={next((o for o in m['soru']['siklar'] if o.startswith(m['soru']['cevap'] + ')')), m['soru']['cevap'])[:40]}" for m in item["uyeler"]))
+        right, other = rule.roles(question)
+        right |= item["ev"]  # kitabın soruyu örnek verdiği fasıl
+        placed = False
+        for role, keys in (("dogru", right), ("secenek", other - right)):
+            for key in sorted(keys & set(lists)):
+                lists[key][role].append({**question, "rol": role})
+                placed = True
+        # Yalnızca kitapçıkta bulunan soru, maddeye bağlıysa ya da başka bir mevzuatı adıyla anıyorsa genel tarife sorusu sayılmaz.
+        stem = lower_tr(" ".join(question["kok"]))
+        foreign = item["kaynaklar"] == ["kitapcik"] and (question.get("madde") or any(re.search(p, stem) for p in outside))
+        if not placed and not foreign:
+            general.append(question)
+    order = lambda q: -year(q["sinav"])  # noqa: E731 — yeni sınavlar önce; yılı olmayanlar sonda
+    result = {key: sorted(groups["dogru"], key=order) + sorted(groups["secenek"], key=order) for key, groups in lists.items()}
+    by_source = {name: sum(1 for e in pool + extra if e["kaynak"] == name) for name in ("kitapcik", "pdf", "kart")}
+    kept = {name: sum(1 for m in merged if m["kaynak"] == name) for name in by_source}
+    print(f"tarife soruları: kitapçık {by_source['kitapcik']}, PDF derlemesi {by_source['pdf']}, kitap kartı {by_source['kart']}; "
+          f"tekrarsız {stats['tekil']} (tutulan sürüm: kitapçık {kept['kitapcik']}, PDF {kept['pdf']}, kart {kept['kart']}); farklı cevap veren kaynak: {stats['celiski']}")
+    for line in conflicts:
+        print("  cevap çelişkisi (kitapçık sürümü tutuldu):", line)
+    multi = sum(1 for m in merged if len(m["kaynaklar"]) > 1)
+    overlap: dict[str, int] = {}
+    for m in merged:
+        overlap["+".join(m["kaynaklar"])] = overlap.get("+".join(m["kaynaklar"]), 0) + 1
+    print("  kaynak bileşimine göre tekil soru: " + ", ".join(f"{k} {v}" for k, v in sorted(overlap.items())))
+    print(f"  birden fazla kaynakta bulunan soru: {multi}; fasla bağlı olmayan (genel) soru: {len(general)}")
+    empty = sorted(k for k, v in result.items() if not v)
+    print(f"  çıkmış sorusu olmayan fasıl ({len(empty)}): {', '.join(empty) or '-'}")
+    return result, sorted(general, key=order)
+
+
 def subject_blocks(questions: list[dict]) -> list[dict]:
     """Soruları okuyucudaki çözümlü soru bloğuna çevirir (cevap düğmeyle açılır)."""
     return [{"t": "q", "no": q["sinav"], "kok": q["kok"], "siklar": q["siklar"], "cevap": q["cevap"], "cozum": []} for q in questions]
@@ -572,6 +692,9 @@ def link_to_topics(exam_list: list[dict], other: list[dict], index: dict, config
     leftovers: dict[str, list[dict]] = {tab: [] for tab in folders}
     stats = {tab: {"soru": 0, "dayanak": 0, "onceki": 0, "konu": 0} for tab in folders}
     counts = {"yeni": 0, "değişen": 0, "silinen": 0}
+    home_ids = set(matcher.chapter_home.values())
+    pool: list[dict] = []  # tarife soruları: fasıl sayfaları kuralla doldurulur (distribute_tariff)
+    spare: dict[str, dict] = {}
 
     def process(question: dict, collect: bool) -> None:
         if not question["siklar"]:
@@ -598,7 +721,12 @@ def link_to_topics(exam_list: list[dict], other: list[dict], index: dict, config
                     topic = home
         if not collect:
             return
-        if topic:
+        entry = {"soru": question, "kaynak": "kitapcik", "etiket": question["sinav"] if " · " in question["sinav"] else "", "ev": set()}
+        if "tarife" in tabs:
+            pool.append(entry)
+        else:
+            spare.setdefault(squash(" ".join(question["kok"] + question["siklar"])), entry)
+        if topic and topic not in home_ids:
             group = matcher.topic_info[topic][0]
             tabs = sorted(set(tabs) | ({group} if group in folders else set()))
             key = (topic, question["sinav"] if " · " in question["sinav"] else squash(" ".join(question["kok"]))[:80])
@@ -620,10 +748,19 @@ def link_to_topics(exam_list: list[dict], other: list[dict], index: dict, config
         for question in group["sorular"]:
             process(question, False)
 
+    def year(name: str) -> int:
+        found = re.findall(r"(?:19|20)\d\d", name)
+        return int(found[-1]) if found else 0
+
+    chapters, leftovers["tarife"] = distribute_tariff(matcher, pool, spare, anchors, [a["soru"] for a in anchors] + folders["tarife"].get("genel_disi", []), year)
+    for key, items in chapters.items():  # boş liste: "bu fasıl için çıkmış soru bulunamadı" satırı gösterilir
+        by_topic[matcher.chapter_home[key]] = items
     payload: dict[str, list[dict] | str] = {str(topic): items for topic, items in sorted(by_topic.items())}
     for mirror, home in sorted(matcher.mirrors.items()):
         if home in by_topic:
             payload[str(mirror)] = str(home)
+    print("fasıl tablosu (doğru/şık): " + "  ".join(
+        f"{key}:{sum(q['rol'] == 'dogru' for q in items)}/{sum(q['rol'] == 'secenek' for q in items)}" for key, items in sorted(chapters.items())))
     (DATA_DIR / "sorular-konu.json").write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
 
     print(f"konu notlarından dayanak: yeni {counts['yeni']}, madde eşleşmesinin yerine geçen {counts['değişen']}, çelişkili olduğu için silinen eski eşleşme {counts['silinen']}")
@@ -653,7 +790,7 @@ def write_leftover_folders(leftovers: dict[str, list[dict]], config: dict) -> No
         if not questions:
             continue
         folder_id = SUBJECT_FOLDER_BASE + order
-        note = {"t": "p", "x": "Bu sorular anahtar ifadelere göre bu sekmeyle ilgili görünmektedir; ancak notlarda dayanağı ve konusu güvenilir biçimde bulunamamıştır. Konusu bulunan sorular kendi konu sayfalarının sonunda yer alır."}
+        note = {"t": "p", "x": folder.get("not") or "Bu sorular anahtar ifadelere göre bu sekmeyle ilgili görünmektedir; ancak notlarda dayanağı ve konusu güvenilir biçimde bulunamamıştır. Konusu bulunan sorular kendi konu sayfalarının sonunda yer alır."}
         topic = {"id": folder_id * 1000 + 1, "title": f"{folder['konu_basligi']} ({len(questions)} soru)", "blocks": [note] + subject_blocks(questions)}
         file = f"ek-{folder_id}-1.json"
         (DATA_DIR / file).write_text(json.dumps([topic], ensure_ascii=False), encoding="utf-8")
@@ -661,6 +798,63 @@ def write_leftover_folders(leftovers: dict[str, list[dict]], config: dict) -> No
         group["folders"].append({"id": folder_id, "title": folder["baslik"], "topics": [{"id": topic["id"], "title": topic["title"], "file": file, "articles": []}]})
         print(f"eşleştirilemeyenler klasörü: {folder['baslik'][:70]} | {len(questions)} soru")
     index_path.write_text(json.dumps(index, ensure_ascii=False), encoding="utf-8")
+
+
+def write_tariff_overview() -> None:
+    """PDF derlemesinin bütün sorularını özgün sırasıyla tek konuda verir; aynı belgenin ham sayfa dökümlerini kaldırır.
+
+    Ham "geçmiş yıl tarife soruları (s. …)" konuları (iki sütunu karışmış sayfa dökümü) yalnızca içerikleri PDF
+    derlemesiyle aynı çıkarsa silinir: derlemedeki soru köklerinin ilk sözcükleri dökümde aranır.
+    Betik yeniden çalıştırıldığında mevcut "tümü" konusu yerinde yenilenir.
+    """
+    questions = load_pdf_questions()
+    if not questions:
+        return
+    index_path = DATA_DIR / "index.json"
+    index = json.loads(index_path.read_text(encoding="utf-8"))
+    group = next(g for g in index["groups"] if g["id"] == "tarife")
+    located = [(f, t) for f in group["folders"] for t in f["topics"] if RAW_PDF_TOPIC_RE.search(t["title"]) or t["title"].startswith(TARIFF_ALL_TITLE)]
+    raw = [(f, t) for f, t in located if RAW_PDF_TOPIC_RE.search(t["title"])]
+    bundles = {name: json.loads((DATA_DIR / name).read_text(encoding="utf-8")) for name in {t["file"] for _, t in located}}
+    if raw:
+        ids = {t["id"] for _, t in raw}
+        dump = squash(" ".join(b.get("x", "") for name in bundles for topic in bundles[name] if topic["id"] in ids for b in topic["blocks"]))
+        sample = questions[::3]
+        hits = sum(squash(" ".join(" ".join(q["kok"]).split()[:5])) in dump for q in sample)
+        print(f"ham sayfa dökümü ile PDF derlemesi karşılaştırması: {len(sample)} örnek kökten {hits} tanesi dökümde bulundu")
+        if hits < 0.8 * len(sample):
+            print("  ham döküm farklı bir belge görünüyor: konular yerinde bırakıldı")
+            raw = []
+            located = [(f, t) for f, t in located if not RAW_PDF_TOPIC_RE.search(t["title"])]
+    if located:
+        folder, anchor = located[0]
+    else:  # ham döküm yok: kitabın fasıl fasıl çıkmış soru klasörüne eklenir
+        folder = next((f for f in group["folders"] if any(CARD_TOPIC_RE.match(t["title"]) for t in f["topics"])), None)
+        if folder is None:
+            return
+        anchor = {"id": max(t["id"] for t in folder["topics"]) + 1, "file": folder["topics"][-1]["file"]}
+        bundles[anchor["file"]] = json.loads((DATA_DIR / anchor["file"]).read_text(encoding="utf-8"))
+    drop = {t["id"] for _, t in located}
+    title = f"{TARIFF_ALL_TITLE} ({len(questions)} soru)"
+    note = ("Yüklediğiniz “Tarife ile ilgili geçmiş yıl sınav soruları” derlemesindeki bütün sorular, belgedeki sırasıyla. "
+            "Cevaplar belgenin sonundaki cevap anahtarından alınmıştır. Aynı sorular, ilgili faslın sayfasının sonunda da yer alır.")
+    blocks = [{"t": "p", "x": note}]
+    for q in questions:
+        stem = q["kok"] + ([PICTURE_NOTE] if q.get("gorsel") else [])
+        blocks.append({"t": "q", "no": pdf_label(q), "kok": stem, "siklar": q["siklar"], "cevap": q["cevap"], "cozum": []})
+    for name, topics in bundles.items():
+        kept = [t for t in topics if t["id"] not in drop]
+        if name == anchor["file"]:
+            kept.append({"id": anchor["id"], "title": title, "blocks": blocks})
+        (DATA_DIR / name).write_text(json.dumps(kept, ensure_ascii=False), encoding="utf-8")
+    entry = {"id": anchor["id"], "title": title, "file": anchor["file"], "articles": []}
+    for other in group["folders"]:
+        position = next((i for i, t in enumerate(other["topics"]) if t["id"] in drop), len(other["topics"]))
+        other["topics"] = [t for t in other["topics"] if t["id"] not in drop]
+        if other is folder:
+            other["topics"].insert(min(position, len(other["topics"])), entry)
+    index_path.write_text(json.dumps(index, ensure_ascii=False), encoding="utf-8")
+    print(f"tarife derlemesi konusu: {title}; kaldırılan ham sayfa dökümü konusu: {len(raw)}")
 
 
 def main() -> None:
@@ -735,6 +929,7 @@ def main() -> None:
         (DATA_DIR / file).write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
     if config:
         write_leftover_folders(leftovers, config)
+        write_tariff_overview()
     print(f"madde soruları: {total}; derlemede karşılığı olan: {attached}; karşılığı olmayan madde: {len(missing)}")
     print(f"diğer sorular: {sum(len(g['sorular']) for g in other)}; otomatik ilgili madde bulunan: {matched}")
     for exam in exam_list:

@@ -103,13 +103,16 @@ export function useArticleQuestions(articleId: string): Question[] {
   return all.data?.[articleId] ?? NO_QUESTIONS;
 }
 
-/** Bir konu sayfasının (Tarife, Sair Mevzuat vb.) çıkmış soruları; dosya ilk gereken konuda bir kez indirilir. */
-export function useTopicQuestions(topicId: number | null): Question[] {
+/**
+ * Bir konu sayfasının (Tarife, Sair Mevzuat vb.) çıkmış soruları; dosya ilk gereken konuda bir kez indirilir.
+ * null: konunun soru bölümü yok. Boş liste: tarife faslı, fakat kaynaklarda sorusu yok.
+ */
+export function useTopicQuestions(topicId: number | null): Question[] | null {
   const all = useLoad(topicId === null ? null : loadTopicQuestions, topicId === null ? 'idle' : 'topic-questions');
-  if (topicId === null || !all.data) return NO_QUESTIONS;
+  if (topicId === null || !all.data) return null;
   const entry = all.data[String(topicId)];
   const list = typeof entry === 'string' ? all.data[entry] : entry;
-  return Array.isArray(list) ? list : NO_QUESTIONS;
+  return Array.isArray(list) ? list : null;
 }
 
 /** kind null ise hiçbir şey yüklenmez. */

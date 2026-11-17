@@ -147,7 +147,7 @@
   },
   {
    "sekme": "tarife",
-   "baslik": "ÇIKMIŞ SORULAR — Konusu eşleştirilemeyenler (Tarife)",
+   "baslik": "ÇIKMIŞ SORULAR — Genel tarife bilgisi (fasla bağlı olmayanlar)",
    "konular": [
     {
      "baslik": "Tarife",
@@ -163,7 +163,12 @@
      ]
     }
    ],
-   "konu_basligi": "Konusu eşleştirilemeyen çıkmış sorular — Tarife"
+   "konu_basligi": "Genel tarife bilgisi — çıkmış sorular",
+   "genel_disi": [
+    "tır karnesi",
+    "menşe"
+   ],
+   "not": "Belirli bir fasla ya da genel yorum kurallarına bağlı olmayan, genel tarife ve nomanklatür bilgisi soruları (sınav kitapçıkları, yüklediğiniz tarife soru derlemesi ve Tarife Kitabındaki örnekler; tekrarlar ayıklanmıştır). Fasıl soruları kendi fasıl sayfalarının sonunda, genel yorum kuralı soruları Genel Yorum Kuralları sayfasında yer alır."
   }
  ],
  "kaynak_capalari_aciklama": "Soru kökü belirli bir mevzuatı adıyla anıyorsa (soru: düzenli ifade), dayanak yalnızca adı 'konu' ifadesine uyan klasör/konu/maddeden seçilir. 'konu' null ise o mevzuat bu notlarda yoktur; soru konu notlarına bağlanmaz (Kanun/Yönetmelik soruları madde sayfalarında gösterilir).",
