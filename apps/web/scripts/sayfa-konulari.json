@@ -1,0 +1,554 @@
+{
+ "SAİR MEVZUAT KİTABI.md": [
+  {
+   "baslik": "Kapak ve içindekiler",
+   "sayfa": 1
+  },
+  {
+   "baslik": "Ankara Anlaşması, ortaklık organları ve 1/95 sayılı OKK",
+   "sayfa": 4
+  },
+  {
+   "baslik": "Gümrük Birliği Kararı: tanımlar ve A.TR düzenlenmesi (md. 1–18)",
+   "sayfa": 9
+  },
+  {
+   "baslik": "Basitleştirilmiş işlemler, A.TR ibrazı ve sonradan kontrol (md. 19–39)",
+   "sayfa": 16
+  },
+  {
+   "baslik": "Cezalar, üçgen trafik ve INF 2 bilgi formu (md. 40–49)",
+   "sayfa": 20
+  },
+  {
+   "baslik": "Geri gelen eşya ve INF 3 bilgi formu (md. 50–65)",
+   "sayfa": 22
+  },
+  {
+   "baslik": "Kümülasyon kapsamı eşya, tedarikçi beyanı ve INF 4 (md. 66–76)",
+   "sayfa": 25
+  },
+  {
+   "baslik": "İthalatta Haksız Rekabetin Önlenmesi Hakkında Kanun (3577)",
+   "sayfa": 28
+  },
+  {
+   "baslik": "İthalatta Haksız Rekabetin Önlenmesi Hakkında Karar (99/13482)",
+   "sayfa": 34
+  },
+  {
+   "baslik": "Haksız Rekabet Yönetmeliği: damping, sübvansiyon ve zarar tespiti",
+   "sayfa": 38
+  },
+  {
+   "baslik": "Haksız Rekabet Yönetmeliği: şikâyet, soruşturma ve gözden geçirme",
+   "sayfa": 43
+  },
+  {
+   "baslik": "İthalatta Korunma Önlemleri Hakkında Karar (2004/7305)",
+   "sayfa": 49
+  },
+  {
+   "baslik": "Korunma Önlemleri Yönetmeliği ve haksız rekabet karşılaştırma tablosu",
+   "sayfa": 53
+  },
+  {
+   "baslik": "İthalatta ve ihracatta kota ve tarife kontenjanı kararları",
+   "sayfa": 58
+  },
+  {
+   "baslik": "İthalatta gözetim: Karar, Yönetmelik ve Tebliğ (2022/1)",
+   "sayfa": 60
+  },
+  {
+   "baslik": "Türkiye'nin Ticari Haklarının Korunması Hakkında Karar",
+   "sayfa": 63
+  },
+  {
+   "baslik": "Türk Parası Kıymetini Koruma Hakkında Kanun (1567)",
+   "sayfa": 65
+  },
+  {
+   "baslik": "32 sayılı Karar: tanımlar, Türk parası, döviz ve kıymetli madenler",
+   "sayfa": 70
+  },
+  {
+   "baslik": "32 sayılı Karar: ihracat, ithalat, sermaye hareketleri ve krediler",
+   "sayfa": 76
+  },
+  {
+   "baslik": "İhracat bedelleri hakkında Tebliğ (2018-32/48)",
+   "sayfa": 82
+  },
+  {
+   "baslik": "32 sayılı Karara ilişkin Tebliğ (2008-32/34)",
+   "sayfa": 86
+  },
+  {
+   "baslik": "İthalat Genelgesi (2020/1) ve Nakit Kontrolleri Genelgesi (2024/1)",
+   "sayfa": 93
+  },
+  {
+   "baslik": "Doğrudan Yabancı Yatırımlar Kanunu (4875)",
+   "sayfa": 97
+  },
+  {
+   "baslik": "Yatırımlarda Devlet Yardımları Kararı: teşvik sistemleri (md. 1–15)",
+   "sayfa": 99
+  },
+  {
+   "baslik": "Yatırımlarda Devlet Yardımları Kararı: diğer destekler (md. 16–34)",
+   "sayfa": 107
+  },
+  {
+   "baslik": "Gümrük Genel Tebliği (Yatırım Teşvik) (Seri No: 9)",
+   "sayfa": 114
+  },
+  {
+   "baslik": "Yatırımlarda Devlet Yardımları Kararının Uygulanması Tebliği (2025/1)",
+   "sayfa": 122
+  },
+  {
+   "baslik": "Serbest Bölgeler Yönetmeliği: genel hükümler ve faaliyet (md. 1–22)",
+   "sayfa": 132
+  },
+  {
+   "baslik": "Serbest Bölgeler Yönetmeliği: işletici ve B.K.İ. (md. 23–31)",
+   "sayfa": 139
+  },
+  {
+   "baslik": "Serbest Bölgeler Yönetmeliği: mal giriş-çıkışı ve gelirler (md. 32–58)",
+   "sayfa": 145
+  },
+  {
+   "baslik": "KDV Kanunu: konu, mükellef ve vergiyi doğuran olay (md. 1–11)",
+   "sayfa": 155
+  },
+  {
+   "baslik": "KDV Kanunu: ihracat ve yatırım istisnaları (md. 12–13)",
+   "sayfa": 158
+  },
+  {
+   "baslik": "KDV Kanunu: transit, diplomatik ve ithalat istisnaları (md. 14–19)",
+   "sayfa": 161
+  },
+  {
+   "baslik": "KDV Kanunu: matrah, oran ve indirim (md. 20–39)",
+   "sayfa": 165
+  },
+  {
+   "baslik": "KDV Kanunu: beyan, tarh, ödeme ve usul hükümleri (md. 40–62)",
+   "sayfa": 169
+  },
+  {
+   "baslik": "KDV oranlarının tespitine ilişkin Karar (2007/13033)",
+   "sayfa": 172
+  },
+  {
+   "baslik": "ÖTV Kanunu: konu, vergiyi doğuran olay ve istisnalar (md. 1–8)",
+   "sayfa": 176
+  },
+  {
+   "baslik": "ÖTV Kanunu: indirim, matrah, oran, beyan ve gümrükte ÖTV (md. 9–17)",
+   "sayfa": 181
+  },
+  {
+   "baslik": "ÖTV Kanunu özet tabloları",
+   "sayfa": 187
+  },
+  {
+   "baslik": "Kaynak Kullanımını Destekleme Fonu (KKDF) Hakkında Karar",
+   "sayfa": 189
+  },
+  {
+   "baslik": "Onaylanmış kişi statüsü: statü belgesi ve başvuru (md. 1–17)",
+   "sayfa": 192
+  },
+  {
+   "baslik": "Onaylanmış kişi statüsü: eksik beyan ve teminat (md. 18–42)",
+   "sayfa": 198
+  },
+  {
+   "baslik": "Onaylanmış kişi statüsü: mavi hat, onaylanmış ihracatçı, askıya alma",
+   "sayfa": 204
+  },
+  {
+   "baslik": "GTS menşe Kararı (2014/7064): tanımlar ve menşe kuralları (md. 1–15)",
+   "sayfa": 208
+  },
+  {
+   "baslik": "GTS menşe Kararı: kümülasyon, Form A ve sonradan kontrol (md. 16–35)",
+   "sayfa": 213
+  },
+  {
+   "baslik": "GTS menşe beyanı Kararı: kayıtlı ihracatçı ve tedarikçi beyanı",
+   "sayfa": 221
+  },
+  {
+   "baslik": "GTS Gümrük Genel Tebliğleri (Seri No: 5 REX ve Seri No: 2)",
+   "sayfa": 230
+  },
+  {
+   "baslik": "Serbest ticaret anlaşmaları: genel bilgi ve yürürlükteki STA'lar",
+   "sayfa": 235
+  },
+  {
+   "baslik": "Ülke bazında STA'lar, tercihli ticaret anlaşmaları ve özet tablo",
+   "sayfa": 237
+  },
+  {
+   "baslik": "Menşe kümülasyonu: türleri, PAMK ve PAAMK",
+   "sayfa": 243
+  },
+  {
+   "baslik": "Pan Avrupa Akdeniz Tercihli Menşe Kuralları Bölgesel Konvansiyonu",
+   "sayfa": 247
+  },
+  {
+   "baslik": "Teslim şekilleri (Incoterms 2020)",
+   "sayfa": 250
+  },
+  {
+   "baslik": "Ödeme şekilleri ve akreditif",
+   "sayfa": 257
+  },
+  {
+   "baslik": "GGT: Yükümlü Kayıt ve Takip Sistemi ve gümrük işlemi takip kartı",
+   "sayfa": 263
+  },
+  {
+   "baslik": "Teknik Düzenlemeler Rejimi Kararı ve DTTDS Yönetmeliği",
+   "sayfa": 266
+  },
+  {
+   "baslik": "Dış Ticarette Risk Esaslı Kontrol Sistemi (TAREKS) Tebliği",
+   "sayfa": 274
+  },
+  {
+   "baslik": "İthalatta standartlara uygunluk denetimi (ÜGD: 2026/1)",
+   "sayfa": 276
+  },
+  {
+   "baslik": "Karayolu dışı hareketli makinaların ithalat denetimi (ÜGD: 2026/2)",
+   "sayfa": 280
+  },
+  {
+   "baslik": "Atıkların ithalat denetimi (ÜGD: 2026/3)",
+   "sayfa": 283
+  },
+  {
+   "baslik": "Sağlık Bakanlığı özel izni ve Tarım Bakanlığı kontrolü (ÜGD: 2026/4–5)",
+   "sayfa": 287
+  },
+  {
+   "baslik": "Kimyasalların ve katı yakıtların ithalat denetimi (ÜGD: 2026/6–7)",
+   "sayfa": 292
+  },
+  {
+   "baslik": "Telsiz ekipmanlarının ithalat denetimi (ÜGD: 2026/8)",
+   "sayfa": 297
+  },
+  {
+   "baslik": "“CE” işareti taşıması gereken ürünlerin ithalat denetimi (ÜGD: 2026/9)",
+   "sayfa": 300
+  },
+  {
+   "baslik": "Oyuncaklar ve kişisel koruyucu donanımlar (ÜGD: 2026/10–11)",
+   "sayfa": 303
+  },
+  {
+   "baslik": "Tüketici ürünleri ve 7223 idari para cezaları (ÜGD: 2026/12–13)",
+   "sayfa": 309
+  },
+  {
+   "baslik": "Yapı malzemeleri ile pil ve akümülatörler (ÜGD: 2026/14–15)",
+   "sayfa": 313
+  },
+  {
+   "baslik": "Tıbbi cihazlar ile anne ve bebek ürünleri denetimi (ÜGD: 2026/16–17)",
+   "sayfa": 319
+  },
+  {
+   "baslik": "Tekstil ve deri ürünlerinin ithalat denetimi (ÜGD: 2026/18)",
+   "sayfa": 324
+  },
+  {
+   "baslik": "Tütün-alkol ve Sağlık Bakanlığı denetimli ürünler (ÜGD: 2026/19–20)",
+   "sayfa": 327
+  },
+  {
+   "baslik": "Tarım ürünlerinde ticari kalite denetimi (ÜGD: 2026/21)",
+   "sayfa": 330
+  },
+  {
+   "baslik": "Ticari kalite denetiminde firma sınıflandırması (ÜGD: 2021/22)",
+   "sayfa": 335
+  },
+  {
+   "baslik": "Metal hurdalar ve araç parçaları (ÜGD: 2026/23 ve 2026/25)",
+   "sayfa": 339
+  },
+  {
+   "baslik": "Makinalar ile elektrikli ve hibrit araçlar (ÜGD: 2026/32–33)",
+   "sayfa": 344
+  },
+  {
+   "baslik": "İthalat tebliğleri 2026/1–6: fuar, harp silahı, harita ve GTS",
+   "sayfa": 348
+  },
+  {
+   "baslik": "Elektronik kimlikli eşya, sivil hava taşıtı, silah ve mushaf ithali",
+   "sayfa": 351
+  },
+  {
+   "baslik": "Kullanılmış veya yenileştirilmiş eşya ithalatı (İthalat: 2026/9)",
+   "sayfa": 353
+  },
+  {
+   "baslik": "Kıymetli evrak kâğıtları ve çift kullanımlı malzeme tebliğleri",
+   "sayfa": 355
+  },
+  {
+   "baslik": "Kamu kurumlarının ithalat izni ve gübre ithali (İthalat: 2026/15–16)",
+   "sayfa": 358
+  },
+  {
+   "baslik": "Kimyasal silah kimyasalları ve askıya alma sistemi (2026/17–18)",
+   "sayfa": 360
+  },
+  {
+   "baslik": "İthalatta elektronik başvuru yetkilendirmesi (İthalat: 2026/19)",
+   "sayfa": 364
+  }
+ ],
+ "kaçakçılık.md": [
+  {
+   "baslik": "Kanunun amacı, tanımlar ve kaçakçılık suçları (md. 1–3)",
+   "sayfa": 1
+  },
+  {
+   "baslik": "Kaçakçılık suçları ve cezaları özet tablosu (md. 3)",
+   "sayfa": 4
+  },
+  {
+   "baslik": "Nitelikli hâller (md. 4)",
+   "sayfa": 5
+  },
+  {
+   "baslik": "Etkin pişmanlık, yolcu beraberi eşya ve deniz taşıtları (md. 5–7)",
+   "sayfa": 6
+  },
+  {
+   "baslik": "Arama, elkoyma ve elkonulan eşyanın muhafazası (md. 9–11)",
+   "sayfa": 7
+  },
+  {
+   "baslik": "Geri gönderme, müsadere, kaim değer ve tasfiye (md. 12–16/A)",
+   "sayfa": 9
+  },
+  {
+   "baslik": "Yetkili merciler, kontrollü teslimat ve silah kullanma (md. 17–22)",
+   "sayfa": 11
+  },
+  {
+   "baslik": "İkramiyeler ve kriminal laboratuvar (md. 23–24)",
+   "sayfa": 13
+  },
+  {
+   "baslik": "KMK yönetmeliklerinde yer alan tanımlar",
+   "sayfa": 16
+  },
+  {
+   "baslik": "Mahkûmiyeti kesinleşenlerin kamuoyuna ilanı Yönetmeliği",
+   "sayfa": 17
+  },
+  {
+   "baslik": "Elkonulan akaryakıt: numune, teslim ve muhafaza (md. 1–10)",
+   "sayfa": 18
+  },
+  {
+   "baslik": "Elkonulan akaryakıt: masraflar, tahsis ve tasfiye (md. 11–21)",
+   "sayfa": 21
+  },
+  {
+   "baslik": "Elkonulan eşya ve taşıt: tespit, teslim ve muhafaza (md. 1–7)",
+   "sayfa": 24
+  },
+  {
+   "baslik": "Elkonulan eşya ve taşıt: imha, muhafaza süresi ve masraflar (md. 8–19)",
+   "sayfa": 27
+  },
+  {
+   "baslik": "İkramiye Yönetmeliği: tanımlar, talepler ve belgeler (md. 1–13)",
+   "sayfa": 31
+  },
+  {
+   "baslik": "İkramiye Yönetmeliği: muhbir ikramiyesi, tutarlar ve ödeme (md. 14–22)",
+   "sayfa": 35
+  }
+ ],
+ "STA ve KÜMÜLASYONLAR.md": [
+  {
+   "baslik": "Serbest ticaret anlaşmaları: genel bilgi ve gümrük birliğinden farkı",
+   "sayfa": 1
+  },
+  {
+   "baslik": "Yürürlükteki STA'lar ve tercihli rejimden yararlanma koşulları",
+   "sayfa": 7
+  },
+  {
+   "baslik": "Türkiye–EFTA Serbest Ticaret Anlaşması",
+   "sayfa": 11
+  },
+  {
+   "baslik": "Türkiye–Birleşik Krallık Serbest Ticaret Anlaşması",
+   "sayfa": 16
+  },
+  {
+   "baslik": "Türkiye–Güney Kore STA; Filistin ve Gürcistan anlaşmaları",
+   "sayfa": 18
+  },
+  {
+   "baslik": "Türkiye–Malezya Serbest Ticaret Anlaşması",
+   "sayfa": 20
+  },
+  {
+   "baslik": "Türkiye–Morityus Serbest Ticaret Anlaşması",
+   "sayfa": 23
+  },
+  {
+   "baslik": "Türkiye–BAE Serbest Ticaret Anlaşması",
+   "sayfa": 24
+  },
+  {
+   "baslik": "Türkiye–Venezuela Serbest Ticaret Anlaşması",
+   "sayfa": 25
+  },
+  {
+   "baslik": "Türkiye–Şili Serbest Ticaret Anlaşması",
+   "sayfa": 26
+  },
+  {
+   "baslik": "Türkiye–İran Tercihli Ticaret Anlaşması",
+   "sayfa": 27
+  },
+  {
+   "baslik": "Türkiye–Pakistan Mal Ticareti Anlaşması",
+   "sayfa": 28
+  },
+  {
+   "baslik": "İslam Konferansı Teşkilatı Tercihli Ticaret Sistemi (TPS-OIC)",
+   "sayfa": 29
+  },
+  {
+   "baslik": "D-8 Tercihli Ticaret Anlaşması",
+   "sayfa": 30
+  },
+  {
+   "baslik": "Türkiye–Katar Ticaret ve Ekonomik Ortaklık Anlaşması",
+   "sayfa": 32
+  },
+  {
+   "baslik": "Türkiye–Singapur STA ve RCEP",
+   "sayfa": 33
+  },
+  {
+   "baslik": "Menşe kümülasyonu: tanım, PAMK–PAAMK–PEM ve yetersiz işçilik",
+   "sayfa": 35
+  },
+  {
+   "baslik": "Pan Avrupa Akdeniz Bölgesel Konvansiyonu (PEM)",
+   "sayfa": 39
+  },
+  {
+   "baslik": "Ülkelere göre belge, süre ve limit özet tabloları",
+   "sayfa": 48
+  },
+  {
+   "baslik": "İlave Gümrük Vergisi Uygulanmasına İlişkin Karar (3351)",
+   "sayfa": 54
+  },
+  {
+   "baslik": "Çıkmış sorular: 2025 GM",
+   "sayfa": 62
+  },
+  {
+   "baslik": "Çıkmış sorular: 2024 GM ve GMY",
+   "sayfa": 72
+  },
+  {
+   "baslik": "Çıkmış sorular: 2022–2023 GM",
+   "sayfa": 88
+  },
+  {
+   "baslik": "Çıkmış sorular: 2011, 2015 ve 2018",
+   "sayfa": 100
+  },
+  {
+   "baslik": "Çıkmış sorular: 2012–2014",
+   "sayfa": 112
+  },
+  {
+   "baslik": "Çıkmış sorular: 2014/2, 2016–2017 ve 2022",
+   "sayfa": 134
+  }
+ ],
+ "Hesaplamaçıkmış.md": [
+  {
+   "baslik": "Sorular 1–13: lisans ücreti, kıymet, KDV matrahı ve cezalar",
+   "sayfa": 1
+  },
+  {
+   "baslik": "Sorular 14–29: gümrük kıymeti, KDV matrahı ve ceza hesapları",
+   "sayfa": 4
+  },
+  {
+   "baslik": "Sorular 30–50: ÖTV ve taşıt ithali (GK md. 167) ağırlıklı",
+   "sayfa": 6
+  },
+  {
+   "baslik": "Sorular 51–64: ceza ve gümrük kıymeti ağırlıklı karışık sorular",
+   "sayfa": 9
+  },
+  {
+   "baslik": "Sorular 65–76: gümrük kıymeti, ek mali yükümlülük, geçici ithalat",
+   "sayfa": 12
+  },
+  {
+   "baslik": "Sorular 77–94: royalti, ÖTV, antrepo ve gümrük kıymeti",
+   "sayfa": 14
+  },
+  {
+   "baslik": "Sorular 95–112: taşıt ithali, kıymet, ceza ve gözetim",
+   "sayfa": 17
+  },
+  {
+   "baslik": "Cevap anahtarı",
+   "sayfa": 21
+  },
+  {
+   "baslik": "Çözümler 1–17",
+   "sayfa": 22
+  },
+  {
+   "baslik": "Çözümler 18–34",
+   "sayfa": 25
+  },
+  {
+   "baslik": "Çözümler 35–52",
+   "sayfa": 28
+  },
+  {
+   "baslik": "Çözümler 53–69",
+   "sayfa": 31
+  },
+  {
+   "baslik": "Çözümler 70–90",
+   "sayfa": 34
+  },
+  {
+   "baslik": "Çözümler 91–112",
+   "sayfa": 38
+  }
+ ]
+}
