@@ -12,10 +12,12 @@ Kullanım:
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import re
 import sys
 from pathlib import Path
+from types import ModuleType
 
 SKIPPED_TOPICS = {0}  # 0: soru hazırlama promptu, mevzuat değil
 PREVIEW_PARAGRAPHS = 14
@@ -39,13 +41,29 @@ NOT_HEADING_START_RE = re.compile(r"^(\(|\d+[.)\-]|[a-zçğıöşü]{1,2}\)|[-�
 SOURCE_NAMES = {"GK": "Gümrük Kanunu", "GY": "Gümrük Yönetmeliği"}
 
 
+# Eğitmen/kurum tanıtım satırları (sayfa altlıkları, kapak imzası) hiçbir çıktıya alınmaz.
+BRAND_RE = re.compile(
+    r"(?:[Hh][Aa][Rr][Uu][Nn]\s+)?[Aa][Ll][Tt][Iıİi][Nn][Ss][Oo][Yy](?:\s+Gümrük Eğitim ve Danışmanlık Hizmetleri(?:\s+\d+)?)?"
+)
+BRAND_LINE_LIMIT = 120
+
+
+def strip_branding(text: str) -> str:
+    """Tanıtım satırını tümüyle atar; ad uzun bir cümlenin içindeyse yalnızca adı çıkarır."""
+    if not BRAND_RE.search(text):
+        return text
+    if len(text) <= BRAND_LINE_LIMIT:
+        return ""
+    return re.sub(r"\s+", " ", BRAND_RE.sub("", text)).strip()
+
+
 def clean(line: str) -> str:
     text = line.replace("*", "").replace(" ", " ")
-    return re.sub(r"\s+", " ", text).strip()
+    return strip_branding(re.sub(r"\s+", " ", text).strip())
 
 
 def is_noise(text: str) -> bool:
-    if not text or text.startswith("<!--"):
+    if not text or text.startswith("<!--") or text.startswith("![](assets/"):
         return True
     if re.fullmatch(r"[-_=\s]{3,}", text):
         return True
@@ -215,10 +233,10 @@ GROUPS = [("tarife", "Tarife"), ("genelge", "Genelge ve Tebliğler"), ("sair", "
 # (dosya adında aranan parça, sekme, klasör adı); ilk eşleşen kullanılır
 FOLDER_RULES = [
     ("TARIFE_ANA", "tarife", "Tarife Ana Derleme"),
-    ("FASIL", "tarife", "Tarife Cetveli — Fasıllar (01–97)"),
+    ("FASIL", "tarife", "Tarife Cetveli — Fasıllar (01–97), fasıl fasıl"),
     ("GENELGE", "genelge", "Genelge, Tebliğ ve Kararlar"),
     ("VERGI_HESAPLAMA", "hesap", "Vergi Hesaplama Derlemesi"),
-    ("Hesaplama", "hesap", "Geçmiş Yıllar Vergi Hesaplama Soruları"),
+    ("Hesaplama", "hesap", "Çıkmış vergi hesaplama soruları (soru + çözüm)"),
     ("ck_2020", "sair", "İthalat Rejimi Kararı (2020/3350)"),
     ("ck_2025", "sair", "İthalat Rejimi Kararında Değişiklik (2025/10790)"),
     ("Koleksiyon", "sair", "Gümrük Mevzuatı Koleksiyonu"),
@@ -367,43 +385,77 @@ def section_blocks(body: list[str], topic_id: int, used_ids: set[str]) -> list[d
     return parser.finish()
 
 
+def load_structures() -> ModuleType:
+    """Dosyaya özgü bölme kurallarını (ek-kaynak-yapilari.py) yükler."""
+    spec = importlib.util.spec_from_file_location("ek_kaynak_yapilari", Path(__file__).resolve().parent / "ek-kaynak-yapilari.py")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+STRUCTURES = load_structures()
+DUPLICATE_SECTION_RE = re.compile(r"^## \d+\. GEÇMİŞ YILLAR VERGİ HESAPLAMA SORULARI")
+
+
+def plan_folders(name: str, lines: list[str], outline: list[dict] | None) -> list:
+    """Bir kaynak dosyanın klasör planı: özel yapısı varsa onu, yoksa genel başlık/sayfa bölmesini kullanır."""
+    extra: list = []
+    if "TARIFE_ANA" in name:
+        return STRUCTURES.plan_tarife_ana(lines)
+    if "FASIL" in name:
+        return STRUCTURES.plan_chapters(lines)
+    if "Hesaplama" in name:
+        paired = STRUCTURES.plan_hesaplama(lines, strip_branding)
+        if paired:
+            return paired
+        print("UYARI: hesaplama soruları çözümleriyle eşlenemedi; sayfa dökümü olarak bırakıldı")
+    if "STA ve" in name:
+        lines, extra = STRUCTURES.plan_sta(lines)
+    if "VERGI_HESAPLAMA" in name:  # son bölüm, çıkmış hesaplama soruları dosyasının birebir kopyası
+        cut = next((i for i, line in enumerate(lines) if DUPLICATE_SECTION_RE.match(line)), len(lines))
+        return [STRUCTURES.FolderPlan(0, None, None, STRUCTURES.plan_numbered(lines[:cut]))]
+    return [STRUCTURES.FolderPlan(0, None, None, split_sections(lines, outline))] + extra
+
+
 def build_folders(paths: list[Path], out_dir: Path, used_ids: set[str]) -> list[dict]:
     """Diğer not dosyalarını sekmelere (tarife, genelge, sair, hesaplama) ayrılmış klasörlere çevirir.
 
     Konular ek-<klasör>-<n>.json paketlerine yazılır; konu kimliği 1000*klasör + sıradır.
+    Bir dosyadan türeyen ek klasörlerin (çıkmış sorular vb.) numarası 100*dosya sırası + alt numaradır.
     """
     for stale in out_dir.glob("ek-*.json"):
         stale.unlink()
     groups = {key: {"id": key, "title": title, "folders": []} for key, title in GROUPS}
     outlines = json.loads(OUTLINE_FILE.read_text(encoding="utf-8")) if OUTLINE_FILE.exists() else {}
-    for folder_id, path in enumerate(paths, 1):
+    for file_no, path in enumerate(paths, 1):
         lines = path.read_text(encoding="utf-8").split("\n")
         rule = next((r for r in FOLDER_RULES if r[0] in path.name), None)
         heading = next((clean(l.lstrip("# ")) for l in lines if l.startswith("# ")), path.stem)
         group_key, folder_title = (rule[1], rule[2]) if rule else ("sair", heading.title() if heading.isupper() else heading)
-        topics, bundle, bundle_size, bundle_no = [], [], 0, 1
-
-        def write_bundle() -> None:
-            nonlocal bundle, bundle_size, bundle_no
-            if bundle:
-                (out_dir / f"ek-{folder_id}-{bundle_no}.json").write_text(json.dumps(bundle, ensure_ascii=False), encoding="utf-8")
-                bundle, bundle_size, bundle_no = [], 0, bundle_no + 1
-
-        for order, (title, body) in enumerate(split_sections(lines, outlines.get(path.name)), 1):
-            topic_id = folder_id * 1000 + order
-            blocks = section_blocks(body, topic_id, used_ids)
-            if not blocks:
+        for plan in plan_folders(path.name, lines, outlines.get(path.name)):
+            folder_id = file_no * 100 + plan.sub if plan.sub else file_no
+            topics, bundle, bundle_size, bundle_no = [], [], 0, 1
+            for order, (title, body) in enumerate(plan.sections, 1):
+                topic_id = folder_id * 1000 + order
+                ready = bool(body) and isinstance(body[0], dict)
+                blocks = body if ready else section_blocks(body, topic_id, used_ids)
+                if not blocks:
+                    continue
+                if bundle_size > BUNDLE_BYTES:
+                    (out_dir / f"ek-{folder_id}-{bundle_no}.json").write_text(json.dumps(bundle, ensure_ascii=False), encoding="utf-8")
+                    bundle, bundle_size, bundle_no = [], 0, bundle_no + 1
+                title = title or plan.title or folder_title
+                bundle.append({"id": topic_id, "title": title, "blocks": blocks})
+                bundle_size += len(json.dumps(blocks, ensure_ascii=False)) if ready else sum(len(l) for l in body)
+                articles = [{"id": b["id"], "label": b["label"], "title": b["title"]} for b in blocks if b["t"] == "a"]
+                topics.append({"id": topic_id, "title": title, "file": f"ek-{folder_id}-{bundle_no}.json", "articles": articles})
+            if not topics:
                 continue
-            title = title or folder_title
-            if bundle_size > BUNDLE_BYTES:
-                write_bundle()
-            bundle.append({"id": topic_id, "title": title, "blocks": blocks})
-            bundle_size += sum(len(l) for l in body)
-            articles = [{"id": b["id"], "label": b["label"], "title": b["title"]} for b in blocks if b["t"] == "a"]
-            topics.append({"id": topic_id, "title": title, "file": f"ek-{folder_id}-{bundle_no}.json", "articles": articles})
-        write_bundle()
-        groups[group_key]["folders"].append({"id": folder_id, "title": folder_title, "topics": topics})
-        print(f"{groups[group_key]['title']:22} | {folder_title[:50]:50} | {len(topics)} konu, {bundle_no - 1} paket")
+            (out_dir / f"ek-{folder_id}-{bundle_no}.json").write_text(json.dumps(bundle, ensure_ascii=False), encoding="utf-8")
+            group = groups[plan.group or group_key]
+            group["folders"].append({"id": folder_id, "title": plan.title or folder_title, "topics": topics})
+            print(f"{group['title']:22} | {(plan.title or folder_title)[:50]:50} | {len(topics)} konu, {bundle_no} paket")
     return [group for group in groups.values() if group["folders"]]
 
 

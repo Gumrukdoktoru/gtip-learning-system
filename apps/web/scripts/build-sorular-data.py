@@ -231,6 +231,57 @@ def exam_key(question: dict) -> tuple[str, int]:
     return rest, int(number.group()) if number else 0
 
 
+SUBJECT_FILE = Path(__file__).resolve().parent / "soru-konulari.json"
+SUBJECT_FOLDER_BASE = 900  # mevzuat derleyicisinin klasör numaralarıyla çakışmaz
+
+
+def subject_blocks(questions: list[dict]) -> list[dict]:
+    """Soruları okuyucudaki çözümlü soru bloğuna çevirir (cevap düğmeyle açılır)."""
+    return [{"t": "q", "no": q["sinav"], "kok": q["kok"], "siklar": q["siklar"], "cevap": q["cevap"], "cozum": []} for q in questions]
+
+
+def write_subject_folders(exam_list: list[dict]) -> None:
+    """Çıkmış soruları anahtar ifadelere göre konulara ayırıp Tarife ve Sair Mevzuat sekmelerine klasör olarak ekler.
+
+    Konu–ifade listesi elle hazırlanan soru-konulari.json dosyasındadır; her soru ilk eşleşen
+    konuya girer. Mevzuat derleyicisi (build-mevzuat-data.py) her çalıştığında bu adım yinelenmelidir.
+    """
+    if not SUBJECT_FILE.exists():
+        return
+    index_path = DATA_DIR / "index.json"
+    index = json.loads(index_path.read_text(encoding="utf-8"))
+    for stale in DATA_DIR.glob(f"ek-{SUBJECT_FOLDER_BASE // 100}[0-9][0-9]-*.json"):
+        stale.unlink()
+    for group in index["groups"]:
+        group["folders"] = [f for f in group["folders"] if not SUBJECT_FOLDER_BASE <= f["id"] < SUBJECT_FOLDER_BASE + 100]
+    booklets = sorted((e for e in exam_list if e.get("yil")), key=lambda e: -e["yil"])
+    for order, folder in enumerate(json.loads(SUBJECT_FILE.read_text(encoding="utf-8"))["klasorler"], 1):
+        folder_id = SUBJECT_FOLDER_BASE + order
+        buckets: dict[str, list[dict]] = {}
+        for exam in booklets:
+            for question in exam["sorular"]:
+                if not question["siklar"]:
+                    continue
+                text = " ".join(question["kok"] + question["siklar"]).replace("I", "ı").replace("İ", "i").lower()
+                subject = next((s["baslik"] for s in folder["konular"] if any(w in text for w in s["ifadeler"])), None)
+                if subject:
+                    buckets.setdefault(f"{subject} — {exam['yil']}" if folder.get("yil_yil") else subject, []).append(question)
+        names = list(buckets) if folder.get("yil_yil") else [s["baslik"] for s in folder["konular"] if s["baslik"] in buckets]
+        note = {"t": "p", "x": "Sorular, sınav kitapçıklarından soru metnindeki anahtar ifadelere göre otomatik gruplanmıştır."}
+        topics = [
+            {"id": folder_id * 1000 + n, "title": f"Çıkmış sorular — {name} ({len(buckets[name])} soru)", "blocks": [note] + subject_blocks(buckets[name])}
+            for n, name in enumerate(names, 1)
+        ]
+        if not topics:
+            continue
+        file = f"ek-{folder_id}-1.json"
+        (DATA_DIR / file).write_text(json.dumps(topics, ensure_ascii=False), encoding="utf-8")
+        group = next(g for g in index["groups"] if g["id"] == folder["sekme"])
+        group["folders"].append({"id": folder_id, "title": folder["baslik"], "topics": [{"id": t["id"], "title": t["title"], "file": file, "articles": []} for t in topics]})
+        print(f"konu klasörü: {folder['baslik'][:60]} | {len(topics)} konu, {sum(len(v) for v in buckets.values())} soru")
+    index_path.write_text(json.dumps(index, ensure_ascii=False), encoding="utf-8")
+
+
 def main() -> None:
     args = sys.argv[1:]
     exam_files: list[Path] = []
@@ -298,6 +349,7 @@ def main() -> None:
     for file, payload in (("sorular-madde.json", by_article), ("sorular-diger.json", other), ("sorular-sinav.json", exam_list)):
         (DATA_DIR / file).write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
 
+    write_subject_folders(exam_list)
     print(f"madde soruları: {total}; derlemede karşılığı olan: {attached}; karşılığı olmayan madde: {len(missing)}")
     print(f"diğer sorular: {sum(len(g['sorular']) for g in other)}; otomatik ilgili madde bulunan: {matched}")
     for exam in exam_list:

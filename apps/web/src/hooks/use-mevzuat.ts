@@ -66,6 +66,12 @@ export function findHits(topics: Topic[], term: string, mode: ReaderMode): Searc
         });
         continue;
       }
+      if (block.t === 'q') {
+        const text = [...block.kok, ...block.siklar].join('\n');
+        if (mode === 'kaynak' && trLower(text).includes(needle))
+          hits.push({ topic, article: { t: 'a', id: `konu-${topic.id}`, src: '', no: '', label: block.no, title: '', doc: '', p: [...block.kok, ...block.siklar] } });
+        continue;
+      }
       if (mode === 'kaynak' && block.t === 't') {
         for (const row of block.rows) {
           const text = row.join(' · ');

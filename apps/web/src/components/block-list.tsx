@@ -1,6 +1,7 @@
 import type { Block } from '../types/mevzuat';
 import { ArticleCard } from './article-card';
 import { RichText } from './rich-text';
+import { SolvedQuestion } from './solved-question';
 
 interface BlockListProps {
   blocks: Block[];
@@ -14,6 +15,8 @@ export function BlockList({ blocks }: BlockListProps): JSX.Element {
         switch (block.t) {
           case 'a':
             return <ArticleCard key={block.id} article={block} />;
+          case 'q':
+            return <SolvedQuestion key={i} question={block} />;
           case 't':
             return (
               <div key={i} className="mb-5 overflow-x-auto rounded-lg border border-paper-line bg-paper-card">

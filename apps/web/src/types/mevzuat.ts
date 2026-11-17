@@ -23,7 +23,19 @@ export interface TableBlock {
   rows: string[][];
 }
 
-export type Block = ArticleBlock | TextBlock | TableBlock;
+/** Çözümlü soru: kök + şıklar, altında cevap ve (varsa) çözüm satırları. */
+export interface SolvedQuestionBlock {
+  t: 'q';
+  /** "Soru 12", "Örnek 1", "2025 GM · Soru 32" */
+  no: string;
+  kok: string[];
+  siklar: string[];
+  /** Doğru şıkkın harfi; kaynakta yoksa boş. */
+  cevap: string;
+  cozum: string[];
+}
+
+export type Block = ArticleBlock | TextBlock | TableBlock | SolvedQuestionBlock;
 
 export interface Topic {
   id: number;
