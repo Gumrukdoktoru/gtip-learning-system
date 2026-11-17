@@ -70,13 +70,21 @@ function QuestionItem({ question }: { question: Question }): JSX.Element {
                 </p>
                 <blockquote className="mt-2 border-l-2 border-emerald-300 pl-3 font-read italic">“{question.dayanak.metin}”</blockquote>
                 <p className="mt-2 text-xs text-ink-mute">
-                  {fromNotes
-                    ? 'Dayanak pasajı, notlarınızdaki ilgili konudan otomatik seçilmiştir; bağlantı konunun tamamını açar.'
-                    : 'Dayanak hüküm, notlarınızdaki ilgili maddeden otomatik seçilmiştir.'}
+                  {question.dayanak.kaynak === 'okuma'
+                    ? `Dayanak, notlarınız okunarak seçilmiştir${fromNotes ? '; bağlantı konunun tamamını açar' : ''}.`
+                    : fromNotes
+                      ? 'Dayanak pasajı, notlarınızdaki ilgili konudan otomatik seçilmiştir; bağlantı konunun tamamını açar.'
+                      : 'Dayanak hüküm, notlarınızdaki ilgili maddeden otomatik seçilmiştir.'}
                 </p>
               </>
             ) : (
-              !question.cozum?.length && <p className="mt-2 text-ink-soft">Bu soru için notlarda dayanak hüküm eşleştirilemedi.</p>
+              !question.cozum?.length && (
+                <p className="mt-2 text-ink-soft">
+                  {question.dayanakYok === 'genel'
+                    ? 'Bu soru genel kültür / genel yetenek sorusudur; notlarınızda dayanağı yoktur.'
+                    : 'Bu soru için notlarda dayanak hüküm eşleştirilemedi.'}
+                </p>
+              )
             )}
             {(question.cozum ?? []).map((line, i) => (
               <p key={i} className="mt-2">

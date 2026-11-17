@@ -23,9 +23,14 @@ PDF derlemesinin tamamı "Tarife çıkmış sorular — tümü" konusunda verili
 
 Madde dayanağı olmayan sorular için dayanak, diğer not dosyalarının (ek-*.json) pasajlarında aranır
 (PassageMatcher); eşiğin altında kalan soru dayanaksız bırakılır, metin üretilmez.
+
+Otomatik eşleştiricilerden sonra hâlâ dayanağı olmayan sorulara, adayları okunarak seçilmiş dayanaklar
+(dayanak-secimleri.json; ReviewedBasis) uygulanır. Her seçimin metni güncel veride aynen aranır; bulunamayan
+(eskimiş) seçim uygulanmaz ve sayılır.
 """
 from __future__ import annotations
 
+import hashlib
 import html
 import importlib.util
 import json
@@ -525,6 +530,80 @@ class PassageMatcher:
         return {"id": unit.anchor, "ad": unit.name, "metin": trim_passage(unit.text), "puan": round(candidate["score"], 2)}
 
 
+REVIEWED_FILE = Path(__file__).resolve().parent / "dayanak-secimleri.json"
+GENERAL_RE = re.compile(
+    r"işleminin sonucu|kaçtır\?|olduğuna göre|yaşındadır|kümesi|cümle|sözcük|paragraf|parçada|parçaya göre|anlatım bozukluğu|yazım yanlış"
+    r"|noktalama|kesme işareti|deyim|atasöz|mecaz|atatürk|mustafa kemal|kurtuluş savaşı|mill[iî] mücadele|tbmm|büyük millet meclisi"
+    r"|osmanlı|kongresi|lozan|inkıl[aâ]p|dünya savaşı|muharebe|anayasa|kararname|milletvekil|siyasi parti|idari yargı|medeni kanun"
+)
+CUSTOMS_RE = re.compile(r"gümrü|ithal|ihra[cç]|tarife|fas[ıi]l|eşya|vergi|rejim|beyan|menşe|kaçak|antrepo|serbest bölge|döviz|kambiyo|tebliğ|yönetmeli|kdv|ötv")
+
+
+def question_key(question: dict) -> str:
+    """Okunarak seçilen dayanağın anahtarı: kök, şıklar ve cevabın yazım farklarından arındırılmış özeti."""
+    text = squash(" ".join(question["kok"])) + "|" + "|".join(squash(o) for o in question["siklar"]) + "|" + question["cevap"]
+    return hashlib.sha1(text.encode("utf-8")).hexdigest()[:16]
+
+
+def flat(text: str) -> str:
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def is_general_knowledge(question: dict) -> bool:
+    """Genel kültür / genel yetenek sorusu (Türkçe, matematik, tarih, anayasa): notlarda dayanağı aranmaz."""
+    text = lower_tr(" ".join(question["kok"] + question["siklar"]))
+    return bool(GENERAL_RE.search(lower_tr(" ".join(question["kok"])))) and not CUSTOMS_RE.search(text)
+
+
+class ReviewedBasis:
+    """Okunarak seçilmiş dayanaklar (dayanak-secimleri.json): {soru anahtarı: {id, ad, metin}}.
+
+    Otomatik eşleştiricinin eşiğini gevşetmek yerine, dayanaksız kalan soruların adayları tek tek okunmuş ve doğru
+    şıkkı doğrulayan (olumsuz soruda sınanan) hüküm seçilmiştir. Seçim yalnızca metni güncel notlarda aynen
+    bulunuyorsa uygulanır: madde kimliğinde maddenin fıkraları (ardışık fıkralar boşlukla birleştirilir), "konu-<n>"
+    kimliğinde o konunun pasajları aranır.
+    """
+
+    def __init__(self, matcher: "PassageMatcher") -> None:
+        raw = json.loads(REVIEWED_FILE.read_text(encoding="utf-8")) if REVIEWED_FILE.exists() else {}
+        self.picks = {key: value for key, value in raw.items() if not key.startswith("_")}
+        self.articles: dict[str, str] = {}
+        self.passages: dict[str, list[str]] = {}
+        self.topic_of: dict[str, int] = {}
+        loaded = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(DATA_DIR.glob("konu-*.json"))]
+        for path in sorted(DATA_DIR.glob("ek-*.json")):
+            loaded += json.loads(path.read_text(encoding="utf-8"))
+        for topic in loaded:
+            for block in topic["blocks"]:
+                if block["t"] == "a":
+                    self.articles[block["id"]] = flat(" ".join(block["p"]))
+                    self.topic_of[block["id"]] = topic["id"]
+                elif block["t"] == "p" and topic["id"] < 1000:
+                    self.passages.setdefault(f"konu-{topic['id']}", []).append(flat(block["x"]))
+        for unit in matcher.units:
+            if unit.anchor.startswith("konu-"):
+                self.passages.setdefault(unit.anchor, []).append(flat(unit.text))
+        self.used: set[str] = set()
+        self.stale: set[str] = set()
+        self.listed: list[tuple[str, dict]] = []  # (madde kimliği, soru): madde sayfasındaki listeye eklenecekler
+
+    def get(self, question: dict) -> tuple[dict | None, int | None]:
+        """(dayanak, pasajın konusu); seçim yoksa ya da metni artık notlarda bulunmuyorsa (None, None)."""
+        key = question_key(question)
+        pick = self.picks.get(key)
+        if not pick or key in self.stale:
+            return None, None
+        ident = pick["id"]
+        if key not in self.used:
+            core = flat(pick["metin"].removeprefix("… ").removesuffix(" …"))
+            if not (core in self.articles.get(ident, "") or any(core in text for text in self.passages.get(ident, ()))):
+                self.stale.add(key)
+                return None, None
+            self.used.add(key)
+        topic = int(ident[5:]) if ident.startswith("konu-") else self.topic_of.get(ident)
+        return {"id": ident, "ad": pick["ad"], "metin": pick["metin"], "kaynak": "okuma"}, topic
+
+
 UNKNOWN_EXAM: list[dict] = []
 SUPPLEMENT_FILE = Path(__file__).resolve().parent / "ek-sinavlar.json"
 
@@ -825,16 +904,24 @@ def subject_of(question: dict, folder: dict) -> str | None:
     return next((s["baslik"] for s in folder["konular"] if any(w in text for w in s["ifadeler"])), None)
 
 
-def link_to_topics(exam_list: list[dict], other: list[dict], index: dict, config: dict) -> dict[str, list[dict]]:
+def link_to_topics(exam_list: list[dict], other: list[dict], index: dict, config: dict) -> tuple[dict[str, list[dict]], ReviewedBasis]:
     """Madde dayanağı olmayan sorulara konu notlarından dayanak pasajı arar; soruları konularına dağıtır.
 
     Çıktı:
       * soruya "dayanak" eklenir (id: "konu-<konu>" ya da konu içindeki maddenin kimliği, metin: pasajın kendisi),
       * sorular-konu.json: {konu kimliği: [soru, ...]}; aynı faslın diğer klasörlerdeki konuları, soruların
         tutulduğu konunun kimliğini (metin olarak) taşır,
-      * dönen değer: sekmeye göre hiçbir konuya bağlanamayan sorular (tek bir "eşleştirilemeyenler" konusu için).
+      * dönen değer: sekmeye göre hiçbir konuya bağlanamayan sorular (tek bir "eşleştirilemeyenler" konusu için)
+        ve okunarak seçilmiş dayanaklar (madde sayfalarına eklenecek sorular için).
+
+    Otomatik eşleşmeden sonra dayanağı olmayan soruya okunarak seçilmiş dayanak (ReviewedBasis) uygulanır; pasajı
+    bir konu notunda (kimliği >= 1000) olan soru o konunun listesine girer ve "eşleştirilemeyenler"den çıkar.
+    Tarife sorularında fasıl dağıtımı kuralla yapılmaya devam eder; yalnızca kuralın hiçbir fasla bağlayamadığı
+    (genel) soru, dayanağı bir fasıl notundaysa o faslın "dogru" listesine alınır.
     """
     matcher = PassageMatcher(index)
+    reviewed = ReviewedBasis(matcher)
+    read_topic: dict[str, int] = {}  # soru anahtarı -> okunarak seçilen pasajın konusu
     folders = {f["sekme"]: f for f in config["klasorler"]}
     anchors = config.get("kaynak_capalari", [])
     article_topic = {a["id"]: t["id"] for g in index["groups"] for f in g["folders"] for t in f["topics"] for a in t["articles"]}
@@ -842,7 +929,7 @@ def link_to_topics(exam_list: list[dict], other: list[dict], index: dict, config
     seen: set[tuple[int, str]] = set()
     leftovers: dict[str, list[dict]] = {tab: [] for tab in folders}
     stats = {tab: {"soru": 0, "dayanak": 0, "onceki": 0, "konu": 0} for tab in folders}
-    counts = {"yeni": 0, "değişen": 0, "silinen": 0}
+    counts = {"yeni": 0, "değişen": 0, "silinen": 0, "okuma": 0}
     home_ids = set(matcher.chapter_home.values())
     pool: list[dict] = []  # tarife soruları: fasıl sayfaları kuralla doldurulur (distribute_tariff)
     spare: dict[str, dict] = {}
@@ -870,6 +957,16 @@ def link_to_topics(exam_list: list[dict], other: list[dict], index: dict, config
                     counts["silinen"] += 1
                 elif not topic and auto.get("puan", 0) >= 0.5:
                     topic = home
+        if "dayanak" not in question:  # otomatik eşleşme yok: okunarak seçilmiş dayanak
+            ground, home = reviewed.get(question)
+            if ground:
+                question["dayanak"] = ground
+                question.pop("ilgili", None)
+                counts["okuma"] += 1
+                reviewed.listed.append((ground["id"], question))
+                if home and home >= 1000:
+                    read_topic[question_key(question)] = home
+                    topic = topic or matcher.mirrors.get(home, home)
         if not collect:
             return
         entry = {"soru": question, "kaynak": "kitapcik", "etiket": question["sinav"] if " · " in question["sinav"] else "", "ev": set()}
@@ -904,6 +1001,18 @@ def link_to_topics(exam_list: list[dict], other: list[dict], index: dict, config
         return int(found[-1]) if found else 0
 
     chapters, leftovers["tarife"] = distribute_tariff(matcher, pool, spare, anchors, [a["soru"] for a in anchors] + folders["tarife"].get("genel_disi", []), year)
+    chapter_of = {topic: key for key, topics in matcher.chapter_topics.items() for topic in topics}
+    general, moved = [], 0
+    for question in leftovers["tarife"]:  # okunarak dayanağı bulunan genel tarife soruları yerine taşınır
+        home = read_topic.get(question_key(question)) if (question.get("dayanak") or {}).get("kaynak") == "okuma" else None
+        if home is None:
+            general.append(question)
+            continue
+        moved += 1
+        if chapter_of.get(home) in chapters:  # dayanak fasıl notunda: doğru cevabı o fasılda olan sorular arasına
+            items = chapters[chapter_of[home]] + [{**question, "rol": "dogru"}]
+            chapters[chapter_of[home]] = [q for role in ROLE_ORDER for q in sorted((q for q in items if q["rol"] == role), key=lambda q: -year(q["sinav"]))]
+    leftovers["tarife"] = general
     for key, items in chapters.items():  # boş liste: "bu fasıl için çıkmış soru bulunamadı" satırı gösterilir
         by_topic[matcher.chapter_home[key]] = items
     payload: dict[str, list[dict] | str] = {str(topic): items for topic, items in sorted(by_topic.items())}
@@ -915,12 +1024,14 @@ def link_to_topics(exam_list: list[dict], other: list[dict], index: dict, config
     (DATA_DIR / "sorular-konu.json").write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
 
     print(f"konu notlarından dayanak: yeni {counts['yeni']}, madde eşleşmesinin yerine geçen {counts['değişen']}, çelişkili olduğu için silinen eski eşleşme {counts['silinen']}")
+    print(f"okunarak seçilmiş dayanak (dayanak-secimleri.json): {len(reviewed.picks)} seçim; uygulanan {len(reviewed.used)} (soru kaydı: {counts['okuma']}); "
+          f"metni artık notlarda bulunmayan (uygulanmadı): {len(reviewed.stale)}; konu sayfasına bağlanan: {len(read_topic)}; genel tarife listesinden taşınan: {moved}")
     print(f"soru bölümü olan konu: {len(by_topic)} (+{len(payload) - len(by_topic)} eş konu); konulara dağıtılan soru: {sum(len(v) for v in by_topic.values())}")
     for tab, row in stats.items():
         print(f"  {tab}: ilgili soru {row['soru']}; dayanaklı {row['dayanak']} (önceden {row['onceki']}); konusuna bağlanan {row['konu']}; eşleştirilemeyen {len(leftovers[tab])}")
     for topic, items in sorted(by_topic.items(), key=lambda pair: -len(pair[1]))[:10]:
         print(f"  {len(items):4} soru | {matcher.topic_info[topic][2][:40]} · {matcher.topic_info[topic][3][:60]}")
-    return leftovers
+    return leftovers, reviewed
 
 
 def write_leftover_folders(leftovers: dict[str, list[dict]], config: dict) -> None:
@@ -1077,11 +1188,24 @@ def main() -> None:
     other = [{"sinav": name, "sorular": items} for name, items in groups.items()]
     leftovers: dict[str, list[dict]] = {}
     config = json.loads(SUBJECT_FILE.read_text(encoding="utf-8")) if SUBJECT_FILE.exists() else None
+    read_listed = 0
     if config:
-        leftovers = link_to_topics(exam_list, other, json.loads((DATA_DIR / "index.json").read_text(encoding="utf-8")), config)
+        leftovers, reviewed = link_to_topics(exam_list, other, json.loads((DATA_DIR / "index.json").read_text(encoding="utf-8")), config)
+        for ident, question in reviewed.listed:  # okunarak dayanağı bulunan soru, dayanak maddenin sayfasında da listelenir
+            items = by_article.setdefault(ident, []) if ident in labels else None
+            if items is not None and not any(q["sinav"] == question["sinav"] for q in items):
+                items.append({k: v for k, v in question.items() if k not in ("madde", "rol")})
+                read_listed += 1
     listed = list_on_articles(pdf_only, by_article, labels)
     by_article = {k: v for k, v in by_article.items() if v}
-    print(f"madde sayfalarına eklenen PDF sorusu: {listed}")
+    general = 0
+    for group in exam_list + other:
+        for question in group["sorular"]:
+            if not any(question.get(k) for k in ("dayanak", "madde", "ilgili", "dayanakYok")) and question["siklar"] and is_general_knowledge(question):
+                question["dayanakYok"] = "genel"
+                general += 1
+    print(f"madde sayfalarına eklenen PDF sorusu: {listed}; okunarak seçilen dayanağıyla madde sayfasına eklenen soru: {read_listed}; "
+          f"genel kültür / genel yetenek olarak işaretlenen dayanaksız soru kaydı: {general}")
     for file, payload in (("sorular-madde.json", by_article), ("sorular-diger.json", other), ("sorular-sinav.json", exam_list)):
         (DATA_DIR / file).write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
     if config:

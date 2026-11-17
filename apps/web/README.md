@@ -129,3 +129,22 @@ Sütunlar koordinatla ayrılır, sorular ardışık numarayla tanınır, cevapla
 (anahtarda yoksa boş bırakılır). Sınav etiketi kalın ara başlıklardan gelir; son başlıktan (2019) sonraki başlıksız sorular etiketsizdir.
 Derlemenin tamamı "ÇIKMIŞ SORULAR — Tarife (fasıl fasıl)" klasöründe "Tarife çıkmış sorular — tümü (n soru)" konusudur; aynı belgenin
 sütunları karışık ham sayfa dökümü konuları, içerik PDF ile aynı çıktığında derleyici tarafından kaldırılır.
+
+### Okunarak seçilmiş dayanaklar (`scripts/dayanak-secimleri.json`)
+
+Otomatik eşleştiriciler bilerek sıkıdır; eşiği geçemeyen sorular için eşik gevşetilmez. Bunun yerine dayanaksız kalan soruların
+adayları (bütün notlardan, düşük eşikle getirilen pasajlar) tek tek okunmuş, yalnızca doğru şıkkı doğrulayan (olumsuz soruda sınanan)
+hüküm seçilmiştir. Dosya biçimi: `{soru anahtarı: {id, ad, metin}}`; anahtar `question_key` ile hesaplanır
+(`sha1(kök|şıklar|cevap)` ilk 16 hane, yazım farklarından arındırılmış), `metin` notlardaki pasajın aynısıdır (madde bentleri
+listeyse ardışık bentler boşlukla birleştirilir).
+
+`build-sorular-data.py` bu seçimleri otomatik eşleştiricilerden **sonra**, yalnızca hâlâ dayanağı olmayan sorulara uygular
+(`ReviewedBasis`) ve her çalıştığında metni güncel veride aynen arar; bulunamayan (eskimiş) seçim uygulanmaz, sayısı yazdırılır.
+Bu sorularda `dayanak.kaynak = 'okuma'` olur ve okuyucu "Dayanak, notlarınız okunarak seçilmiştir." notunu gösterir. Dayanağı bir
+maddeyse soru o maddenin çıkmış soruları listesine, bir konu notundaysa (kimlik >= 1000) o konunun listesine girer ve
+"eşleştirilemeyenler"den çıkar; tarife fasıl dağıtımı kuralla yapılmaya devam eder (yalnızca kuralın hiçbir fasla bağlayamadığı
+soru, dayanağı fasıl notundaysa o faslın `dogru` listesine alınır).
+
+Dayanağı bulunmayan, kökü Türkçe/matematik/tarih/anayasa sorusu olduğunu gösteren ve gümrük terimi içermeyen sorular
+`dayanakYok: 'genel'` ile işaretlenir (`GENERAL_RE`, `CUSTOMS_RE`); okuyucu bunlarda "genel kültür / genel yetenek sorusudur"
+mesajını verir. Henüz okunmamış sorular dayanaksız kalır; metin üretilmez.
