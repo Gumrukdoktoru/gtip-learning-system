@@ -136,7 +136,9 @@ Otomatik eşleştiriciler bilerek sıkıdır; eşiği geçemeyen sorular için e
 adayları (bütün notlardan, düşük eşikle getirilen pasajlar) tek tek okunmuş, yalnızca doğru şıkkı doğrulayan (olumsuz soruda sınanan)
 hüküm seçilmiştir. Dosya biçimi: `{soru anahtarı: {id, ad, metin}}`; anahtar `question_key` ile hesaplanır
 (`sha1(kök|şıklar|cevap)` ilk 16 hane, yazım farklarından arındırılmış), `metin` notlardaki pasajın aynısıdır (madde bentleri
-listeyse ardışık bentler boşlukla birleştirilir).
+listeyse ardışık bentler boşlukla birleştirilir; karar veren bent alıntının içinde olmalıdır). `ad` okuyucuda görünen kaynak
+adıdır: notlardaki blok başlığı yanlışsa (ör. YYS konusunda "GK Madde 4" başlığı altında duran Gümrük İşlemlerinin Kolaylaştırılması
+Yönetmeliği metni; Posta ve hızlı kargo konusunda Tebliğ adı altında duran GK 173–175 ve GY 455–475) doğru mevzuat adı yazılır.
 
 `build-sorular-data.py` bu seçimleri otomatik eşleştiricilerden **sonra**, yalnızca hâlâ dayanağı olmayan sorulara uygular
 (`ReviewedBasis`) ve her çalıştığında metni güncel veride aynen arar; bulunamayan (eskimiş) seçim uygulanmaz, sayısı yazdırılır.
@@ -147,4 +149,6 @@ soru, dayanağı fasıl notundaysa o faslın `dogru` listesine alınır).
 
 Dayanağı bulunmayan, kökü Türkçe/matematik/tarih/anayasa sorusu olduğunu gösteren ve gümrük terimi içermeyen sorular
 `dayanakYok: 'genel'` ile işaretlenir (`GENERAL_RE`, `CUSTOMS_RE`); okuyucu bunlarda "genel kültür / genel yetenek sorusudur"
-mesajını verir. Henüz okunmamış sorular dayanaksız kalır; metin üretilmez.
+mesajını verir. Notlarda doğru şıkkı doğrulayan hüküm bulunamayan sorular dayanaksız kalır; metin üretilmez. Okuma sırasında
+notlardaki güncel hükmün eski cevap anahtarıyla çeliştiği görülen sorular `scripts/not-cevap-celiskileri.md` dosyasında listelenir;
+bu sorulara dayanak bağlanmaz ve cevapları değiştirilmez.
