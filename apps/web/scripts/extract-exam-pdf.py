@@ -9,9 +9,13 @@ Gereksinim: PyMuPDF (pip install pymupdf). pdftotext sütunları satır satır k
 satırlar koordinatlarıyla okunur; her sayfada önce sol, sonra sağ sütun işlenir.
 Doğru cevap, kitapçıkta kırmızı yazılmış şıktan alınır; kırmızı şık yoksa veya birden fazlaysa
 cevap boş bırakılır (tahmin yapılmaz). Kırmızı "iptal" notu taşıyan sorunun cevabı "İptal" olur.
+Kök "altı çizili" sözcük/ifade soruyorsa, kitapçıkta altı çizili (kalın olmayan) sözcükler ilgili
+paragrafın ya da şıkkın sonuna "(altı çizili: …)" notuyla yazılır; şıkları tablo olan soruda her
+hücre sütun başlığıyla ("I: … | II: …") verilir.
 
 Çıktı: {"sinav": ad, "sorular": [{"no", "kok": [...], "siklar": [...], "cevap"}]}
     kok: paragraflar; I./II. öncülleri, tablo satırları ("hücre | hücre") ayrı girdidir.
+    "N ve M nci soruları … cevaplayınız" ortak öncülü, ilgili her sorunun kökünün başına yazılır.
     -o verilmezse standart çıktıya yazılır; --ekle ile -o dosyasındaki listeye eklenir
     (aynı adlı sınav varsa yenisiyle değiştirilir). Uyarılar standart hataya yazılır.
 """
@@ -60,6 +64,14 @@ NOISE_RE = re.compile(
     re.I,
 )
 CANCEL_RE = re.compile(r"iptal", re.I)
+# "37 ve 38 nci soruları, aşağıda verilen bilgileri esas alarak cevaplayınız." — ortak öncül bloğu
+SHARED_RE = re.compile(r"^(\d{1,3})\s*(?:ve|ile|[-–])\s*(\d{1,3})\s*\.?\s*\S{0,6}\s*sorular", re.I)
+ENUM_ITEM_RE = re.compile(r"^([1-9]|[a-e])[.)]\s+\S")  # kökteki "1. … 2. …" ya da "a) … b) …" öncülleri
+DASH_ITEM_RE = re.compile(r"^[-–]\s+\S")
+UNDERLINE_ASKED_RE = re.compile(r"altı\s+çizili", re.I)
+UNDERLINE_MAX_HEIGHT = 2.5
+UNDERLINE_MAX_WIDTH = 260.0
+WHITE = (1.0, 1.0, 1.0)
 
 
 @dataclass
@@ -75,6 +87,8 @@ class Line:
     bold: bool  # satırın çoğu kalın mı
     red: bool
     table_row: bool = False
+    # (sözcük, altı çizili mi); kalın sözcükler None taşır: vurgu çizgisidir, ifadeyi bölmez
+    words: list[tuple[str, bool | None]] = field(default_factory=list)
 
 
 @dataclass
@@ -83,6 +97,7 @@ class Question:
     stem: list[Line] = field(default_factory=list)
     siklar: list[str] = field(default_factory=list)
     red_letters: list[str] = field(default_factory=list)
+    option_words: list[list[tuple[str, bool | None]]] = field(default_factory=list)
     cancelled: bool = False
 
 
@@ -117,6 +132,33 @@ def span_line(spans: list[dict], page_no: int, middle: float) -> Line:
         bold=bold_chars * 2 > total_chars,
         red=any(is_red(s["color"]) for s in spans),
     )
+
+
+def underline_rects(page: pymupdf.Page) -> list[pymupdf.Rect]:
+    """Sayfadaki altı çizgileri: ince, yatay, beyaz olmayan dolgulu dikdörtgenler (tablo çizgileri hariç)."""
+    tables = [pymupdf.Rect(table.bbox) + (-2, -2, 2, 2) for table in page.find_tables().tables]
+    found = []
+    for drawing in page.get_drawings():
+        rect, fill = drawing["rect"], drawing.get("fill")
+        thin = rect.height <= UNDERLINE_MAX_HEIGHT and 4 < rect.width < UNDERLINE_MAX_WIDTH
+        if fill and fill != WHITE and thin and not any(rect.intersects(table) for table in tables):
+            found.append(rect)
+    return found
+
+
+def line_words(spans: list[dict], underlines: list[pymupdf.Rect]) -> list[tuple[str, bool | None]]:
+    """Satırın sözcükleri ve altlarının çizili olup olmadığı (parça parça, soldan sağa)."""
+    words: list[tuple[str, bool | None]] = []
+    for span in spans:
+        x0, _, x1, bottom = span["bbox"]
+        under = [u for u in underlines if -4 <= u.y0 - bottom + 3 <= 6]
+        text = span["text"]
+        width = (x1 - x0) / max(len(text), 1)
+        for match in re.finditer(r"\S+", text):
+            left, right = x0 + match.start() * width, x0 + match.end() * width
+            marked = any(min(right, u.x1) - max(left, u.x0) > 0.5 * (right - left) for u in under)
+            words.append((match.group(), None if "Bold" in span["font"] else marked))
+    return words
 
 
 def table_rows(page: pymupdf.Page, lines: list[Line]) -> list[Line]:
@@ -169,6 +211,7 @@ def read_page_lines(
     """Sayfadaki metin satırlarını sütunlara ayırıp sol sütun, sonra sağ sütun sırasıyla döndürür."""
     height, middle = page.rect.height, page.rect.width / 2
     raw: list[Line] = []
+    underlines = underline_rects(page)
     for block in page.get_text("dict")["blocks"]:
         for line in block.get("lines", []):
             spans = [
@@ -177,6 +220,7 @@ def read_page_lines(
             if not spans:
                 continue
             item = span_line(spans, page_no, middle)
+            item.words = line_words(spans, underlines)
             # Boşluk parçaları da metne katılır; yoksa "I.Eşya", "göre,aşağıdaki" gibi yapışmalar olur.
             item.text = clean(
                 "".join(s["text"] for s in line["spans"] if "OCR" not in s["font"])
@@ -205,6 +249,7 @@ def read_page_lines(
             and not (last.table_row or item.table_row)
         ):
             last.text = clean(f"{last.text} {item.text}")
+            last.words += item.words
             last.x1, last.y1, last.red = (
                 max(last.x1, item.x1),
                 max(last.y1, item.y1),
@@ -245,12 +290,18 @@ def parse_questions(lines: list[Line], warnings: list[str]) -> list[Question]:
     questions: list[Question] = []
     current: Question | None = None
     previous: Line | None = None
+    shared: tuple[int, int, list[Line]] | None = None  # (ilk soru, son soru, ortak öncül satırları)
+    collecting = False
     for line in lines:
         last_no = current.no if current else 0
         question_match = QUESTION_RE.match(line.text)
         option_match = OPTION_RE.match(line.text)
+        # "12.40'ta bitmiştir" gibi satır başındaki saat/ondalık sayı soru numarası değildir.
+        decimal = bool(re.match(r"\d{1,3}\.\d", line.text))
         number = (
-            int(question_match.group(1)) if question_match and line.bold_start else 0
+            int(question_match.group(1))
+            if question_match and line.bold_start and not decimal
+            else 0
         )
         if last_no < number <= last_no + MAX_SKIPPED_NUMBERS:
             if number != last_no + 1:
@@ -259,9 +310,18 @@ def parse_questions(lines: list[Line], warnings: list[str]) -> list[Question]:
                 )
             current = Question(number)
             questions.append(current)
+            collecting = False
+            if shared and shared[0] <= number <= shared[1]:
+                current.stem.extend(shared[2])
             line.text = question_match.group(2) if question_match else ""
             if line.text:
                 current.stem.append(line)
+        elif SHARED_RE.match(line.text) and line.bold_start:
+            match = SHARED_RE.match(line.text)
+            shared = (int(match.group(1)), int(match.group(2)), [line])
+            collecting = True
+        elif collecting and shared:
+            shared[2].append(line)
         elif current is None:
             warnings.append(
                 f"sayfa {line.page}: ilk sorudan önce metin atlandı: {line.text[:60]}"
@@ -281,6 +341,7 @@ def parse_questions(lines: list[Line], warnings: list[str]) -> list[Question]:
                     f"soru {current.no}: şık sırası bozuk ({letter}, beklenen {expected})"
                 )
             current.siklar.append(clean(f"{letter}) {option_match.group(2)}"))
+            current.option_words.append(list(line.words))
             if line.red:
                 current.red_letters.append(letter)
         elif current.siklar:
@@ -292,6 +353,7 @@ def parse_questions(lines: list[Line], warnings: list[str]) -> list[Question]:
                     f"soru {current.no}: son şıktan sonra kopuk metin eklendi: {line.text[:60]}"
                 )
             current.siklar[-1] = clean(f"{current.siklar[-1]} {line.text}")
+            current.option_words[-1] += line.words
         else:
             current.stem.append(line)
         previous = line
@@ -303,14 +365,33 @@ def roman_value(line: Line) -> int:
     return ROMAN_VALUES[match.group(1).lower()] if match else 0
 
 
-def build_stem(stem: list[Line]) -> list[str]:
+def underline_note(words: list[tuple[str, bool | None]]) -> str:
+    """Art arda gelen altı çizili sözcükleri ifadelere toplar: " (altı çizili: a · b c)"; yoksa boş metin."""
+    runs: list[list[str]] = []
+    open_run = False
+    for word, marked in words:
+        if marked is None:
+            continue
+        if marked and open_run:
+            runs[-1].append(word)
+        elif marked:
+            runs.append([word])
+        open_run = bool(marked)
+    phrases = [" ".join(run).strip(".,;:") for run in runs]
+    return f" (altı çizili: {' · '.join(phrases)})" if phrases else ""
+
+
+def build_stem(stem: list[Line], mark_underlines: bool = False) -> list[str]:
     """Kök satırlarını paragraflara toplar; öncüller, tablo satırları ve boşlukla ayrılan bölümler ayrı girdi olur."""
     numerals = {roman_value(line) for line in stem}
     has_roman_list = {
         1,
         2,
     } <= numerals  # tek başına "I." bir öncül değil, "I. Dünya Savaşı" gibi metin olabilir
+    starts = {m.group(1) for m in (ENUM_ITEM_RE.match(line.text) for line in stem) if m}
+    has_enum_list = {"1", "2"} <= starts or {"a", "b"} <= starts
     entries: list[str] = []
+    words: list[list[tuple[str, bool | None]]] = []
     previous: Line | None = None
     for line in stem:
         gap = line.y0 - previous.y0 if previous and same_flow(previous, line) else 0.0
@@ -320,15 +401,35 @@ def build_stem(stem: list[Line]) -> list[str]:
             or previous.table_row
             or (has_roman_list and roman_value(line) > 0)
             or bool(LIST_ITEM_RE.match(line.text))
+            or bool(DASH_ITEM_RE.match(line.text))
+            or (has_enum_list and bool(ENUM_ITEM_RE.match(line.text)))
             or gap > (line.y1 - line.y0) * PARAGRAPH_GAP_RATIO
             or line.bold != previous.bold
         )
         if new_entry:
             entries.append(line.text)
+            words.append(list(line.words))
         else:
             entries[-1] = clean(f"{entries[-1]} {line.text}")
+            words[-1] += line.words
         previous = line
+    if mark_underlines:
+        entries = [entry + underline_note(marks) for entry, marks in zip(entries, words)]
     return entries
+
+
+def table_options(stem: list[str], options: list[str]) -> tuple[list[str], list[str]]:
+    """Şıkları tablo olan soru: "A) | x | y" satırlarını sütun başlığıyla ("A) I: x | II: y") yazar."""
+    cells = [option.split(" | ") for option in options]
+    header = stem[-1].split(" | ") if stem and " | " in stem[-1] else []
+    tabular = bool(cells) and all(re.fullmatch(r"[A-E]\)", row[0]) for row in cells)
+    if not tabular or any(len(row) != len(header) + 1 for row in cells):
+        return stem, options
+    labelled = [
+        f"{row[0]} " + " | ".join(f"{name}: {cell}" for name, cell in zip(header, row[1:]))
+        for row in cells
+    ]
+    return stem[:-1], labelled
 
 
 def to_records(questions: list[Question], warnings: list[str]) -> list[dict]:
@@ -352,13 +453,18 @@ def to_records(questions: list[Question], warnings: list[str]) -> list[dict]:
             warnings.append(f"soru {question.no}: {len(question.siklar)} şık bulundu")
         if not question.stem:
             warnings.append(f"soru {question.no}: soru kökü boş")
+        asks_underline = bool(
+            UNDERLINE_ASKED_RE.search(" ".join(line.text for line in question.stem))
+        )
+        options = question.siklar
+        if asks_underline:
+            options = [
+                option + underline_note(marks)
+                for option, marks in zip(options, question.option_words)
+            ]
+        stem, options = table_options(build_stem(question.stem, asks_underline), options)
         records.append(
-            {
-                "no": question.no,
-                "kok": build_stem(question.stem),
-                "siklar": question.siklar,
-                "cevap": answer,
-            }
+            {"no": question.no, "kok": stem, "siklar": options, "cevap": answer}
         )
     return records
 

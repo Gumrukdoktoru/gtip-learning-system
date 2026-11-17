@@ -118,6 +118,7 @@ class ArticleMatcher:
         self.articles: list[tuple[str, str, set[str]]] = []
         self.names: dict[str, str] = {}
         self.paragraphs: dict[str, list[str]] = {}
+        self.paragraph_bags: dict[str, list[set[str]]] = {}
         loaded = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(DATA_DIR.glob("konu-*.json"))]
         for path in sorted(DATA_DIR.glob("ek-*.json")):  # diğer not dosyalarının konu paketleri
             loaded += json.loads(path.read_text(encoding="utf-8"))
@@ -167,8 +168,62 @@ class ArticleMatcher:
         return {"id": self.articles[at][0], "ad": self.articles[at][1], "puan": round(score, 2)}
 
 
+    def best_law(self, question: dict) -> dict | None:
+        """Kökü Gümrük Kanununu ya da Yönetmeliğini adıyla anan soru için o mevzuattaki en benzer madde.
+
+        Yalnızca güvenli eşleşme döner; üç ölçütten biri yeterlidir, ölçütler farklı madde gösterirse eşleşme yok sayılır:
+          * kök + doğru şık ile madde benzerliği >= LAW_SCORE, ikinci adayla fark >= LAW_MARGIN ve kök ağırlığının
+            LAW_STEM_COVER kadarı maddede;
+          * kök + doğru şıkkın ağırlığının LAW_PARA_COVER kadarı maddenin tek bir fıkrasında, ikinci maddeyle fark >= LAW_PARA_MARGIN;
+          * kök + bütün şıklar ile madde benzerliği >= LAW_ALL_SCORE, ikinci adayla fark >= LAW_ALL_MARGIN (şıkların
+            çoğu aynı maddenin hükümleridir).
+        Ölçüm: kaynağın maddesini gösterdiği, kökü Kanunu/Yönetmeliği anan 618 sorunun 292'si bu ölçütleri geçer; bunların
+        265'i (%91) kaynağın gösterdiği maddeyle aynıdır (kalan 27'nin 11'i komşu madde ya da diğer mevzuattaki karşılığı).
+        """
+        stem = lower_tr(" ".join(question["kok"]))
+        if re.search(r"\d\s+sayılı", stem.replace("4458 sayılı", "")):  # başka bir mevzuat da anılıyor
+            return None
+        prefix = "gy-" if "gümrük yönetmeli" in stem else "gk-" if LAW_NAMED_RE.search(stem) else ""
+        answer = [o for o in question["siklar"] if o.startswith(question["cevap"] + ")")] if len(question["cevap"]) == 1 else []
+        bag = {t for t in tokens(" ".join(question["kok"] + answer)) if t in self.idf}
+        norm = math.sqrt(sum(self.idf[t] ** 2 for t in bag))
+        weight = sum(self.idf[t] for t in bag)
+        if not prefix or len(bag) < 4 or not norm or not weight:
+            return None
+        scope = [i for i, (ident, _, _) in enumerate(self.articles) if ident.startswith(prefix)]
+        if len(scope) < 2:
+            return None
+        if not self.paragraph_bags:
+            self.paragraph_bags = {ident: [tokens(p) for p in paragraphs] for ident, paragraphs in self.paragraphs.items()}
+        cosine = sorted(((sum(self.idf[t] ** 2 for t in bag & self.articles[i][2]) / (norm * self.norms[i]), i) for i in scope), reverse=True)
+        cover = sorted(((max((sum(self.idf[t] for t in bag & p) for p in self.paragraph_bags[self.articles[i][0]]), default=0.0) / weight, i) for i in scope), reverse=True)
+        picks = set()
+        if cosine[0][0] >= LAW_SCORE and cosine[0][0] - cosine[1][0] >= LAW_MARGIN:
+            article = self.articles[cosine[0][1]][2]
+            stem_bag = {t for t in tokens(" ".join(question["kok"])) if t in self.idf}
+            if sum(self.idf[t] for t in stem_bag & article) >= LAW_STEM_COVER * (sum(self.idf[t] for t in stem_bag) or 1.0):
+                picks.add(cosine[0][1])
+        if cover[0][0] >= LAW_PARA_COVER and cover[0][0] - cover[1][0] >= LAW_PARA_MARGIN:
+            picks.add(cover[0][1])
+        wide = {t for t in tokens(" ".join(question["kok"] + question["siklar"])) if t in self.idf}
+        wide_norm = math.sqrt(sum(self.idf[t] ** 2 for t in wide)) or 1.0
+        broad = sorted(((sum(self.idf[t] ** 2 for t in wide & self.articles[i][2]) / (wide_norm * self.norms[i]), i) for i in scope), reverse=True)
+        if broad[0][0] >= LAW_ALL_SCORE and broad[0][0] - broad[1][0] >= LAW_ALL_MARGIN:
+            picks.add(broad[0][1])
+        if len(picks) != 1:
+            return None
+        at = picks.pop()
+        return {"id": self.articles[at][0], "ad": self.articles[at][1], "puan": round(dict((i, score) for score, i in cosine)[at], 2)}
+
+
 # --- Konu notlarında (ek-*.json) pasaj düzeyinde dayanak eşleştirme ---------------------------
 ORDINAL = r"(?:\s*[.’'`]?\s*(?:inci|ıncı|uncu|üncü|nci|ncı|ncu|ncü))?"
+# "Gümrük Kanunu'nun 5 inci maddesi", "Gümrük Yönetmeliğinin 561 inci maddesi", "Gümrük Kanunu 57 nci maddesi"
+CITED_ARTICLE_RE = re.compile(r"gümrük (kanunu|yönetmeliği)(?:\W{0,2}n[uıiü]n|n)?\s+(\d{1,3})(?:\s*/\s*([a-z]))?" + ORDINAL + r"\s*\.?\s*madde")
+LAW_NAMED_RE = re.compile(r"gümrük kanun\w*\b(?!\s+bazı)")  # "…Kanununun Bazı Maddelerinin Uygulanması Hakkında Karar" değil
+LAW_SCORE, LAW_MARGIN, LAW_STEM_COVER = 0.4, 0.15, 0.6
+LAW_PARA_COVER, LAW_PARA_MARGIN = 0.8, 0.1
+LAW_ALL_SCORE, LAW_ALL_MARGIN = 0.35, 0.1
 CODE4_RE = re.compile(r"(?<![\d.,/])(\d{2})\.(\d{2})(?!\d)(?!\.\d)")  # 96.03 (tarih ve tutar değil)
 CODE6_RE = re.compile(r"(?<![\d.,/])(\d{4})\.(\d{2})(?!\d)")  # 8471.30, 4602.11.00.10.00
 CHAPTER_RES = [re.compile(r"fas[ıi]l[ıi]?\s*(\d{1,2})(?!\d)"), re.compile(r"(?<![\d.,])(\d{1,2})" + ORDINAL + r"\s*\.?\s*fas[ıi]?l")]
@@ -474,16 +529,39 @@ UNKNOWN_EXAM: list[dict] = []
 SUPPLEMENT_FILE = Path(__file__).resolve().parent / "ek-sinavlar.json"
 
 
-def merge_supplement(exams: dict[str, dict[int, dict]]) -> int:
+def content_key(question: dict) -> str:
+    """Sorunun içeriği (şıklar + kökteki öncüller), kökün soru cümlesinden bağımsız: aynı sorunun farklı
+    yazılmış sürümlerini tanımak için. Ayırt edici değilse (yalnızca "I ve II" gibi şıklar) boş döner."""
+    extra = [p for p in question["kok"] if not p.rstrip().endswith("?")]
+    body = sorted(squash(re.sub(r"^[A-E]\)", "", o)) for o in question["siklar"]) + sorted(squash(re.sub(r"^[IVX]+\.", "", p)) for p in extra)
+    key = "|".join(body)
+    return key if question["siklar"] and (extra or len(key) >= 60) else ""
+
+
+def merge_supplement(exams: dict[str, dict[int, dict]]) -> tuple[int, list[dict], set[tuple[str, str]]]:
     """Sınav PDF'lerinden çıkarılan tam kitapçıkları (ek-sinavlar.json) esas alır.
 
     Kitapçığın numarası ve metni PDF'ten gelir; aynı sorunun madde bağlantısı, kök metni
-    eşleşen mevcut sorudan taşınır. PDF kitapçığında bulunmayan mevcut sorular ayrı tutulur.
+    eşleşen mevcut sorudan taşınır. PDF kitapçığında bulunmayan mevcut sorular ayrı tutulur;
+    ancak böyle bir soru başka bir PDF kitapçığında aynen bulunuyorsa (kaynakta sınavı yanlış
+    etiketlenmiş) ayrı tutulmaz, madde bağlantısı asıl soruya taşınır.
+
+    Dönen değer: (yalnızca PDF'te bulunan soru sayısı, bu sorular, yanlış etiketli olduğu için
+    çıkarılan soruların (sınav etiketi, kök anahtarı) kümesi).
     """
     if not SUPPLEMENT_FILE.exists():
-        return 0
+        return 0, [], set()
+    supplement = json.loads(SUPPLEMENT_FILE.read_text(encoding="utf-8"))
+    twins: dict[str, tuple[str, int]] = {}
+    for exam in supplement:
+        for question in exam["sorular"]:
+            key = content_key(question)
+            if key:
+                twins.setdefault(key, (exam["sinav"], question["no"]))
+    pdf_only: list[dict] = []
     added = 0
-    for exam in json.loads(SUPPLEMENT_FILE.read_text(encoding="utf-8")):
+    moved: list[tuple[tuple[str, int], dict]] = []
+    for exam in supplement:
         old = exams.get(exam["sinav"], {})
         by_stem = {squash(" ".join(q["kok"]))[:60]: q for q in old.values()}
         items: dict[int, dict] = {}
@@ -496,11 +574,84 @@ def merge_supplement(exams: dict[str, dict[int, dict]]) -> int:
                 **({"ilgili": match["ilgili"]} if match and match.get("ilgili") else {}),
                 **({"dayanak": match["dayanak"]} if match and match.get("dayanak") else {}),
             }
-            added += match is None
+            if match is None:
+                pdf_only.append(items[question["no"]])
+                added += 1
         exams[exam["sinav"]] = items
-        if by_stem:
-            exams[exam["sinav"] + " (kitapçık dışı)"] = dict(enumerate(by_stem.values(), 1))
-    return added
+        outside = []
+        for stray in by_stem.values():
+            twin = twins.get(content_key(stray))
+            if twin:
+                moved.append((twin, stray))
+            else:
+                outside.append(stray)
+        exams.pop(exam["sinav"] + " (kitapçık dışı)", None)
+        if outside:
+            exams[exam["sinav"] + " (kitapçık dışı)"] = dict(enumerate(outside, 1))
+    dropped: set[tuple[str, str]] = set()
+    for (name, number), stray in moved:
+        target = exams[name][number]
+        for field in ("madde", "dayanak"):
+            if stray.get(field) and not target.get(field):
+                target[field] = stray[field]
+                if field == "madde" and not any(target is q for q in pdf_only):
+                    pdf_only.append(target)  # madde sayfasında yanlış etiketli sürümün yerine asıl soru listelenir
+        if target.get("madde"):
+            target.pop("ilgili", None)
+        dropped.add((stray["sinav"], squash(" ".join(stray["kok"]))[:60]))
+        print(f"yanlış etiketli soru çıkarıldı: {stray['sinav']} = {target['sinav']} (cevap: eski {stray['cevap']}, kitapçık {target['cevap']})")
+    return added, pdf_only, dropped
+
+
+def link_pdf_only(questions: list[dict], matcher: ArticleMatcher, labels: dict[str, str]) -> tuple[int, int]:
+    """Yalnızca PDF kitapçığında bulunan (kaynak derlemede maddesi gösterilmeyen) soruları Kanun/Yönetmelik maddesine bağlar.
+
+    * Kök maddeyi açıkça anıyorsa ("Gümrük Kanunu'nun 235 inci maddesi") soru o maddeye "madde" olarak bağlanır.
+    * Anmıyorsa ve kök Gümrük Kanununu/Yönetmeliğini adıyla anıyorsa, ArticleMatcher.best_law güvenli bir
+      eşleşme bulduğunda "ilgili" (otomatik eşleşme) olarak bağlanır. Diğer sorulara dokunulmaz.
+    Dayanak hüküm, bağlanan maddenin soruyla en çok örtüşen fıkrasıdır; bulunamazsa dayanak yazılmaz.
+    """
+    cited = strong = 0
+    for question in questions:
+        if question.get("madde") or question.get("ilgili") or not question["siklar"]:
+            continue
+        stem = lower_tr(" ".join(question["kok"]))
+        found = []
+        for law, number, letter in CITED_ARTICLE_RE.findall(stem):
+            ident = ("gk-" if law == "kanunu" else "gy-") + number + (f"-{letter.upper()}" if letter else "")
+            if ident in labels and ident not in found:
+                found.append(ident)
+        if found:
+            question["madde"] = [{"id": ident, "ad": labels[ident]} for ident in found]
+            cited += 1
+        else:
+            related = matcher.best_law(question)
+            if not related or related["id"] not in labels:
+                continue
+            question["ilgili"] = related
+            found = [related["id"]]
+            strong += 1
+        ground = matcher.basis(question, found)
+        if ground and "dayanak" not in question:
+            question["dayanak"] = ground
+    return cited, strong
+
+
+def list_on_articles(questions: list[dict], by_article: dict[str, list[dict]], labels: dict[str, str]) -> int:
+    """Maddeye bağlanan PDF sorularını o maddenin "çıkmış sınav soruları" listesine ekler (zaten varsa eklemez)."""
+    listed = 0
+    for question in questions:
+        targets = [link["id"] for link in question.get("madde", [])]
+        related = question.get("ilgili")
+        if not targets and related and related["id"].startswith(("gk-", "gy-")):
+            targets = [related["id"]]
+        for ident in targets:
+            items = by_article.setdefault(ident, []) if ident in labels else None
+            if items is None or any(q["sinav"] == question["sinav"] for q in items):
+                continue
+            items.append({k: v for k, v in question.items() if k not in ("madde", "rol")})
+            listed += 1
+    return listed
 
 
 MISC_GROUP = "Diğer sınav ve kaynaklardan tekil sorular"
@@ -917,14 +1068,20 @@ def main() -> None:
         found = re.findall(r"(?:19|20)\d\d", name)
         return int(found[-1]) if found else 0
 
-    added = merge_supplement(exams)
+    added, pdf_only, dropped = merge_supplement(exams)
+    for key in list(by_article):  # yanlış etiketli sürüm madde sayfasında da gösterilmez (asıl soru orada zaten var)
+        by_article[key] = [q for q in by_article[key] if (q["sinav"], squash(" ".join(q["kok"]))[:60]) not in dropped]
+    cited, strong = link_pdf_only(pdf_only, matcher, labels)
     exam_list = build_booklets(exams, year)
-    print(f"ek kaynaktan (PDF) tamamlanan soru: {added}")
+    print(f"ek kaynaktan (PDF) tamamlanan soru: {added}; kökü maddeyi açıkça anan: {cited}; güvenli otomatik madde eşleşmesi: {strong}")
     other = [{"sinav": name, "sorular": items} for name, items in groups.items()]
     leftovers: dict[str, list[dict]] = {}
     config = json.loads(SUBJECT_FILE.read_text(encoding="utf-8")) if SUBJECT_FILE.exists() else None
     if config:
         leftovers = link_to_topics(exam_list, other, json.loads((DATA_DIR / "index.json").read_text(encoding="utf-8")), config)
+    listed = list_on_articles(pdf_only, by_article, labels)
+    by_article = {k: v for k, v in by_article.items() if v}
+    print(f"madde sayfalarına eklenen PDF sorusu: {listed}")
     for file, payload in (("sorular-madde.json", by_article), ("sorular-diger.json", other), ("sorular-sinav.json", exam_list)):
         (DATA_DIR / file).write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
     if config:

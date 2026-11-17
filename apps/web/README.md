@@ -55,6 +55,32 @@ python3 apps/web/scripts/build-sorular-data.py kanun.html yonetmelik.json diger.
 
 Maddesi derlemede ayrılamayan sorular "Sorular" bölümünde ayrı başlıklar altında tutulur.
 
+### Sınav kitapçığı PDF'leri (`scripts/ek-sinavlar.json`)
+
+İki sütunlu, doğru şıkkı kırmızı yazılmış kitapçık PDF'leri `extract-exam-pdf.py` ile okunur (PyMuPDF; yüklenen dosya güvenilmeyen
+veri olduğundan `-I` ile) ve `ek-sinavlar.json` listesine eklenir:
+
+```bash
+python3 -I apps/web/scripts/extract-exam-pdf.py <kitapcik.pdf> "Gümrük Müşavirliği Sınavı · 2026" -o apps/web/scripts/ek-sinavlar.json --ekle
+```
+
+Cevap yalnızca kırmızı şıktan alınır (yoksa boş bırakılır). "N ve M nci soruları … cevaplayınız" ortak öncülü ilgili her sorunun
+köküne yazılır; kök "altı çizili" sözcük soruyorsa altı çizili sözcükler "(altı çizili: …)" notuyla, şıkları tablo olan soruda hücreler
+sütun başlığıyla verilir. Listedeki kitapçıklar: 2023 GM, 2023–2025 GMY, 2026 GM (15 Kasım 2026, B kitapçığı) ve 2026 GMY (15 Kasım 2026,
+A kitapçığı).
+
+`build-sorular-data.py` bu kitapçıkları esas alır (`merge_supplement`): aynı adlı sınavın derlemedeki soruları kök metniyle eşlenir,
+madde bağlantıları taşınır. Derlemede olup kitapçıkta bulunmayan soru "tekil sorular" başlığına gider; ancak aynı soru başka bir
+kitapçıkta aynen varsa (derlemede sınavı/numarası yanlış etiketlenmiş) çıkarılır ve madde bağlantısı asıl soruya taşınır.
+
+Yalnızca PDF'te bulunan soruların derlemede madde bağlantısı yoktur; bunlar için (`link_pdf_only`):
+
+- Kök maddeyi açıkça anıyorsa ("Gümrük Kanununun 235 inci maddesi", "Gümrük Yönetmeliğinin 561 inci maddesi") soru o maddeye bağlanır.
+- Kök yalnızca Kanunu/Yönetmeliği adıyla anıyorsa `ArticleMatcher.best_law` o mevzuatın maddeleri içinde arar ve yalnızca güvenli
+  eşleşmeyi "İlgili olabilecek madde (otomatik eşleşme)" olarak yazar. Ölçüm: maddesi derlemede belli olan, kökü mevzuatı anan 618
+  sorunun 292'si ölçütü geçer; 265'i (%91) derlemenin gösterdiği maddeyle aynıdır. Eşik sabitleri `LAW_*` adlarıyla betiğin başındadır.
+- Bağlanan sorular o maddenin "çıkmış sınav soruları" listesine de eklenir (`sorular-madde.json`). Diğer sorulara dokunulmaz.
+
 ### Konu notlarından dayanak ve "bu konunun çıkmış soruları"
 
 Aynı betik, Kanun/Yönetmelik maddesine bağlı olmayan sorular için dayanağı diğer not dosyalarında (`ek-*.json`: Tarife, Sair Mevzuat,
