@@ -139,20 +139,30 @@ SUPPLEMENT_FILE = Path(__file__).resolve().parent / "ek-sinavlar.json"
 
 
 def merge_supplement(exams: dict[str, dict[int, dict]]) -> int:
-    """Sınav PDF'lerinden çıkarılan soruları (ek-sinavlar.json) yalnızca eksik numaralara ekler."""
+    """Sınav PDF'lerinden çıkarılan tam kitapçıkları (ek-sinavlar.json) esas alır.
+
+    Kitapçığın numarası ve metni PDF'ten gelir; aynı sorunun madde bağlantısı, kök metni
+    eşleşen mevcut sorudan taşınır. PDF kitapçığında bulunmayan mevcut sorular ayrı tutulur.
+    """
     if not SUPPLEMENT_FILE.exists():
         return 0
     added = 0
     for exam in json.loads(SUPPLEMENT_FILE.read_text(encoding="utf-8")):
-        items = exams.setdefault(exam["sinav"], {})
+        old = exams.get(exam["sinav"], {})
+        by_stem = {squash(" ".join(q["kok"]))[:60]: q for q in old.values()}
+        items: dict[int, dict] = {}
         for question in exam["sorular"]:
-            if question["no"] in items:
-                continue
+            match = by_stem.pop(squash(" ".join(question["kok"]))[:60], None)
             items[question["no"]] = {
-                "id": "", "sinav": f"Soru {question['no']} · {exam['sinav']}",
-                "kok": question["kok"], "siklar": question["siklar"], "cevap": question["cevap"], "kaynak": "pdf",
+                "id": match["id"] if match else "", "sinav": f"Soru {question['no']} · {exam['sinav']}",
+                "kok": question["kok"], "siklar": question["siklar"], "cevap": question["cevap"],
+                **({"madde": match["madde"]} if match and match.get("madde") else {}),
+                **({"ilgili": match["ilgili"]} if match and match.get("ilgili") else {}),
             }
-            added += 1
+            added += match is None
+        exams[exam["sinav"]] = items
+        if by_stem:
+            exams[exam["sinav"] + " (kitapçık dışı)"] = dict(enumerate(by_stem.values(), 1))
     return added
 
 
