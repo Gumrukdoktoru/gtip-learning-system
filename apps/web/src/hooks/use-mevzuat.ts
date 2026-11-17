@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { loadAllTopics, loadArticleQuestions, loadIndex, loadExamGroups, loadTopic } from '../services/mevzuat-data';
+import { loadTopics, loadArticleQuestions, loadIndex, loadExamGroups, loadTopic } from '../services/mevzuat-data';
 import type { ArticleBlock, ExamGroup, MevzuatIndex, Question, ReaderMode, Topic } from '../types/mevzuat';
 import { trLower } from '../utils/text';
 
@@ -40,7 +40,7 @@ export interface SearchHit {
   article: ArticleBlock;
 }
 
-const MODE_SOURCE: Record<ReaderMode, string | null> = { konu: null, gk: 'GK', gy: 'GY', soru: null, sinav: null };
+const MODE_SOURCE: Record<ReaderMode, string | null> = { konu: null, gk: 'GK', gy: 'GY', soru: null, sinav: null, kaynak: null };
 const searchText = new WeakMap<ArticleBlock, string>();
 
 function articleText(article: ArticleBlock): string {
@@ -58,6 +58,14 @@ export function findHits(topics: Topic[], term: string, mode: ReaderMode): Searc
   const hits: SearchHit[] = [];
   for (const topic of topics) {
     for (const block of topic.blocks) {
+      if (mode === 'kaynak' && block.t === 'p' && trLower(block.x).includes(needle)) {
+        // Ek kaynaklarda madde olmayan düz metin de aranır; sonuç konuya bağlanır.
+        hits.push({
+          topic,
+          article: { t: 'a', id: `konu-${topic.id}`, src: '', no: '', label: 'Metin', title: '', doc: '', p: [block.x] },
+        });
+        continue;
+      }
       if (block.t !== 'a' || (source && block.src !== source)) continue;
       if (articleText(block).includes(needle)) hits.push({ topic, article: block });
     }
@@ -65,10 +73,10 @@ export function findHits(topics: Topic[], term: string, mode: ReaderMode): Searc
   return hits;
 }
 
-/** Arama yapıldığında bütün konuları (bir kez) indirir ve eşleşen maddeleri döndürür. */
-export function useSearch(index: MevzuatIndex | null, term: string, mode: ReaderMode): Loadable<SearchHit[]> {
-  const active = index !== null && term.trim().length >= 2;
-  const all = useLoad(active && index ? () => loadAllTopics(index) : null, active ? 'all-topics' : 'idle');
+/** Arama yapıldığında verilen konuları (bir kez) indirir ve eşleşen maddeleri döndürür. */
+export function useSearch(topicIds: number[] | null, scope: string, term: string, mode: ReaderMode): Loadable<SearchHit[]> {
+  const active = topicIds !== null && term.trim().length >= 2;
+  const all = useLoad(active && topicIds ? () => loadTopics(topicIds) : null, active ? `search-${scope}` : 'idle');
   if (!active || !all.data) return { data: null, error: all.error };
   return { data: findHits(all.data, term, mode), error: null };
 }

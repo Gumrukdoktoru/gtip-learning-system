@@ -42,6 +42,31 @@ export function SidebarNav(props: SidebarNavProps): JSX.Element {
     container.current?.querySelector('[aria-current="page"]')?.scrollIntoView({ block: 'nearest' });
   }, [activeId, mode]);
 
+  if (mode === 'kaynak') {
+    return (
+      <nav ref={container} aria-label="Ek kaynaklar">
+        {index.folders.map((folder) => (
+          <details key={folder.id} open={folder.topics.some((topic) => topic.id === activeTopic)} className="border-b border-white/10">
+            <summary className="cursor-pointer px-2 py-2 text-[13px] font-semibold">
+              {folder.title} <span className="font-normal text-slate-400">({folder.topics.length})</span>
+            </summary>
+            <div className="pb-2 pl-2">
+              {folder.topics.map((topic) => (
+                <a
+                  key={topic.id}
+                  href={topicHash(topic.id)}
+                  aria-current={topic.id === activeTopic ? 'page' : undefined}
+                  className={`${LINK_BASE} ${topic.id === activeTopic ? LINK_ACTIVE : ''}`}
+                >
+                  {topic.title}
+                </a>
+              ))}
+            </div>
+          </details>
+        ))}
+      </nav>
+    );
+  }
   if (mode === 'sinav') {
     return (
       <p className="px-2 text-[13px] leading-relaxed text-slate-300">

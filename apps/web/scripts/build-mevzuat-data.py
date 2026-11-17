@@ -79,6 +79,7 @@ class TopicParser:
         self.doc_fresh = False  # belge başlığından sonra henüz madde gelmedi
         self.last: tuple[str, int] | None = None  # (kaynak, madde no)
         self.seq = 0
+        self.plain_source = False  # ek kaynaklar: GK/GY dizinine madde eklenmez
 
     def feed(self, text: str) -> None:
         match = ARTICLE_RE.match(text)
@@ -169,6 +170,8 @@ class TopicParser:
         title = self.take_title()
         number = int(number_text)
         source, doc_name = self.resolve_source(prefix, number)
+        if self.plain_source:
+            source = ""
         if kind:
             source = ""  # geçici/ek maddeler asıl madde dizinine girmez
         no = number_text + (f"/{letter}" if letter else "")
@@ -203,12 +206,95 @@ class TopicParser:
         return self.blocks
 
 
+CHUNK_BYTES = 150_000
+PAGE_RE = re.compile(r"^Sayfa \d+$")
+TABLE_RULE_RE = re.compile(r"^\|?[\s:|-]+\|?$")
+
+
+def split_sections(lines: list[str]) -> list[tuple[str, list[str]]]:
+    """Ek kaynağı (başlık, satırlar) bölümlerine ayırır: # / ## başlıkları sınır, sayfa başlıkları değil."""
+    sections: list[tuple[str, list[str]]] = [("", [])]
+    for line in lines:
+        heading = re.match(r"^(#{1,2}) (.+)$", line)
+        title = clean(heading.group(2)) if heading else ""
+        if heading and "İÇİNDEKİLER" in title.upper().replace("I", "İ"):
+            sections.append(("", []))  # içindekiler listesi atılır
+        elif heading and not PAGE_RE.match(title):
+            sections.append((title, []))
+        elif not heading or not PAGE_RE.match(title):
+            sections[-1][1].append(line)
+    return [(t, body) for t, body in sections if t and any(l.strip() for l in body) or not t and sections.index((t, body)) == 0 and any(l.strip() for l in body)]
+
+
+def pack_sections(sections: list[tuple[str, list[str]]], fallback: str) -> list[tuple[str, list[str]]]:
+    """Bölümleri yaklaşık CHUNK_BYTES büyüklüğünde konulara toplar; iç başlıklar metinde kalır."""
+    packs: list[tuple[list[str], list[str]]] = []
+    size = CHUNK_BYTES
+    for title, body in sections:
+        for start in range(0, max(len(body), 1), 1200):  # çok uzun bölüm satır sayısına göre bölünür
+            part = body[start:start + 1200]
+            weight = sum(len(l) for l in part)
+            if size + weight > CHUNK_BYTES:
+                packs.append(([], []))
+                size = 0
+            if title and title not in packs[-1][0]:
+                packs[-1][0].append(title)
+                packs[-1][1].append("## " + title)
+            packs[-1][1].extend(part)
+            size += weight
+    named = []
+    for number, (titles, body) in enumerate(packs, 1):
+        name = titles[0] if titles else f"{fallback} · Bölüm {number}"
+        if "_" in name and " " not in name:  # dosya adından gelen başlık
+            name = name.replace("_x1", " (").replace("x2_", ") ").replace("_", " ").strip().capitalize()
+        if len(titles) > 1:
+            name += f" (+{len(titles) - 1} başlık)"
+        named.append((name[:110], body))
+    return named
+
+
+def build_folders(paths: list[Path], out_dir: Path, used_ids: set[str]) -> list[dict]:
+    """Ek kaynak dosyalarını ayrı klasörler olarak konu dosyalarına çevirir (kimlik: 1000*klasör + sıra)."""
+    folders = []
+    for folder_id, path in enumerate(paths, 1):
+        lines = path.read_text(encoding="utf-8").split("\n")
+        first = next((clean(l.lstrip("# ")) for l in lines if l.startswith("# ")), "")
+        folder_title = first or path.stem.replace("_", " ")
+        topics = []
+        for order, (title, body) in enumerate(pack_sections(split_sections(lines), folder_title), 1):
+            topic_id = folder_id * 1000 + order
+            parser = TopicParser(topic_id, used_ids)
+            parser.plain_source = True
+            for raw in body:
+                if TABLE_RULE_RE.match(raw.strip()) and "-" in raw:
+                    continue
+                if raw.startswith("#"):
+                    parser.flush_pending(as_headings=True)
+                    parser.article = None
+                    parser.blocks.append({"t": "d" if raw.startswith("## ") else "h", "x": clean(raw.lstrip("# "))})
+                    continue
+                text = clean(raw.strip().strip("|").replace(" | ", " · ")) if raw.lstrip().startswith("|") else clean(raw)
+                if not is_noise(text):
+                    parser.feed(text)
+            blocks = parser.finish()
+            if not blocks:
+                continue
+            (out_dir / f"konu-{topic_id}.json").write_text(
+                json.dumps({"id": topic_id, "title": title, "blocks": blocks}, ensure_ascii=False), encoding="utf-8"
+            )
+            articles = [{"id": b["id"], "label": b["label"], "title": b["title"]} for b in blocks if b["t"] == "a"]
+            topics.append({"id": topic_id, "title": title, "articles": articles})
+        folders.append({"id": folder_id, "title": folder_title, "topics": topics})
+        print(f"klasör {folder_id}: {folder_title[:60]} -> {len(topics)} konu")
+    return folders
+
+
 def number_key(no: str) -> tuple[int, str]:
     digits, _, letter = no.partition("/")
     return int(digits), letter
 
 
-def build(source_path: Path, out_dir: Path) -> None:
+def build(source_path: Path, out_dir: Path, extra_paths: list[Path] | None = None) -> None:
     lines = source_path.read_text(encoding="utf-8").split("\n")
     topics: list[tuple[int, str, list[str]]] = []
     for line in lines:
@@ -271,7 +357,10 @@ def build(source_path: Path, out_dir: Path) -> None:
                 }
     for entries in law_index.values():
         entries.sort(key=lambda e: (number_key(e["no"]), e["id"]))
-    index = {"topics": index_topics, "gk": law_index["GK"], "gy": law_index["GY"]}
+    index = {
+        "topics": index_topics, "gk": law_index["GK"], "gy": law_index["GY"],
+        "folders": build_folders(extra_paths or [], out_dir, used_ids),
+    }
     (out_dir / "index.json").write_text(
         json.dumps(index, ensure_ascii=False), encoding="utf-8"
     )
@@ -288,7 +377,9 @@ def main() -> None:
     if len(sys.argv) < 2:
         sys.exit(__doc__)
     default_out = Path(__file__).resolve().parent.parent / "public" / "data"
-    build(Path(sys.argv[1]), Path(sys.argv[2]) if len(sys.argv) > 2 else default_out)
+    args = sys.argv[2:]
+    extra = [Path(p) for p in args[args.index("--ek") + 1:]] if "--ek" in args else []
+    build(Path(sys.argv[1]), default_out, extra)
 
 
 if __name__ == "__main__":

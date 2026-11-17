@@ -19,10 +19,10 @@ export function SearchResults({ term, result }: SearchResultsProps): JSX.Element
   return (
     <>
       <p className="mb-4 text-sm text-ink-soft" aria-live="polite">
-        <strong>{hits.length}</strong> maddede eşleşme
+        <strong>{hits.length}</strong> yerde eşleşme
       </p>
-      {hits.slice(0, limit).map(({ topic, article }) => (
-        <ArticleCard key={article.id} article={article} context={`${topic.id}. ${topic.title}`} />
+      {hits.slice(0, limit).map(({ topic, article }, i) => (
+        <ArticleCard key={`${article.id}-${i}`} article={article} context={topic.id >= 1000 ? topic.title : `${topic.id}. ${topic.title}`} />
       ))}
       {hits.length > limit && (
         <button

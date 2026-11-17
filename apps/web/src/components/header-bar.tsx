@@ -4,6 +4,7 @@ const MODES: { mode: ReaderMode; label: string }[] = [
   { mode: 'konu', label: 'Konular' },
   { mode: 'gk', label: 'Kanun' },
   { mode: 'gy', label: 'Yönetmelik' },
+  { mode: 'kaynak', label: 'Ek kaynaklar' },
   { mode: 'sinav', label: 'Sınavlar' },
   { mode: 'soru', label: 'Diğer sorular' },
 ];
@@ -13,6 +14,7 @@ const PLACEHOLDER: Record<ReaderMode, string> = {
   gy: 'Yönetmelikte ara…',
   soru: 'Diğer sorularda ara…',
   sinav: 'Bütün sınav sorularında ara…',
+  kaynak: 'Açık klasörde ara…',
 };
 
 interface HeaderBarProps {

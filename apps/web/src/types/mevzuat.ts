@@ -1,5 +1,5 @@
 export type SourceCode = 'GK' | 'GY' | '';
-export type ReaderMode = 'konu' | 'gk' | 'gy' | 'soru' | 'sinav';
+export type ReaderMode = 'konu' | 'gk' | 'gy' | 'soru' | 'sinav' | 'kaynak';
 
 export interface ArticleBlock {
   t: 'a';
@@ -49,6 +49,14 @@ export interface MevzuatIndex {
   topics: TopicSummary[];
   gk: LawEntry[];
   gy: LawEntry[];
+  /** Ek kaynak dosyaları; her biri ayrı klasör (konu kimlikleri 1000 ve üzeri). */
+  folders: Folder[];
+}
+
+export interface Folder {
+  id: number;
+  title: string;
+  topics: TopicSummary[];
 }
 
 export interface RefPreviewData {

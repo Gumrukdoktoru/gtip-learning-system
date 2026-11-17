@@ -25,8 +25,8 @@ export function loadTopic(topicId: number): Promise<Topic> {
   return loadJson<Topic>(`konu-${topicId}.json`);
 }
 
-export function loadAllTopics(index: MevzuatIndex): Promise<Topic[]> {
-  return Promise.all(index.topics.map((topic) => loadTopic(topic.id)));
+export function loadTopics(topicIds: number[]): Promise<Topic[]> {
+  return Promise.all(topicIds.map(loadTopic));
 }
 
 export function loadRefs(): Promise<RefMap> {

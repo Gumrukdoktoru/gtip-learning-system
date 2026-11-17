@@ -8,8 +8,9 @@ import { Sidebar } from './components/sidebar';
 import { useHashRoute } from './hooks/use-hash-route';
 import { useExamGroups, useIndex, useSearch, useTopic } from './hooks/use-mevzuat';
 import type { MevzuatIndex, ReaderMode } from './types/mevzuat';
-import { QUESTIONS_HASH, articleHash } from './utils/route';
+import { QUESTIONS_HASH, articleHash, topicHash } from './utils/route';
 
+const FOLDER_TOPIC_BASE = 1000;
 const MIN_FONT = 14;
 const MAX_FONT = 26;
 const TOOL_BUTTON = 'rounded-md border border-paper-line px-3 py-1.5 text-xs hover:bg-black/5';
@@ -23,12 +24,15 @@ interface Lookup {
 function buildLookup(index: MevzuatIndex): Lookup {
   const topicOf = new Map<string, number>();
   for (const topic of index.topics) for (const article of topic.articles) topicOf.set(article.id, topic.id);
+  const core = [...topicOf.keys()];
+  for (const folder of index.folders) for (const topic of folder.topics) for (const article of topic.articles) topicOf.set(article.id, topic.id);
   const gk = index.gk.map((entry) => entry.id);
   const gy = index.gy.map((entry) => entry.id);
-  return { topicOf, knownRefs: new Set([...gk, ...gy]), order: { konu: [...topicOf.keys()], gk, gy, soru: [], sinav: [] } };
+  return { topicOf, knownRefs: new Set([...gk, ...gy]), order: { konu: core, gk, gy, soru: [], sinav: [], kaynak: [] } };
 }
 
-function modeForArticle(id: string, current: ReaderMode): ReaderMode {
+function modeForArticle(id: string, current: ReaderMode, topicId: number | undefined): ReaderMode {
+  if ((topicId ?? 0) >= FOLDER_TOPIC_BASE) return 'kaynak';
   if (current === 'konu') return 'konu';
   return id.startsWith('gk-') ? 'gk' : id.startsWith('gy-') ? 'gy' : 'konu';
 }
@@ -49,15 +53,21 @@ export function App(): JSX.Element {
   const topic = useTopic(lookup ? activeTopic : null, retry);
   const questionsView = route.kind === 'questions';
   const searching = !questionsView && term.trim().length >= 2;
-  const search = useSearch(index.data, questionsView ? '' : term, mode);
+  const activeFolder = index.data?.folders.find((folder) => folder.topics.some((t) => t.id === activeTopic));
+  const searchTopics = !index.data
+    ? null
+    : mode === 'kaynak'
+      ? (activeFolder?.topics.map((t) => t.id) ?? [])
+      : index.data.topics.map((t) => t.id);
+  const search = useSearch(searchTopics, mode === 'kaynak' ? `folder-${activeFolder?.id}` : 'core', questionsView ? '' : term, mode);
   const otherQuestions = useExamGroups(route.kind === 'questions' ? route.view : null);
 
   useEffect(() => setTerm(''), [route]);
   useEffect(() => {
     if (route.kind === 'questions') setMode(route.view === 'sinav' ? 'sinav' : 'soru');
-    else if (route.kind === 'topic') setMode('konu');
-    else if (route.kind === 'article') setMode((current) => modeForArticle(route.id, current));
-  }, [route]);
+    else if (route.kind === 'topic') setMode(route.id >= FOLDER_TOPIC_BASE ? 'kaynak' : 'konu');
+    else if (route.kind === 'article') setMode((current) => modeForArticle(route.id, current, lookup?.topicOf.get(route.id)));
+  }, [route, lookup]);
   useEffect(() => {
     if (activeTopic !== null) setOpenTopics((open) => (open.has(activeTopic) ? open : new Set(open).add(activeTopic)));
   }, [activeTopic]);
@@ -88,7 +98,12 @@ export function App(): JSX.Element {
     setMode(next);
     setTerm('');
     const first = lookup.order[next][0];
-    if (next === 'soru' || next === 'sinav') window.location.hash = QUESTIONS_HASH[next === 'sinav' ? 'sinav' : 'diger'];
+    const firstFolderTopic = index.data?.folders[0]?.topics[0]?.id;
+    if (next === 'kaynak') {
+      if ((activeTopic ?? 0) < FOLDER_TOPIC_BASE && firstFolderTopic) window.location.hash = topicHash(firstFolderTopic);
+    } else if ((activeTopic ?? 0) >= FOLDER_TOPIC_BASE && next !== 'soru' && next !== 'sinav') {
+      window.location.hash = articleHash(first ?? lookup.order.konu[0] ?? '');
+    } else if (next === 'soru' || next === 'sinav') window.location.hash = QUESTIONS_HASH[next === 'sinav' ? 'sinav' : 'diger'];
     else if (questionsView) window.location.hash = articleHash(first ?? lookup.order.konu[0] ?? '');
     else if (next !== 'konu' && first && !(activeId && lookup.order[next].includes(activeId))) {
       window.location.hash = articleHash(first);

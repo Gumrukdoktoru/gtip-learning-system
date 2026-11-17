@@ -38,7 +38,7 @@ export function Reader({ topic, activeId, whole, previousId, nextId, onRetry }: 
   }
   if (!loaded) return <p className="text-ink-mute">Bölüm yükleniyor…</p>;
 
-  const context = `${loaded.id}. ${loaded.title}`;
+  const context = loaded.id >= 1000 ? loaded.title : `${loaded.id}. ${loaded.title}`;
   if (whole) {
     return (
       <>
