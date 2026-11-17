@@ -9,6 +9,35 @@ function Marked({ text }: { text: string }): JSX.Element {
   return <>{splitHits(text, term).map((part, i) => (part.hit ? <mark key={i}>{part.text}</mark> : part.text))}</>;
 }
 
+/** Dayanağın altındaki kaynak notu. */
+function basisNote(question: Question, fromNotes: boolean): string {
+  if (question.dayanak?.kaynak === 'resmi') {
+    return 'Dayanak, resmî mevzuat metninden (mevzuat.gov.tr) alınmıştır; notlarınızda bu hüküm yer almıyor.';
+  }
+  if (question.dayanak?.kaynak === 'okuma') {
+    return `Dayanak, notlarınız okunarak seçilmiştir${fromNotes ? '; bağlantı konunun tamamını açar' : ''}.`;
+  }
+  return fromNotes
+    ? 'Dayanak pasajı, notlarınızdaki ilgili konudan otomatik seçilmiştir; bağlantı konunun tamamını açar.'
+    : 'Dayanak hüküm, notlarınızdaki ilgili maddeden otomatik seçilmiştir.';
+}
+
+/** Dayanağın adı: uygulamadaki maddeye/konuya bağlantı, yoksa resmî metnin dış bağlantısı. */
+function BasisLink({ basis }: { basis: NonNullable<Question['dayanak']> }): JSX.Element {
+  if (!basis.id && basis.url) {
+    return (
+      <a className="font-semibold underline" href={basis.url} target="_blank" rel="noopener noreferrer">
+        {basis.ad}
+      </a>
+    );
+  }
+  return (
+    <a className="font-semibold underline" href={articleHash(basis.id)}>
+      {basis.ad}
+    </a>
+  );
+}
+
 function QuestionItem({ question }: { question: Question }): JSX.Element {
   const [revealed, setRevealed] = useState(false);
   const letterAnswer = question.cevap.length === 1;
@@ -59,23 +88,14 @@ function QuestionItem({ question }: { question: Question }): JSX.Element {
             {question.dayanak ? (
               <>
                 <p className="mt-2">
-                  <strong>Dayanak:</strong>{' '}
-                  <a className="font-semibold underline" href={articleHash(question.dayanak.id)}>
-                    {question.dayanak.ad}
-                  </a>
+                  <strong>Dayanak:</strong> <BasisLink basis={question.dayanak} />
                 </p>
                 <p className="mt-1">
                   <strong>Gerekçe:</strong>{' '}
                   {fromNotes ? 'Sorunun konusu, notlarınızın aşağıdaki bölümünde geçmektedir.' : 'Doğru şık, aşağıdaki hükümle örtüşmektedir.'}
                 </p>
                 <blockquote className="mt-2 border-l-2 border-emerald-300 pl-3 font-read italic">“{question.dayanak.metin}”</blockquote>
-                <p className="mt-2 text-xs text-ink-mute">
-                  {question.dayanak.kaynak === 'okuma'
-                    ? `Dayanak, notlarınız okunarak seçilmiştir${fromNotes ? '; bağlantı konunun tamamını açar' : ''}.`
-                    : fromNotes
-                      ? 'Dayanak pasajı, notlarınızdaki ilgili konudan otomatik seçilmiştir; bağlantı konunun tamamını açar.'
-                      : 'Dayanak hüküm, notlarınızdaki ilgili maddeden otomatik seçilmiştir.'}
-                </p>
+                <p className="mt-2 text-xs text-ink-mute">{basisNote(question, fromNotes)}</p>
               </>
             ) : (
               !question.cozum?.length && (

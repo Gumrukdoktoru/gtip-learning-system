@@ -531,6 +531,7 @@ class PassageMatcher:
 
 
 REVIEWED_FILE = Path(__file__).resolve().parent / "dayanak-secimleri.json"
+OFFICIAL_DIR = Path(__file__).resolve().parent / "resmi-metinler"  # mevzuat.gov.tr'den alınmış madde metinleri
 GENERAL_RE = re.compile(
     r"işleminin sonucu|kaçtır\?|olduğuna göre|yaşındadır|kümesi|cümle|sözcük|paragraf|parçada|parçaya göre|anlatım bozukluğu|yazım yanlış"
     r"|noktalama|kesme işareti|deyim|atasöz|mecaz|atatürk|mustafa kemal|kurtuluş savaşı|mill[iî] mücadele|tbmm|büyük millet meclisi"
@@ -561,12 +562,20 @@ class ReviewedBasis:
     Otomatik eşleştiricinin eşiğini gevşetmek yerine, dayanaksız kalan soruların adayları tek tek okunmuş ve doğru
     şıkkı doğrulayan (olumsuz soruda sınanan) hüküm seçilmiştir. Seçim yalnızca metni güncel notlarda aynen
     bulunuyorsa uygulanır: madde kimliğinde maddenin fıkraları (ardışık fıkralar boşlukla birleştirilir), "konu-<n>"
-    kimliğinde o konunun pasajları aranır.
+    kimliğinde o konunun pasajları (ardışık pasajlar boşlukla birleştirilebilir) aranır.
+
+    Notlarda bulunmayan hüküm resmî metinden seçilebilir ({..., kaynak: 'resmi', url}): metin, resmi-metinler/ altındaki
+    önbellek dosyalarından ilk satırında aynı url bulunanın tek bir maddesinde (maddeler boş satırla ayrılır) aynen
+    aranır. id boş ya da uygulamadaki madde kimliğidir.
     """
 
     def __init__(self, matcher: "PassageMatcher") -> None:
         raw = json.loads(REVIEWED_FILE.read_text(encoding="utf-8")) if REVIEWED_FILE.exists() else {}
         self.picks = {key: value for key, value in raw.items() if not key.startswith("_")}
+        self.official: dict[str, list[str]] = {}  # resmî metin adresi -> önbellekteki maddeler
+        for path in sorted(OFFICIAL_DIR.glob("*.txt")):
+            head, _, body = path.read_text(encoding="utf-8").partition("\n")
+            self.official[re.search(r"https://\S+", head).group(0)] = [flat(b) for b in body.split("\n\n") if b.strip()]
         self.articles: dict[str, str] = {}
         self.passages: dict[str, list[str]] = {}
         self.topic_of: dict[str, int] = {}
@@ -594,14 +603,21 @@ class ReviewedBasis:
         if not pick or key in self.stale:
             return None, None
         ident = pick["id"]
+        official = pick.get("kaynak") == "resmi"
         if key not in self.used:
             core = flat(pick["metin"].removeprefix("… ").removesuffix(" …"))
-            if not (core in self.articles.get(ident, "") or any(core in text for text in self.passages.get(ident, ()))):
+            units = self.passages.get(ident, [])
+            if official:
+                found = any(core in text for text in self.official.get(pick.get("url", ""), ())) and (not ident or ident in self.articles)
+            else:
+                found = core in self.articles.get(ident, "") or any(core in text for text in units) or core in " ".join(units)
+            if not found:
                 self.stale.add(key)
                 return None, None
             self.used.add(key)
         topic = int(ident[5:]) if ident.startswith("konu-") else self.topic_of.get(ident)
-        return {"id": ident, "ad": pick["ad"], "metin": pick["metin"], "kaynak": "okuma"}, topic
+        ground = {"id": ident, "ad": pick["ad"], "metin": pick["metin"], "kaynak": "resmi" if official else "okuma"}
+        return (ground | {"url": pick["url"]} if official else ground), topic
 
 
 UNKNOWN_EXAM: list[dict] = []
@@ -929,7 +945,7 @@ def link_to_topics(exam_list: list[dict], other: list[dict], index: dict, config
     seen: set[tuple[int, str]] = set()
     leftovers: dict[str, list[dict]] = {tab: [] for tab in folders}
     stats = {tab: {"soru": 0, "dayanak": 0, "onceki": 0, "konu": 0} for tab in folders}
-    counts = {"yeni": 0, "değişen": 0, "silinen": 0, "okuma": 0}
+    counts = {"yeni": 0, "değişen": 0, "silinen": 0, "okuma": 0, "resmi": 0}
     home_ids = set(matcher.chapter_home.values())
     pool: list[dict] = []  # tarife soruları: fasıl sayfaları kuralla doldurulur (distribute_tariff)
     spare: dict[str, dict] = {}
@@ -962,7 +978,7 @@ def link_to_topics(exam_list: list[dict], other: list[dict], index: dict, config
             if ground:
                 question["dayanak"] = ground
                 question.pop("ilgili", None)
-                counts["okuma"] += 1
+                counts[ground["kaynak"]] += 1
                 reviewed.listed.append((ground["id"], question))
                 if home and home >= 1000:
                     read_topic[question_key(question)] = home
@@ -1024,7 +1040,7 @@ def link_to_topics(exam_list: list[dict], other: list[dict], index: dict, config
     (DATA_DIR / "sorular-konu.json").write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
 
     print(f"konu notlarından dayanak: yeni {counts['yeni']}, madde eşleşmesinin yerine geçen {counts['değişen']}, çelişkili olduğu için silinen eski eşleşme {counts['silinen']}")
-    print(f"okunarak seçilmiş dayanak (dayanak-secimleri.json): {len(reviewed.picks)} seçim; uygulanan {len(reviewed.used)} (soru kaydı: {counts['okuma']}); "
+    print(f"okunarak seçilmiş dayanak (dayanak-secimleri.json): {len(reviewed.picks)} seçim; uygulanan {len(reviewed.used)} (soru kaydı: {counts['okuma']}, resmî metinden: {counts['resmi']}); "
           f"metni artık notlarda bulunmayan (uygulanmadı): {len(reviewed.stale)}; konu sayfasına bağlanan: {len(read_topic)}; genel tarife listesinden taşınan: {moved}")
     print(f"soru bölümü olan konu: {len(by_topic)} (+{len(payload) - len(by_topic)} eş konu); konulara dağıtılan soru: {sum(len(v) for v in by_topic.values())}")
     for tab, row in stats.items():

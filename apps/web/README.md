@@ -136,13 +136,22 @@ Otomatik eşleştiriciler bilerek sıkıdır; eşiği geçemeyen sorular için e
 adayları (bütün notlardan, düşük eşikle getirilen pasajlar) tek tek okunmuş, yalnızca doğru şıkkı doğrulayan (olumsuz soruda sınanan)
 hüküm seçilmiştir. Dosya biçimi: `{soru anahtarı: {id, ad, metin}}`; anahtar `question_key` ile hesaplanır
 (`sha1(kök|şıklar|cevap)` ilk 16 hane, yazım farklarından arındırılmış), `metin` notlardaki pasajın aynısıdır (madde bentleri
-listeyse ardışık bentler boşlukla birleştirilir; karar veren bent alıntının içinde olmalıdır). `ad` okuyucuda görünen kaynak
+listeyse ardışık bentler, konu notunda ardışık paragraflar boşlukla birleştirilir; karar veren bent alıntının içinde olmalıdır). `ad` okuyucuda görünen kaynak
 adıdır: notlardaki blok başlığı yanlışsa (ör. YYS konusunda "GK Madde 4" başlığı altında duran Gümrük İşlemlerinin Kolaylaştırılması
 Yönetmeliği metni; Posta ve hızlı kargo konusunda Tebliğ adı altında duran GK 173–175 ve GY 455–475) doğru mevzuat adı yazılır.
 
 `build-sorular-data.py` bu seçimleri otomatik eşleştiricilerden **sonra**, yalnızca hâlâ dayanağı olmayan sorulara uygular
 (`ReviewedBasis`) ve her çalıştığında metni güncel veride aynen arar; bulunamayan (eskimiş) seçim uygulanmaz, sayısı yazdırılır.
-Bu sorularda `dayanak.kaynak = 'okuma'` olur ve okuyucu "Dayanak, notlarınız okunarak seçilmiştir." notunu gösterir. Dayanağı bir
+Bu sorularda `dayanak.kaynak = 'okuma'` olur ve okuyucu "Dayanak, notlarınız okunarak seçilmiştir." notunu gösterir.
+
+Hüküm notlarda hiç yoksa seçim resmî metinden yapılabilir: `{id, ad, metin, kaynak: 'resmi', url}`. Metin, mevzuat.gov.tr'den
+getirilen **güncel** metnin aynısıdır; `url` o mevzuatın mevzuat.gov.tr sayfasıdır. Kullanılan maddeler `scripts/resmi-metinler/`
+altında, mevzuat başına bir dosyada tutulur (ilk satır: kaynak adresi, mevzuat adı ve erişim tarihi; maddeler boş satırla ayrılır,
+madde numaraları sayfadaki "Madde N" başlığından gelir). Derleyici metni, ilk satırında aynı `url` bulunan dosyanın tek bir
+maddesinde aynen arar. `id` uygulamadaki bir madde ise (ör. `gk-235`) soru o maddenin listesine de girer; boşsa okuyucu `ad`'ı
+dış bağlantı olarak açar. Okuyucu bu sorularda "Dayanak, resmî mevzuat metninden (mevzuat.gov.tr) alınmıştır; notlarınızda bu
+hüküm yer almıyor." notunu gösterir. Güncel resmî metin cevap anahtarıyla çelişirse seçim yapılmaz; soru
+`scripts/not-cevap-celiskileri.md` dosyasına yazılır. Dayanağı bir
 maddeyse soru o maddenin çıkmış soruları listesine, bir konu notundaysa (kimlik >= 1000) o konunun listesine girer ve
 "eşleştirilemeyenler"den çıkar; tarife fasıl dağıtımı kuralla yapılmaya devam eder (yalnızca kuralın hiçbir fasla bağlayamadığı
 soru, dayanağı fasıl notundaysa o faslın `dogru` listesine alınır).

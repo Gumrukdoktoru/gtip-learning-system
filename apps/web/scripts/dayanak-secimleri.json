@@ -1,5 +1,5 @@
 {
-"_aciklama": "Otomatik eşleştiricinin dayanak bulamadığı sorular için, adaylar okunarak seçilmiş dayanak pasajları. Anahtar: sha1(kök|şıklar|cevap) ilk 16 hane (build-sorular-data.py: question_key). metin notlardaki pasajın aynısıdır; derleyici her çalıştığında güncel veride arar, bulunmayan seçim uygulanmaz.",
+"_aciklama": "Otomatik eşleştiricinin dayanak bulamadığı sorular için, adaylar okunarak seçilmiş dayanak pasajları. Anahtar: sha1(kök|şıklar|cevap) ilk 16 hane (build-sorular-data.py: question_key). metin notlardaki pasajın aynısıdır; derleyici her çalıştığında güncel veride arar, bulunmayan seçim uygulanmaz. kaynak 'resmi' olan seçimlerde metin notlarda değil, mevzuat.gov.tr'deki resmî metindedir (url); derleyici bunu scripts/resmi-metinler/ altındaki önbellekte arar.",
 "004226df7e04845f": {
 "id": "konu-6037",
 "ad": "Sair Mevzuat Kitabı (KDV, ÖTV, TPKHK…) · ÖTV Kanunu: konu, vergiyi doğuran olay ve istisnalar (md. 1–8)",
@@ -54,6 +54,11 @@
 "id": "gk-4-v2",
 "ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği (YYS notu) · Madde 104 · Kontrol türü bildirim süresi",
 "metin": "MADDE 104 (1) Bildirim süresinin belirlenmesi Güvenli depolama alanında veya güvenli park alanında bulunan eşyanın ithal edilmek istendiğinin gümrük idaresine bildirilmesini müteakip; 115 inci madde [İthalat beyannamesine ilişkin kontrol türünün belirlenmesi ve kontrol işlemleri] uyarınca beyanın hangi kontrol türüne tabi tutulacağının gümrük idaresi tarafından izinli alıcıya bildirileceği azami süre, sertifikayı düzenleyen bölge müdürlüğünce belirlenir."
+},
+"0834ff980427f5e0": {
+"id": "k39-60",
+"ad": "2009/15481 sayılı Karar · Madde 97 · Muafiyetin kapsamı",
+"metin": "… (2) Yolcu ve yük taşımacılığı faaliyetlerinde bulunan hava yolu şirketleri tarafından bu faaliyetlerinde kullanılmak üzere serbest dolaşıma sokulan hava taşıtları, motorları ile bunların birinci fıkranın (a) bendi kapsamında yer almayan aksam ve parçalarına muafiyet tanınır. (3) İkinci fıkra kapsamında muafiyet tanınacak hava taşıtlarının koltuk kapasitesinin yirmi ve üzeri olması gerekir."
 },
 "08b0373784954d76": {
 "id": "gk-133",
@@ -115,6 +120,11 @@
 "ad": "Genelge, Tebliğ ve Kararlar · Dahilde isleme rejimi tebligi ihracat 2006 12 · DAHİLDE İŞLEME REJİMİ TEBLİĞİ (İHRACAT: 2006/12) · Madde 16 · Belge/izin müracaatının değerlendirilmesi",
 "metin": "(1) Dahilde işleme izin belgesi/dahilde işleme izni müracaatları; a) İthal eşyasının işlem görmüş ürünün elde edilmesinde kullanıldığının tespitinin mümkün olması, b) Türkiye Gümrük Bölgesindeki (serbest bölgeler hariç) üreticilerin temel ekonomik çıkarları ile Türk malı imajının olumsuz etkilenmemesi, c) İşleme faaliyetinin, katma değer yaratan ve kapasite kullanımını artıran bir faaliyet olması yanında, işlem görmüş ürünün rekabet gücünü ve ihraç potansiyelini artıran koşullar yaratıyor olması, ç) Firmaların dahilde işleme izin belgeleri/dahilde işleme izinleri kapsamındaki performansları, kriterleri çerçevesinde değerlendirilir."
 },
+"150f0a2e35e69119": {
+"id": "k36-63",
+"ad": "Gümrük Genel Tebliği (Hariçte İşleme-Geçici İhracat) (Seri No: 1) · Madde 9 · Ticari kiralama kapsamında geçici ihracı yapılacak eşya",
+"metin": "… (4) Ticari kiralama yoluyla yapılacak ihracatta süre, Gümrük Kanununun maddesinde belirtilen 3 yıllık süreyi aşamaz. Ancak bu süre, bitiminden önce başvurulmak kaydıyla, ilgili gümrük müdürlüğünce ticari kiralama sözleşmesinde belirlenen süre kadar uzatılabilir."
+},
 "1522d945a072c6c5": {
 "id": "konu-12001",
 "ad": "Kaçakçilikla Mücadele Kanunu (5607) — Sunum Notlari · Kanunun amacı, tanımlar ve kaçakçılık suçları (md. 1–3)",
@@ -134,6 +144,11 @@
 "id": "konu-6074",
 "ad": "Sair Mevzuat Kitabı (KDV, ÖTV, TPKHK…) · İthalat tebliğleri 2026/1–6: fuar, harp silahı, harita ve GTS",
 "metin": "g) Mahkumlara yaptırılan ürünlerin ihraç edilmesi, ğ) Dünya Bankası tarafından bir ülkenin yüksek gelir grubunda sınıflandırılması, TAVİZLERİN İNCELENMESİ VE YENİDEN DÜZENLENMESİ – Md.8 (1) Ticaret Bakanlığı İthalat Genel Müdürlüğü, GTS kapsamı bir eşya veya GTS kapsamı ülke menşeli eşya ithalatı nedeniyle ciddi zarar veya zarar tehdidine ilişkin başvuru üzerine ya da resen inceleme kararı alabilir."
+},
+"1704d136b506c5a1": {
+"id": "konu-12003",
+"ad": "Kaçakçılıkla Mücadele Kanunu (5607) — Sunum Notları · Nitelikli hâller (md. 4)",
+"metin": "(8) Kaçakçılık suçunun konusunu oluşturan eşyanın, DEVLETİN SİYASÎ, İKTİSADÎ VEYA ASKERÎ GÜVENLİĞİNİ BOZACAKya da ÇEVRE veyaTOPLUM SAĞLIĞINI TEHDİT EDECEKnitelikte olması halinde, • Fiil daha ağır cezayı gerektiren bir suç oluşturmadığı takdirde, • Verilecek HAPİScezası ON (10) YILDAN AZ OLAMAZ."
 },
 "1729cc609e7247d3": {
 "id": "konu-12007",
@@ -194,6 +209,11 @@
 "id": "konu-2065",
 "ad": "Genelge, Tebliğ ve Kararlar · Ozel tuketim vergisi (iv) sayili liste uygulama genel tebligi",
 "metin": "Özel Tüketim Vergisi Kanununun 11 inci maddesinin (3) numaralı fıkrası uyarınca, (IV) sayılı listedeki mallar için verginin matrahı, bu malların teslimi ve ithali ile ÖTV uygulanmadan önce müzayede yoluyla satışında, hesaplanan ÖTV hariç KDV matrahını oluşturan unsurlardan teşekkül eder."
+},
+"1ee49cda241b6a71": {
+"id": "k2050-3",
+"ad": "Gümrük Genel Tebliği (Gümrük İşlemleri) (Seri No: 16) · Madde 3 · Tam Beyanlı Yaygın Basitleştirilmiş Usule Tabi Tutulacak Eşya",
+"metin": "Türkiye Gümrük Bölgesine getirilerek bir gümrük rejimine tabi tutulmasına ilişkin bütün belgeleri tamam olan ve yükümlüsü tarafından yaygın basitleştirilmiş usulden yararlanma talebinde bulunulan; a) Dökme eşyanın, b) Getirildiği mahalde bulunan geçici depolama yeri ve antrepoya konulamayacak ağırlıkta ve hacimdeki dökme olmayan eşya veya konulması halinde boşaltılması ve teslimi sırasında gümrük idaresi, işletici ve yükümlü açısından külfet doğurabilecek ağırlıkta ve hacimde ya da kırılabilir, telef ve zayi olabilir nitelikte dökme olmayan eşyayla boşaltılması ve taşınması özel düzenekli araç ve taşıt gerektiren eşyanın,(31.12.2002 tarihli, 24980 sayılı R.G. ile yayımlanan Gümrük İşleri Seri No 23 Tebliğ ile değişik) c) Getirildiği mahalde konulmasına ve korunmasına yönelik özel düzenek ve yapı bulunmayan petrol ürünleri ile yanıcı, parlayıcı ve patlayıcı, yanmayı artırıcı, tehlikeli ve zararlı kimyasal maddeler ile gıda maddelerinin, Bu usulden yararlanmasına izin vermeye gümrük müdürlükleri yetkilidir."
 },
 "1eeceabad8909aa4": {
 "id": "k38-16",
@@ -315,6 +335,13 @@
 "ad": "Gümrük Yönetmeliği · GY Madde 53 · İstisnai kıymetle beyan",
 "metin": "(6) Gümrük beyannamesinin tescil tarihi itibarıyla mevcut bilgi ve belgelere istinaden beyanda bulunulan ancak tutarı kesin olarak belirlenemeyen depolama, tahmil-tahliye, liman giderleri gibi ithalatta katma değer vergisi matrah unsurları için, en geç söz konusu matrah unsurunun muhasebe kayıtlarına intikal ettirildiği ayı takip eden ayın yirmi altıncı günü akşamına kadar beyanda bulunulur ve vergileri de aynı süre içinde ödenir."
 },
+"3017bfa388cedade": {
+"id": "",
+"ad": "2709 sayılı Türkiye Cumhuriyeti Anayasası · Madde 9 · Yargı yetkisi (resmî metin)",
+"metin": "Madde 9 – Yargı yetkisi, Türk Milleti adına bağımsız ve tarafsız mahkemelerce kullanılır.",
+"kaynak": "resmi",
+"url": "https://www.mevzuat.gov.tr/mevzuat?MevzuatNo=2709&MevzuatTur=1&MevzuatTertip=5"
+},
 "301c0bd9b4f2ca17": {
 "id": "k4004-12",
 "ad": "Gümrük Mevzuatı Koleksiyonu · TÜRKİYE İLE AVRUPA TOPLULUĞU ARASINDA OLUŞTURULAN GÜMRÜK BİRLİĞİ'NİN UYGULANMASINA İLİŞKİN ESASLAR HAKKINDA KARAR · Madde 12 · Belgenin sonradan verilebileceği durumlar",
@@ -379,6 +406,11 @@
 "id": "k38-15",
 "ad": "Madde 422 · Ticaret politikası önlemlerinin uygulanması",
 "metin": "(1) Eşyanın serbest dolaşıma girişi sırasında uygulanması öngörülen ticaret politikası önlemleri, eşya serbest bölgeye konulduğunda veya eşyanın geçici bir süre için serbest bölgede kalması sırasında uygulanmaz. (2) Eşyanın Türkiye Gümrük Bölgesine girişinde ticaret politikası önlemleri uygulanması gerekiyorsa, bu tür önlemler, serbest dolaşımda olmayan eşyanın serbest bölgeye konulması sırasında uygulanır. (3) Eşyanın ihracatında ticaret politikası önlemleri uygulanması gerekiyorsa, bu tür önlemler, serbest bölgedeki serbest dolaşımda bulunan eşya Türkiye Gümrük Bölgesinden ihraç edildiğinde uygulanır."
+},
+"3563f8f9c40afa65": {
+"id": "konu-2097",
+"ad": "Genelge, Tebliğ ve Kararlar · DTM 2008/02: Dahilde işleme rejimi kapsamında telafi edici vergi (TEV) uygulamaları",
+"metin": "- Sanayi ürünleri ise; işlenmiş tarım ürünleri, tarım ürünleri ve AKÇT kapsamı ürünler dışındaki tüm ürünleri kapsar. Bu itibarla; belge sahibi ihracatçılar tarafından A.TR dolaşım belgesi veya menşe ispat belgeleri (EUR.1 dolaşım sertifikası, fatura beyanı, EUR-MED dolaşım sertifikası veya EUR-MED fatura beyanı) talep edilmişse; Sanayi ürünleri ve işlenmiş tarım ürünlerinin AT'ye ihracatında, A.TR dolaşım belgesi, AKÇT kapsamı ürünlerin AT'ye ihracatında, menşe ispat belgeleri (EUR.1 dolaşım sertifikası veya fatura beyanı), Tarım ürünlerinin AT'ye ihracatında, menşe ispat belgeleri (EUR.1 dolaşım sertifikası, fatura beyanı, EUR-MED dolaşım sertifikası veya EUR-MED fatura beyanı),"
 },
 "36291dd7f279daf4": {
 "id": "k35-70",
@@ -455,10 +487,20 @@
 "ad": "Madde 417 · Geçici depolama süresi ve takip edilmeyen beyannameler",
 "metin": "(3) Geçici depolama yerlerine konulmaksızın ihraç edilecek eşyanın beyanname kapatma süresi iki aydır. Bu süre gümrük müdürlüklerince makul sebeplerle en çok iki ay uzatılabilir. Bu süreler içinde işlemleri tamamlanmayan beyannameler iptal edilir. Deniz ve hava taşıtlarına kumanya, yağ ve yakıt dışında yapılacak teslimler (12.06.2013 tarih ve 28675 sayılı R.G. ile yeniden düzenlenmiştir)"
 },
+"3d01b62a7bf84f57": {
+"id": "gk-4-v2",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği (YYS notu) · Madde 148 · Emniyet ve güvenlik kontrollerinde kolaylıklardan yararlanma izninin kapsamı",
+"metin": "… (1) Sağlanabilecek kolaylıklar Yetkilendirilmiş yükümlü statüsü sahibi kişilere aşağıdaki emniyet ve güvenlik kontrollerine ilişkin kolaylıklardan yararlanma izni verilebilir: a) Azaltılmış zorunlu bilgilerden oluşan özet beyan verme kolaylığı. b) Özet beyana, özet beyan yerine geçen belgelere veya özet beyan olarak kullanılan bilgilere dayalı emniyet ve güvenliğe ilişkin; Gümrük kontrollerinin azaltılması ve Kontrollerin öncelikle yapılması. c) Sınır kapılarından öncelikli geçiş hakkı tanınması."
+},
 "3d905f5365d793a6": {
 "id": "konu-2023",
 "ad": "Genelge, Tebliğ ve Kararlar · Genelge 2016-06 esyanin set olarak siniflandirilmasina iliskin rehber (set esyanin tarife tespiti)",
 "metin": "Ek-1 EŞYANIN SET OLARAK SINIFLANDIRILMASINA İLİŞKİN REHBER Genel Kurallar: 1) Genel Yorum Kurallarından (GYK) 3(b) no.lu kural uyarınca \"perakende satılacak hale getirilmiş takım halinde bulunan eşya\" niteliğinde bulunan ve set olarak tek bir GTİP'nda sınıflandırılacak olan eşya, aşağıdaki koşulların tümünü sağlamalıdır; a) İlk bakışta farklı pozisyonlarda sınıflandırılabilen en az iki farklı eşyayı içermelidir, b) Özel bir gereksinmeyi karşılamak veya belirli bir işlevi yerine getirmek üzere bir araya getirilmiş ürünler veya eşyalardan oluşmalıdır, c) Yeniden paketlemeye gerek kalmadan doğrudan kullanıcılara satış için uygun biçimde hazırlanmış halde olmalıdır (örneğin; kutu veya mahfaza …"
+},
+"3da67aebcd27441f": {
+"id": "k4004-12",
+"ad": "Gümrük Birliğinin Uygulanmasına İlişkin Esaslar Hakkında Karar (2006/10895) · Madde 12 · Belgenin sonradan verilebileceği durumlar",
+"metin": "… (2) A.TR Dolaşım Belgeleri; a) A.TR Dolaşım Belgesinin hata, unutulma, ihmal ya da özel durumlar nedeniyle ihracat yapılırken düzenlenmemiş olması, b) A.TR Dolaşım Belgesinin düzenlenmiş, ancak teknik nedenlerle ithalatçı ülke gümrük idaresince kabul edilmemiş olduğunun ilgili yetkili kişi ve kuruluş ve gümrük idarelerine ispat edilmesi,(05.07.2008 tarih ve 26927 sayılı R.G. - 2008/13816 s.BKK ile değişik) c) Eşyanın \"Varış Ülkesi\" üçüncü ülke iken Topluluk üyesi bir ülke olarak değişmesi, d) Topluluk üyesi bir ülkeye ihraç edilen eşyanın ihracı sırasında Topluluk üyesi başka bir ülkeye gönderilmesi halinde, ihracatçı tarafından A.TR Dolaşım Belgesinde \"Varış Ülkesinin\" değiştirilmesinin talep edilmesi, durumlarında belge kapsamı eşyanın ihracından sonra istisnai olarak düzenlenebilir."
 },
 "3e1ec1dec0e8b67c": {
 "id": "k30-23",
@@ -505,10 +547,20 @@
 "ad": "Gümrük Yönetmeliği · GY Madde 576",
 "metin": "(1) Yetkilendirilmiş gümrük müşavirlerinin aşağıda belirtilen niteliklere sahip olmaları gerekir: a) Kanunun maddesinin ikinci fıkrasının (a) ve (b) bentleri ile geçici 5 inci maddesinin üçüncü fıkrası uyarınca gümrük müşavirliği izin belgesine sahip olmak ya da 228 inci maddesinin birinci fıkrası ile geçici 5 inci maddesinin birinci ve ikinci fıkrası uyarınca hak sahibi olup, en az yedi yıl süre ile gümrük müşavirliği izin belgesine sahip olmak, b) Son yedi yıl içinde Kanunun geçici 6 ncı maddesi uyarınca kesinleşmiş[142] geçici olarak mesleki faaliyetten alıkoyma cezası almamış olmak, (11.08.2020 tarih ve 31210 sayılı R.G. ile değişik)[143]"
 },
+"4036e9b573863828": {
+"id": "konu-12001",
+"ad": "Kaçakçılıkla Mücadele Kanunu (5607) — Sunum Notları · Kanunun amacı, tanımlar ve kaçakçılık suçları (md. 1–3)",
+"metin": "(7) İTHALİKANUN GEREĞİ YASAKolan eşyayı ülkeye sokan kişi, fiil daha ağır bir cezayı gerektiren suç oluşturmadığı takdirde, • İKİ (2) YILDAN ALTI (6) YILAkadar HAPİSve YİRMİ BİN (20.000)GÜNEkadar adlîPARA CEZASIile cezalandırılır • İthali yasak eşyayı, bu özelliğini bilerek satın alan, satışa arz eden, satan, taşıyanveya saklayan kişi, • AYNI CEZA İLE CEZALANDIRILIR. NOT: Eşyanın GENEL DÜZENLEYİCİ İDARİ İŞLEMLERLEithalinin yasaklanmış olduğunun tespiti hâlinde KABAHAT olarak değerlendirilir ve Gümrük kanununa göre cezalandırılır."
+},
 "4064899876a08873": {
 "id": "konu-3046",
 "ad": "Tarife Cetveli — Fasıllar (01–97), fasıl fasıl · Fasıl 42 — Deri eşya; saraciye eşyası ve eyer ve koşum takımları; seyahat eşyası, el çantaları…",
 "metin": "… TABİİ VEYA TERKİP YOLUYLA ELDE EDİLEN DERİ VE KÖSELEDEN, PLASTİK MADDE YAPRAKLARINDAN, DOKUMAYA ELVERİŞLİ MADDELERDEN, VULKANİZE EDİLMİŞ LİFLERDEN, KARTONDAN YAPILMIŞ VEYA TAMAMEN YAHUT KISMEN BU MADDELERLE KAPLANMIŞ SEYAHAT ÇANTALARI, İZOLE EDİLMİŞ YİYECEK VEYA İÇECEK TORBALARI, TUVALET ÇANTALARI, SIRT ÇANTALARI, EL ÇANTALARI, ERZAK ÇANTALARI, PORTFÖYLER, PARA KESELERİ, HARİTA VE KİMLİK MAHFAZALARI, SİGARA KUTULARI, TABAKA VE TÜTÜN KESE VE KUTULARI, TAKIM ÇANTALARI, SPOR ÇANTALARI, ŞİŞE MAHFAZALARI, MÜCEVHER KUTULARI, PUDRA-BAHARAT-BARUT KUTULARI, BIÇAK KILIFLARI VE BENZERİ MAHFAZALAR (+)."
+},
+"40a23f40b8453f75": {
+"id": "k10-8",
+"ad": "Gümrük Yönetmeliği · Madde 34 · Tekstil ürünlerinde menşenin belirlenmesi",
+"metin": "(2) Aşağıdaki işlemler, birinci fıkrada belirtilen koşulların sağlanıp sağlanmadığına bakılmaksızın eşyanın menşe kazanması için yetersiz işçilik veya işlem olarak kabul edilir: a) Nakliyat ve depolama süresince eşyanın iyi şartlarda muhafazasını sağlamaya yönelik; havalandırma, yayma, kurutma, hasar gören parçaların atılması ve benzeri koruyucu işlemler, b) Tozun giderilmesi, eleme ya da kalburdan geçirme, sıraya koyma, tasnifleme, maddelerden setler oluşturma dahil eşleştirme, yıkama ve kesmeden oluşan basit işlemler, c) Ambalaj değişikliği, ambalajların ayrılması ve birleştirilmesi, basit torbalama, sandıklama, kutulama, karton veya tahta üzerine yerleştirme ve tüm diğer basit ambalajlama işlemleri, ç) Ürün veya ambalajı üzerine marka, etiket ve diğer benzeri ayırt edici işaretlerin konulması, d) Tamamlanmış bir ürün oluşturmak üzere parçaların basit montajı, e) Bu maddenin (a) ila (d) alt bentlerinde belirtilen işlemlerin iki veya daha fazlasının bir arada gerçekleştirilmesi."
 },
 "4111ef883df6bafd": {
 "id": "konu-6003",
@@ -584,6 +636,11 @@
 "id": "konu-12006",
 "ad": "Kaçakçilikla Mücadele Kanunu (5607) — Sunum Notlari · Geri gönderme, müsadere, kaim değer ve tasfiye (md. 12–16/A)",
 "metin": "(1) Bu Kanunda tanımlanan suçlar dolayısıyla müsadere yaptırımının konusunu oluşturan eşyanın KAİM DEĞERİNDEN, Bu eşyanın GÜMRÜKLENMİŞ DEĞERİanlaşılır."
+},
+"4a578851c1f01cbb": {
+"id": "konu-801030",
+"ad": "Tarife Kitabı — fasıl fasıl ders notları · Fasıl 28 — Anorganik kimyasallar; kıymetli metallerin, radyoaktif elementlerin, nadir toprak…",
+"metin": "• Bölüm VI Not 1: 28.44 ve 28.45 bütün tarifeye; 28.43, 28.46 ve 28.52 yalnız Bölüm VI’nın diğer pozisyonlarına karşı önceliklidir."
 },
 "4ab989e6ced4765d": {
 "id": "k4008-4",
@@ -670,6 +727,13 @@
 "ad": "Tarife Cetveli — Fasıllar (01–97), fasıl fasıl · Fasıl 66 — Şemsiyeler, güneş şemsiyeleri, bastonlar, iskemle bastonlar, kamçılar, kırbaçlar ve…",
 "metin": "ŞEMSİYELER, GÜNEŞ ŞEMSİYELERİ, BASTONLAR, İSKEMLE BASTONLAR, KAMÇILAR, KIRBAÇLAR VE BUNLARIN AKSAMI Fasıl Notları. 1.- Aşağıda yazılı olanlar bu fasıla dahil değildir: (a) Ölçü gösteren baston ve benzerleri (90.17 pozisyonu); (b) Tüfekli bastonlar, kılıçlı bastonlar, kurşunlu bastonlar ve benzerleri (Fasıl 93); veya (c) 95. fasıldaki eşya (oyuncak şemsiyeler, oyuncak güneş şemsiyeleri gibi)."
 },
+"51b90c84430ef05f": {
+"id": "",
+"ad": "3065 sayılı Katma Değer Vergisi Kanunu · Madde 21 · İthalatta matrah (resmî metin)",
+"metin": "Madde 21 – İthalatta, verginin matrahı aşağıda gösterilen unsurların toplamıdır: a) İthal edilen malın gümrük vergisi tarhına esas olan kıymeti, gümrük vergisinin kıymet esasına göre alınmaması veya malın gümrük vergisinden muaf olması halinde sigorta ve navlun bedelleri dahil (CIF) değeri, bunun belli olmadığı hallerde malın gümrükçe tespit edilecek değeri, b) İthalat sırasında ödenen her türlü vergi, resim, harç ve paylar, c) Gümrük beyannamesinin tescil tarihine kadar yapılan diğer giderler ve ödemelerden vergilendirilmeyenler ile mal bedeli üzerinden hesaplanan fiyat farkı, kur farkı gibi ödemeler.",
+"kaynak": "resmi",
+"url": "https://www.mevzuat.gov.tr/mevzuat?MevzuatNo=3065&MevzuatTur=1&MevzuatTertip=5"
+},
 "51c9b028c5b808a1": {
 "id": "konu-2062",
 "ad": "Genelge, Tebliğ ve Kararlar · Ozel tuketim vergisi ii sayili liste uygulama genel tebligi",
@@ -679,6 +743,11 @@
 "id": "konu-801099",
 "ad": "Tarife Kitabı — fasıl fasıl ders notları · Fasıl 97 — Sanat eserleri, kolleksiyon eşyası ve antikalar",
 "metin": "8 Yukarıdakilerin hiçbiri değil ve eskiliği 100 yılı aşıyor mu? 97.06 9 Hiçbiri değilse (seri üretim heykel, elle dekore fabrikasyon ürün, plan, Maddesine veya işlevine göre (44.20, 69.13, tiyatro dekoru) 83.06, 49.06, 59.07) Not 5(B): 97.06, 97.01–97.05 eşyasına uygulanmaz; 100 yaşını aşan orijinal tablo 97.01’de, orijinal heykel 97.03’te kalır. Çerçeve, mahiyet ve kıymeti uygunsa eserle birlikte sınıflandırılır (Not 6)."
+},
+"51f9a7ffe24314e2": {
+"id": "gk-234",
+"ad": "Gümrük Kanunu · GK Madde 234 · Vergi Kaybına Neden Olan İşlemlere Uygulanacak Cezalar",
+"metin": "… b) Kıymeti üzerinden ithalat vergilerine[246] tabi eşyanın beyan edilen kıymeti, inci maddelerde yer alan hükümler çerçevesinde belirlenen kıymete göre noksan bulunduğu takdirde, bu noksanlığa ait ithalat vergilerinden[247] başka vergi farkının üç katı para cezası alınır. (11.04.2013 tarihli, 28615 sayılı R.G. 6455 s.k. ile değişik) c) Satış birimine göre miktar itibarıyla % 5'i geçmeyen bir fark ile maddi hesap doğan noksan kıymet beyanlarında, bu farklara ait ithalat vergilerinden[248] başka vergi farkının yarısı tutarında para cezası alınır. (11.04.2013 tarihli, 28615 sayılı R.G. 6455 s.k. ile değişik) 2. Dahilde işleme rejimi, gümrük kontrolü altında işleme rejimi ve tam muafiyet suretiyle geçici ithalat rejimi hükümlerine tabi eşyaya ilişkin olarak yapılan beyan ile muayene ve denetleme veya teslimden sonra kontrol sonucunda; birinci fıkrada belirtilen farklılıkların tespiti durumunda vergi farkının yarısı tutarında idari para cezası verilir. (07.11.2019 tarihli, 30941 sayılı R.G. 7190 s.k. ile değişik)[249] 3. Yukarıda belirtilen aykırılıkların gümrük idaresince tespit edilmesinden önce beyan sahibince bildirilmesi durumunda söz konusu cezalar yüzde on[250] nisbetinde uygulanır."
 },
 "522d734732fd5f88": {
 "id": "k34-51",
@@ -745,6 +814,11 @@
 "ad": "GEÇİCİ İTHAL EDİLEN KARA TAŞITLARINA İLİŞKİN GÜMRÜK GENEL TEBLİĞİ (SERİ NO: 1) · Madde 4 · Tanımlar",
 "metin": "p) Yerleşim yeri: Kişinin Türkiye'ye giriş yapmak istediği tarihten geriye doğru 365 (üçyüzaltmışbeş) gün içerisinde en az 185 (yüzseksenbeş) gün yaşadığı yeri, ifade eder."
 },
+"587fd8939141a31f": {
+"id": "k32-64",
+"ad": "DAHİLDE İŞLEME REJİMİ TEBLİĞİ (İHRACAT: 2006/12) · Madde 28 · İhracatın gerçekleştirilmesi",
+"metin": "… (2) Ancak, birinci fıkra hükmüne istinaden şartlı muafiyet sistemi çerçevesinde belge/izin süresi içerisinde serbest bölgelere gerçekleştirilen ihracata konu eşyanın en geç belge/izin süresi bitiminden itibaren 3 (üç) ay içerisinde; serbest bölgelerden başka bir ülkeye satışının yapıldığının, Yatırım Teşvik Belgesi veya bir başka belge/izin kapsamında Türkiye Gümrük Bölgesine ithalatının yapıldığının, serbest bölgelerde bulunan tesislerin yapımında kullanıldığının, serbest bölgelerde bulunan tesislerde makine-teçhizat, demirbaşa kayıtlı eşya veya bunların parçası olarak kullanıldığının, serbest bölgelerde yerleşik gemi inşa faaliyetinde bulunan firmalara gemi inşasında kullanılmak üzere tesliminin yapıldığının, serbest bölgelerden gümrüksüz satış mağazalarına satışının yapıldığının veya serbest bölgelerden kara, deniz ve hava taşıtlarına kumanya olarak tesliminin yapıldığının tevsiki kaydıyla, belge/izin ihracat taahhüdü kapatılır."
+},
 "592f32b32e5bef38": {
 "id": "k5-15",
 "ad": "SONRADAN KONTROL VE RİSKLİ İŞLEMLERİN KONTROLÜ YÖNETMELİĞİ · Madde 16 · Sonradan kontrole ilişkin raporlar",
@@ -764,6 +838,11 @@
 "id": "konu-12005",
 "ad": "Kaçakçilikla Mücadele Kanunu (5607) — Sunum Notlari · Arama, elkoyma ve elkonulan eşyanın muhafazası (md. 9–11)",
 "metin": "(2) Gümrük salonları ve gümrük kapılarında kaçak eşya sakladığından kuşkulanılan KİŞİLERİN üzeri, eşyası, yükleri ve araçlarıgümrük kontrolü amacıyla gümrük görevlilerince ARANABİLİR."
+},
+"5babfcf93c2d8b94": {
+"id": "gk-234",
+"ad": "Gümrük Kanunu · GK Madde 234 · Vergi Kaybına Neden Olan İşlemlere Uygulanacak Cezalar",
+"metin": "… b) Kıymeti üzerinden ithalat vergilerine[246] tabi eşyanın beyan edilen kıymeti, inci maddelerde yer alan hükümler çerçevesinde belirlenen kıymete göre noksan bulunduğu takdirde, bu noksanlığa ait ithalat vergilerinden[247] başka vergi farkının üç katı para cezası alınır."
 },
 "5c30ff66bb528a27": {
 "id": "k4008-4",
@@ -840,10 +919,20 @@
 "ad": "Madde 370 · Gümrük kontrolü altında işleme rejiminin tanımı",
 "metin": "(1) 371 ila 375 inci maddelerde bahsedilen gümrük kontrolü altında işleme rejimi, işlenmiş ürünün ithalat vergisinin, bünyesinde bulundurduğu ithal ürünün vergisinden daha düşük olduğu işlemler için uygulanır. (2) Rejim, serbest dolaşıma girişinde aranılan bazı teknik düzenlemelere uygunluğunun sağlanması için işleme faaliyetine tabi tutulması gereken eşyada da uygulanır."
 },
+"6226fd6c958bdeb9": {
+"id": "gk-108",
+"ad": "Gümrük Kanunu · GK Madde 108",
+"metin": "… 4. \"İşlem görmüş ürün\" deyimi, işleme faaliyetleri sonucunda elde edilen tüm ürünler anlamına gelir. 5. \"Asıl işlem görmüş ürün\" deyimi, dahilde işleme rejimi kapsamında elde edilmesi amaçlanan ürün anlamına gelir. 6. \"İkincil işlem görmüş ürün\" deyimi, işleme faaliyetleri sonucunda elde edilen asıl işlem görmüş ürün dışındaki ürünler anlamına gelir. 7. \"Eşdeğer eşya\" deyimi, işlem görmüş ürünlerin imali için ithal eşyasının yerine kullanılan serbest dolaşımda bulunan eşya anlamına gelir. 8. \"Verimlilik oranı\" deyimi, belirli miktardaki ithal eşyasının işlenmesi sonucunda elde edilen işlem görmüş ürünlerin miktarı veya yüzde oranı anlamına gelir."
+},
 "62718f3d0f908f31": {
 "id": "k36-5",
 "ad": "Madde 417 · Geçici depolama süresi ve takip edilmeyen beyannameler",
 "metin": "(3) Geçici depolama yerlerine konulmaksızın ihraç edilecek eşyanın beyanname kapatma süresi iki aydır. Bu süre gümrük müdürlüklerince makul sebeplerle en çok iki ay uzatılabilir. Bu süreler içinde işlemleri tamamlanmayan beyannameler iptal edilir. Deniz ve hava taşıtlarına kumanya, yağ ve yakıt dışında yapılacak teslimler (12.06.2013 tarih ve 28675 sayılı R.G. ile yeniden düzenlenmiştir)"
+},
+"63824f57b91b9692": {
+"id": "konu-3074",
+"ad": "Tarife Cetveli — Fasıllar (01–97), fasıl fasıl · Fasıl 70 — Cam ve cam eşya",
+"metin": "… 70.10 - CAM DAMACANA, KAVANOZ, ŞİŞE, KÜÇÜK ŞİŞE, ÇANAK, TÜP, SERUM AMPULLERİ VE DİĞER KAPLAR (EŞYANIN NAKLİ VE AMBALAJINDA KULLANILMAYA ELVERİŞLİ CİNSTEN); CAMDAN KONSERVE KAVANOZLARI; CAMDAN TIPA, KAPAK VE BENZERLERİ."
 },
 "6493b1aee1cb66bb": {
 "id": "konu-6052",
@@ -915,6 +1004,11 @@
 "ad": "Gümrük Kanunu · GK Madde 57",
 "metin": "b) Gümrük idaresine henüz bir talepte bulunulmadığı durumda ve söz konusu eşyanın fikri ve sınaî mülkiyet haklarını ihlal ettiğine dair açık deliller olması halinde, hak sahibinin geçerli bir başvuruda bulunabilmesini teminen, gümrük idareleri tarafından eşya üç işgünü süresince re'sen alıkonulabilir veya eşyanın gümrük işlemleri durdurulabilir."
 },
+"6dc022842040c0ca": {
+"id": "k34-101",
+"ad": "Gümrük Genel Tebliği (Geçici İthalat) (Seri No: 4) · Madde 3 · Geçici İthalat Sözleşmesi ve Üye Olduğumuz Ekleri",
+"metin": "… Buna göre, posta trafiğinde ATA karneleri kabul edilmeyecektir. Geçici İthalat Sözleşmesi'nin aşağıdaki 10 adet ekinde belirtilen eşya için anılan sözleşmenin Geçici Kabul Belgelerine İlişkin Ek A'sına uygun olarak düzenlenmiş olan ATA karnesi kabul edilir. 1) Ek B1- Sergi, Fuar, Toplantı ve Benzeri Etkinliklerde Teşhir Edilecek veya Kullanılacak Eşyaya 2) Ek B2 - Mesleki Malzemeye 3) Ek B3 - Konteynerler, Paletler, Ambalajlar, Numuneler ve Ticari Bir İşlemle İlgili Olarak İthal Edilen Diğer Eşyaya 4) Ek B4 - İmalat Amacıyla İthal Edilen Eşyaya 5) Ek B5 - Eğitsel, Bilimsel veya Kültürel Amaçlarla İthal Edilen Eşya İle 6) Ek B6 - Yolcu Zati Eşyası ve Sportif Amaçlarla İthal Edilen Eşyaya 7) Ek B7 - Turistik Tanıtım Malzemelerine 8) Ek B8 - Sınır Ticareti Kapsamında İthal Edilen Eşyaya 9) Ek B9 - İnsani Amaçlarla İthal Edilen Eşyaya 10) Ek D - Hayvanlara"
+},
 "6e2fc38d5a32a9c6": {
 "id": "k46-9",
 "ad": "Madde 495 · Kabul olunabilecek teminat ve değerlendirilmesi",
@@ -929,6 +1023,11 @@
 "id": "k51-1",
 "ad": "Gümrük Kanunu · Geçici Madde 6",
 "metin": "b) Kınama: Meslek mensubuna görevinde ve davranışında kusurlu sayıldığının yazı ile bildirilmesidir."
+},
+"6f930206024f34e9": {
+"id": "k39-25",
+"ad": "2009/15481 sayılı Karar · Madde 62",
+"metin": "… (1) Posta veya hızlı kargo taşımacılığı yoluyla bir sağlık kuruluşu raporu veya doktor reçetesine istinaden bir gerçek kişiye gelen ve ticari miktar ve mahiyet arz etmeyen, kıymeti 1500 Avro'yu geçmeyen ilaç cinsi eşya ile takviye edici gıdaların değeri üzerinden; a) Avrupa Birliği ülkelerinden doğrudan gelmesi halinde % 30, b) Diğer ülkelerden gelmesi halinde % 60, c) 6/6/2002 tarihli ve 4760 sayılı Özel Tüketim Vergisi Kanununa ekli (IV) sayılı listede yer alan eşya olması durumunda yukarıdaki oranlara ilave % 20, İth.1145 oranında tek ve maktu bir vergi tahsil edilir. (07.01.2026 / 33130 R.G. CK ile değişik. Yürürlük 06.02.2026)[33] İth.083 (2) Posta veya hızlı kargo taşımacılığı yoluyla bir gerçek kişiye gelen ve ticari miktar ve mahiyet arz etmeyen, kıymeti 1500 Avro'yu geçmeyen kişisel kullanıma mahsus kitap veya benzeri basılı yayın için 45 inci maddede belirtilen limitleri aşan eşyanın değeri üzerinden % 0 oranında tek ve maktu bir vergi uygulanır."
 },
 "6fc9ac047801b746": {
 "id": "konu-801027",
@@ -1010,10 +1109,22 @@
 "ad": "Sair Mevzuat Kitabı (KDV, ÖTV, TPKHK…) · Ödeme şekilleri ve akreditif",
 "metin": "Ödemeler aşağıdaki şekillerde yapılabilir. 1. Peşin Ödeme 2. Mal Mukabili Ödeme 3. Vesaik Mukabili Ödeme 4. Kabul Kredili Ödeme 5. Akreditifli Ödeme 6. Karşılıklı Ticaret 7. Banka Ödeme Yükümlülüğü (BPO) 1. PEŞİN ÖDEME (Cash Payment / Advance Payment / Prepayment) İTHALATÇININ (Alıcının) mal bedelini peşin olarak ödediği, İHRACATÇININ ise mal sevkiyatını ödemeyi aldıktan sonra gerçekleştirdiği ödeme türüdür."
 },
+"782c2631d849b3f7": {
+"id": "",
+"ad": "2709 sayılı Türkiye Cumhuriyeti Anayasası · Madde 79 · Seçimlerin genel yönetim ve denetimi (resmî metin)",
+"metin": "Madde 79 – Seçimler, yargı organlarının genel yönetim ve denetimi altında yapılır. Seçimlerin başlamasından bitimine kadar, seçimin düzen içinde yönetimi ve dürüstlüğü ile ilgili bütün işlemleri yapma ve yaptırma, seçim süresince ve seçimden sonra seçim konularıyla ilgili bütün yolsuzlukları, şikayet ve itirazları inceleme ve kesin karara bağlama ve Türkiye Büyük Millet Meclisi üyelerinin seçim tutanaklarını ve Cumhurbaşkanlığı seçim tutanaklarını kabul etme görevi Yüksek Seçim Kurulunundur. Yüksek Seçim Kurulunun kararları aleyhine başka bir mercie başvurulamaz.",
+"kaynak": "resmi",
+"url": "https://www.mevzuat.gov.tr/mevzuat?MevzuatNo=2709&MevzuatTur=1&MevzuatTertip=5"
+},
 "7a03e805cc6ba7a6": {
 "id": "k37-10",
 "ad": "Madde 452 · Sürelerin başlangıcı ve süre uzatımı",
 "metin": "(1) Geri getirilme süresinin başlangıcı eşyanın fiilen ihraç edildiği tarihtir. Çıkışın partiler halinde yapılması halinde, her partiye ilişkin sürenin başlangıcı ayrı ayrı göz önünde bulundurulur. (2) Üç yıllık süre doğal afet, getirildiği ülkelerdeki ya da geçiş ülkelerindeki iç karışıklık, abluka veya savaş hali, resmi makamlarca getirilen yasaklar veya eşyanın alıkonulması gibi mücbir sebep ve beklenmeyen hallerle uzatılabilir. Özel ve zorunlu durumlar Müsteşarlıkça incelenir ve sonuçlandırılır."
+},
+"7a0b57018d730458": {
+"id": "gk-234",
+"ad": "Gümrük Kanunu · GK Madde 234 · Vergi Kaybına Neden Olan İşlemlere Uygulanacak Cezalar",
+"metin": "… a) maddede belirtilen Gümrük Tarifesini oluşturan unsurlarda veya vergilendirmeye esas olan sayı, baş, ağırlık gibi ölçülerinde aykırılık görüldüğü ve beyana göre hesaplanan ithalat vergileri[244] ile muayene sonuçlarına göre alınması gereken ithalat vergileri arasındaki fark % 5'i aştığı takdirde, ithalat vergilerinden[245] ayrı olarak bu farkın üç katı para cezası alınır."
 },
 "7a54478206d1dfec": {
 "id": "gk-234",
@@ -1120,10 +1231,20 @@
 "ad": "Gümrük Kanunu · Madde 175",
 "metin": "2. Ticari mahiyette olmayan eşyanın gümrük idaresine sunulması sırasında, ibraz edilen uluslararası kabul görmüş belgeler beyanname hükmünde olup, ayrıca beyanname aranmaz."
 },
+"85e731baa9638a07": {
+"id": "konu-1004",
+"ad": "Teslim Şekilleri (INCOTERMS) · 01.01.2020 Tarihinden Önce Kullanılan Mülga Teslim Şekilleri",
+"metin": "- DAT – Delivered At Terminal (yeni) Terminalde Teslim (Sigorta teminatının sözleşmeye göre belirlendiği)"
+},
 "86057e084b6227dc": {
 "id": "k39-59",
 "ad": "Madde 96",
 "metin": "(3) Gümrük kapılarında standart depo fazlası olarak tespit edilen petrol ürünlerinden, ilgili petrol ürünü için litre başına 6/6/2002 tarihli ve 4760 sayılı Özel Tüketim Vergisi uyarınca uygulanmakta olan özel tüketim vergisi % 50 fazlası tutarındaki vergi, tek ve maktu vergi olarak tahsil edilir."
+},
+"865d7d42665f451c": {
+"id": "k39-24",
+"ad": "2009/15481 sayılı Karar · Madde 61 · Yolcu beraberi hediyelik eşya limiti",
+"metin": "(1) 59 uncu maddede bahsi geçen muafiyet, 60 ıncı maddede belirtilen eşya hariç olmak üzere, her bir yolcu için toplam gerçek kıymeti 430 Avro'yu geçmeyen eşya için uygulanır. Ancak, 15 yaşından küçük yolcular için bu miktar 150 Avro olarak uygulanır."
 },
 "866be17d09fea460": {
 "id": "k26-12",
@@ -1149,6 +1270,11 @@
 "id": "konu-801006",
 "ad": "Tarife Kitabı — fasıl fasıl ders notları · Fasıl 04 — Süt ürünleri; kuş ve kümes hayvanlarının yumurtaları; tabii bal; Tarifenin başka…",
 "metin": "• Süt ürünleri işlem derecesine göre ayrılır: sade süt ve krema 04.01, konsantre veya tatlandırılmış 04.02, fermente veya asitliği artırılmış 04.03, peyniraltı suyu 04.04, süt yağları 04.05, peynir 04.06."
+},
+"8a2b98f30ccadac3": {
+"id": "gk-4-v2",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği (YYS notu) · Madde 160 · Yerinde izleme",
+"metin": "… (1) Yerinde izleme — Her 5 yılda bir 13/2 ve 13/6'da yer alan yerinde incelemeye konu koşulların karşılanıp karşılanmadığı; sertifikanın düzenlendiği tarihten itibaren her 5 yılda bir, sonradan kontrol yetkilisi tarafından sertifika sahibinin tesislerinde gerçekleştirilecek yerinde izleme ile tespit edilir."
 },
 "8a7d32165b3693aa": {
 "id": "k46-9",
@@ -1220,10 +1346,24 @@
 "ad": "Madde 15 · Taşıt onay belgesinin düzenlenmesi",
 "metin": "(11.02.2017 tarihli, 29976 sayılı R.G. TIR İşlemleri Seri No: 6 GGT ile değişik) (1) Taşıt onay belgesi, Gümrük ve Ticaret Bölge Müdürlükleri tarafından yetki verilen gümrük idarelerince Elektronik Taşıt Onay Belgesi Sistemi (ETOBS) kullanılarak düzenlenir. Gümrük ve Dış Ticaret Bölge Müdürlükleri tarafından belirlenen taşıt onay belgesi düzenlemeye yetkili gümrük idareleri Genel Müdürlüğe bildirilir."
 },
+"945ed984a2f8970c": {
+"id": "",
+"ad": "2709 sayılı Türkiye Cumhuriyeti Anayasası · Madde 73 · Vergi ödevi (resmî metin)",
+"metin": "VI. Vergi ödevi Madde 73 – Herkes, kamu giderlerini karşılamak üzere, mali gücüne göre, vergi ödemekle yükümlüdür.",
+"kaynak": "resmi",
+"url": "https://www.mevzuat.gov.tr/mevzuat?MevzuatNo=2709&MevzuatTur=1&MevzuatTertip=5"
+},
 "951a070a9ee23cdb": {
 "id": "gk-244",
 "ad": "Gümrük Kanunu · GK Madde 244",
 "metin": "girer. Uzlaşma talebi, henüz itiraz başvurusu yapılmamış veya itiraz edilmiş olmakla birlikte itirazı henüz sonuçlandırılmamış gümrük vergileri ve idari para cezaları için, tebliğ tarihinden itibaren onbeş gün içinde yapılır. Uzlaşma talebinde bulunulması hâlinde, itiraz veya dava açma süresi durur, uzlaşmanın vaki olmaması veya temin edilememesi hâlinde süre kaldığı yerden işlemeye başlar, ancak sürenin bitimine beş günden az kalmış olması hâlinde süre beş güne tamamlanır. Uzlaşmanın vaki olmaması veya temin edilememesi hâlinde yeniden uzlaşma talebinde bulunulamaz."
+},
+"95910ce87e2d7bb2": {
+"id": "",
+"ad": "3065 sayılı Katma Değer Vergisi Kanunu · Madde 21 · İthalatta matrah (resmî metin)",
+"metin": "Madde 21 – İthalatta, verginin matrahı aşağıda gösterilen unsurların toplamıdır: a) İthal edilen malın gümrük vergisi tarhına esas olan kıymeti, gümrük vergisinin kıymet esasına göre alınmaması veya malın gümrük vergisinden muaf olması halinde sigorta ve navlun bedelleri dahil (CIF) değeri, bunun belli olmadığı hallerde malın gümrükçe tespit edilecek değeri, b) İthalat sırasında ödenen her türlü vergi, resim, harç ve paylar, c) Gümrük beyannamesinin tescil tarihine kadar yapılan diğer giderler ve ödemelerden vergilendirilmeyenler ile mal bedeli üzerinden hesaplanan fiyat farkı, kur farkı gibi ödemeler.",
+"kaynak": "resmi",
+"url": "https://www.mevzuat.gov.tr/mevzuat?MevzuatNo=3065&MevzuatTur=1&MevzuatTertip=5"
 },
 "959ed1b0fbc4fd3e": {
 "id": "gy-330",
@@ -1280,6 +1420,11 @@
 "ad": "Tarife Kitabı — fasıl fasıl ders notları · Fasıl 51 — Yapağı ve yün, ince veya kaba hayvan kılı; at kılından iplik ve dokunmuş mensucat",
 "metin": "Fasıl 51 Not 1(a) Tarifenin neresinde geçerse geçsin “yapağı ve yün”: koyun veya kuzulardan elde edilen tabii lifler. Fasıl 51 Not 1(b) “İnce hayvan kılı”: alpaka, lama, vikuna, deve (tek hörgüçlü deve dahil), yak kılı; Ankara, Tibet, Kaşmir veya benzeri keçilerin (adi keçiler hariç) kılı; tavşan (Ankara tavşanı dahil), yabani tavşan, kunduz, Güney Amerika kunduzu ve misk faresinin kılı."
 },
+"9df96099fe82df4b": {
+"id": "konu-12003",
+"ad": "Kaçakçılıkla Mücadele Kanunu (5607) — Sunum Notları · Nitelikli hâller (md. 4)",
+"metin": "(1) Bu Kanunda tanımlanan SUÇLARIN, bir ÖRGÜTÜNfaaliyeti çerçevesinde işlenmesi halinde, • Verilecek cezaİKİ (2) KAT ARTIRILIR. (2) KAÇAK AKARYAKIT SATIŞININ, 3. maddenin on dördüncü fıkrasında belirtildiği şekilde SABİT ya da SEYYAR TANK, DÜZENEKveya EKİPMANkullanılarak gerçekleştirilmesi halinde • Verilecek cezalar İKİ (2) KAT ARTIRILIR. (3) Bu Kanunda tanımlanan suçların, ÜÇ (3)veya DAHA FAZLA KİŞİtarafından birlikte işlenmesi halinde, • Verilecek ceza YARI ORANINDA ARTIRILIR. (4) Bu Kanunda tanımlanan SUÇLARIN, • KAÇAKÇILIK FİİLLERİNİ ÖNLEMEK, İZLEMEK, ARAŞTIRMAK ve SORUŞTURMAKLA GÖREVLİ KİŞİLER tarafındanveya • MESLEKve SANATIN SAĞLADIĞI KOLAYLIKLARDAN YARARLANMAKsuretiyleişlenmesi halinde, • Verilecek ceza YARI ORANINDA ARTIRILIR. (5) Bu Kanunda tanımlanan suçların, TÜZEL KİŞİNİN FAALİYETİçerçevesindeveya yararına olarak işlenmesi halinde, • Ayrıca BUNLARA ÖZGÜ GÜVENLİK TEDBİRLERİNEhükmolunur. (6) Bu Kanunda tanımlanan suçların, BELGEDE SAHTECİLİKyapılarak işlenmesi halinde, • AYRICA BU SUÇTAN DOLAYI DACEZAYA HÜKMOLUNUR."
+},
 "9e4239de03e293af": {
 "id": "k36-5",
 "ad": "Madde 417 · Geçici depolama süresi ve takip edilmeyen beyannameler",
@@ -1319,6 +1464,11 @@
 "id": "gk-92",
 "ad": "Gümrük Kanunu · GK Madde 92",
 "metin": "2. Türkiye Gümrük Bölgesi içinde transit halindeki eşyanın beklenmeyen haller veya mücbir sebeplerle telef veya kaybının kanıtlanması halinde, gümrük vergileri aranmaz. (07.07.2009/27281 R.G. 5911 s.k. ile değişik)"
+},
+"a39979b0e9e7698a": {
+"id": "gy-3",
+"ad": "Gümrük Yönetmeliği · GY Madde 3 · Tanımlar",
+"metin": "… n) Ticaret politikası önlemleri: Gözetim, korunma önlemleri, miktar kısıtlamaları ve ithalat veya ihracat yasaklamaları gibi eşyanın ithal ve ihracı ile ilgili hükümlerle belirlenmiş tarife dışı önlemleri,"
 },
 "a3bcf4371c676569": {
 "id": "k34-54",
@@ -1535,6 +1685,11 @@
 "ad": "Madde 49 · Muafiyet koşulları",
 "metin": "(3) Ev eşyasının kişilerin beraberinde veya gelişlerinden önce veya altı ay sonraki süre içerisinde getirilip serbest dolaşıma giriş beyanında bulunulması gerekir. (4) Taşınabilir alet ve cihazlar hariç olmak üzere, bir ticaret veya meslek icabı kullanılacak malzemelerin bu Ayırımdaki hükümler kapsamında muaf olarak serbest dolaşıma girişine izin verilmez."
 },
+"c1358b2863067215": {
+"id": "konu-6037",
+"ad": "Sair Mevzuat Kitabı (KDV, ÖTV, TPKHK…) · ÖTV Kanunu: konu, vergiyi doğuran olay ve istisnalar (md. 1–8)",
+"metin": "DİPLOMATİK İSTİSNA – Md.6 ➢ Bu Kanuna ekli (I), (II) ve (III) sayılı listelerde yer alan malların, (Dikkat: IV sayılı listede diplomatik istisna yok) − KARŞILIKLI OLMAK KAYDIYLA yabancı devletlerin Türkiye'deki diplomatik temsilcilikleri, konsoloslukları ve uluslararası anlaşmalarla vergi muafiyeti tanınan uluslararası kuruluşlar ve bunların diplomatik haklara sahip mensupları tarafından kendi ihtiyaçları için ilk iktisabı, ithali veya bunlara teslimi"
+},
 "c1491a65a3c3bf00": {
 "id": "k10-8",
 "ad": "Madde 34 · Tekstil ürünlerinde menşenin belirlenmesi",
@@ -1585,10 +1740,20 @@
 "ad": "Gümrük Yönetmeliği · GY Madde 578",
 "metin": "b) Tespit işlemleri ile ilgili olarak Bakanlıkça belirlenen asgari ücret tarifesinin altında hizmet verildiğinin tespiti halinde yetkilendirilmiş gümrük müşavirine ait yetki belgesi 1 yıl süreyle geri alınır. c) Dolaylı temsil suretiyle faaliyet gösteren gümrük müşavirleriyle ya da tespit işlemini yaptıran yükümlü ile doğrudan veya dolaylı iş ilişkisi içinde olduğunun tespit edilmesi halinde yetkilendirilmiş gümrük müşavirine ait yetki belgesi geri alınır ve iş ilişkisinin sonlandığının tevsikinden itibaren bu kişiye 2 yıl süreyle yetki belgesi verilmez."
 },
+"c8b08c22a38caca0": {
+"id": "k41-14",
+"ad": "Sınır Ticaretinin Düzenlenmesine İlişkin Karar (4874) · Madde 13 · Sınır ticaretine yetkili gümrük kapıları",
+"metin": "(1) Sınır ticareti, aşağıdaki tabloda gösterilen yetkili gümrük kapıları üzerinden karşılarında belirtilen ülkeyle yapılır. (13.04.2023 / 32162 sayılı R.G. 7070 Karar ile değişik) | SIRA NUMARASI | YETKİLİ SINIR İLİ | YETKİLİ GUMRUK KAPISI | ÜLKE | |---|---|---|---| | 1 | ARTVİN | SARP | GÜRCİSTAN | | 2 | ARDAHAN | TÜRKGÖZÜ | GÜRCİSTAN | | 3 | ARDAHAN | AKTAŞ | GÜRCİSTAN | | 4 | KARS | DİLUCU | NAHÇİVAN | | 5 | KARS | AKTAŞ | GÜRCİSTAN | | 6 | IĞDIR | DİLUCU | NAHÇİVAN | | 7 | IĞDIR | GÜRBULAK | İRAN | | 8 | AĞRI | GÜRBULAK | İRAN | | 9 | VAN | KAPIKÖY | İRAN | | 10 | HAKKARİ | ESEDERE | İRAN | | 11 | HAKKARİ | HABUR | IRAK | | 12 | HAKKARİ | DERECİK | IRAK | | 13 | HAKKARİ | ÜZÜMLÜ | IRAK | | 14 | ŞIRNAK | HABUR | IRAK | | 15 | MARDİN | NUSAYBİN | SURİYE | | 16 | ŞANLIURFA | AKÇAKALE | SURİYE | | 17 | GAZİANTEP | KARKAMIŞ | SURİYE | | 18 | KİLİS | ÖNCÜPINAR | SURİYE | | 19 | HATAY | CİLVEGÖZÜ | SURİYE |"
+},
 "c91d88c8ebaa180a": {
 "id": "konu-12003",
 "ad": "Kaçakçilikla Mücadele Kanunu (5607) — Sunum Notlari · Nitelikli hâller (md. 4)",
 "metin": "(1) Bu Kanunda tanımlanan SUÇLARIN, bir ÖRGÜTÜNfaaliyeti çerçevesinde işlenmesi halinde, • Verilecek cezaİKİ (2) KAT ARTIRILIR."
+},
+"c96cbf436906f937": {
+"id": "k39-74",
+"ad": "2009/15481 sayılı Karar · Madde 111 · Mücbir sebep ve beklenmeyen haller",
+"metin": "(1) Bu Kısım kapsamında; a) Mücbir sebep halleri; 1) Kararda belirtilen kriz hallerini, 2) Devletçe konulan yasaklar, abluka veya savaş halini, 3) Kısmi veya genel seferberlik ilanını, 4) Terörü, 5) Kaza, hastalık ve gözaltında bulunma, tutukluluk veya hükümlülük hallerini, 6) Yükümlünün iflasını, 7) Yükümlü faaliyetinin kamu otoritelerince durdurulmasını, b) Beklenmeyen haller; 1) Ulaştırma şartlarındaki beklenmeyen değişiklikleri, 2) İlgilinin iradesi dışında ve kendi kusurundan kaynaklanmaksızın ortaya çıkan ve bu hakkın kullanımını doğrudan etkileyen halleri, ifade eder."
 },
 "c9aa2e469ab6c9b9": {
 "id": "k23-5",
@@ -1599,6 +1764,11 @@
 "id": "konu-2040",
 "ad": "Genelge, Tebliğ ve Kararlar · Gumruk genel tebligi (tarife siniflandirma kararlari) seri no 4",
 "metin": "Dış tabanının içerisindeki özel boşluğa daimi olarak yerleştirilmiş, çıkarılıp takılabilen iki tekerlekle birlikte, üst kısmı deri, dış tabanı kauçuktan mamül, ayak bileklerini saran ve tekerlekleri dışarı çıkarıldığı zaman tekerlekli paten (yol pateni) ayakkabısı olarak kullanılmaya elverişli ayakkabılardan oluşan \"Tekerlekli Ayakkabılar\" · 9506.70 GYK 1 ve 6"
+},
+"cab82be06af7c894": {
+"id": "k4004-3",
+"ad": "Gümrük Birliğinin Uygulanmasına İlişkin Esaslar Hakkında Karar (2006/10895) · Madde 3 · Tanımlar",
+"metin": "… p) INF 4 Bilgi Formu: Tedarikçi beyanının gerçekliğinin ve tedarikçi beyanında yer alan bilgilerin doğruluğunun kontrol edilmesi amacıyla menşe ispat belgesinin düzenleneceği gümrük idaresinin talebi üzerine tedarikçinin yerleşik olduğu veya gerekli bilgi ve belge akışının yapılmış olması kaydıyla ihracatın gerçekleştirildiği ülke gümrük idaresince düzenlenen, tedarikçi tarafından ihracatçı ülke gümrük idaresine verilmek üzere ihracatçıya sunulan belgeyi;"
 },
 "cada0c6b9652ac81": {
 "id": "gk-57",
@@ -1705,10 +1875,20 @@
 "ad": "YETKİLENDİRİLMİŞ GÜMRÜK MÜŞAVİRLİĞİ TEBLİĞİ · Madde 11 · Tespit işlemi yapılacak gümrük işlemleri",
 "metin": "1) DR1, dâhilde işleme rejimi kapsamındaki eşyaya verilen izinlerle ilgili süre uzatımlarına esas teşkil edecek işlemlerin tespitini, 2) DR2, dâhilde işleme izni kapsamında ithal edilen eşyanın ihraç edilen işlem görmüş ürünün bünyesinde kullanılıp kullanılmadığının teknik, bilimsel veya idareden kaynaklanan bir nedenle tespit edilememesi halinde yapılacak tespiti, kapsar."
 },
+"d8336f98500d3a9c": {
+"id": "k36-43",
+"ad": "İhracı Yasak ve Ön İzne Bağlı Mallara İlişkin Tebliğ (96/31) · EK-1 İhracı yasak mallar listesi",
+"metin": "7- Odun (10.11.2010 tarih ve 27755 sayılı R.G. İhracat 2010/16 ile değişik)[1] | 06/01/1996 tarih ve 22515 sayılı Resmi Gazete'de yayımlanmış bulunan 95/7623 sayılı İhracat Rejimi Kararı"
+},
 "d8b45f7627427f04": {
 "id": "k36-5",
 "ad": "Madde 417 · Geçici depolama süresi ve takip edilmeyen beyannameler",
 "metin": "(3) Geçici depolama yerlerine konulmaksızın ihraç edilecek eşyanın beyanname kapatma süresi iki aydır. Bu süre gümrük müdürlüklerince makul sebeplerle en çok iki ay uzatılabilir. Bu süreler içinde işlemleri tamamlanmayan beyannameler iptal edilir. Deniz ve hava taşıtlarına kumanya, yağ ve yakıt dışında yapılacak teslimler (12.06.2013 tarih ve 28675 sayılı R.G. ile yeniden düzenlenmiştir)"
+},
+"d8d04f51b59daa08": {
+"id": "k32-82",
+"ad": "DAHİLDE İŞLEME REJİMİ TEBLİĞİ (İHRACAT: 2006/12) · Madde 45 · Dahilde işleme tedbirlerine uyulmaması",
+"metin": "… ithal tarihi itibarıyla 4458 sayılı Gümrük Kanunu ile 6183 sayılı Amme Alacaklarının Tahsil Usulü Hakkında Kanun hükümlerine göre tahsil edilir. Ayrıca, ithal edilen ve süresi içerisinde ihracatı gerçekleştirilmeyen eşya için 4458 sayılı Gümrük Kanununun 238 inci maddesi hükmü çerçevesinde müeyyide uygulanır."
 },
 "d9d7b3d4772e10db": {
 "id": "k48-16",
@@ -1820,6 +2000,11 @@
 "ad": "Madde 482 · Seferin devamı sayılabilecek haller",
 "metin": "(2) Yurt dışı seferden dönen gemilerin Türk limanlarında yüklerinin tamamını boşalttıktan sonra diğer Türk limanlarına ihraç yükünü almak üzere boş veya kısmen ihraç yükü alarak hareket etmeleri hali de dış seferin devamı sayılır. (3) Dış seferden dönen gemilerin Türkiye'ye ilk giriş limanında yurt dışından ya da yurt içinde antrepolardan almış oldukları transit akaryakıt ve kumanyaları tespit edilir. Üç aylık süre içerisinde Türk limanları arasında sefer yapılması halinde tüketilen akaryakıt uğradığı en son Türk limanında vergilendirilir."
 },
+"e56394814b7ba2d1": {
+"id": "gk-27",
+"ad": "Gümrük Kanunu · GK Madde 27",
+"metin": "… c) Kıymeti belirlenecek eşyanın satış koşulu gereği, alıcının doğrudan veya dolaylı olarak ödemesi gereken, fiilen ödenen veya ödenecek fiyata dahil edilmemiş olan royalti ve lisans ücretleri; d) İthal eşyasının tekrar satışı veya diğer herhangi bir şekilde elden çıkartılması ya da kullanımı sonucu doğan hâsılanın, doğrudan veya dolaylı olarak satıcıya intikal eden kısmı; e) 28 inci maddenin (a) bendi hükmü saklı kalmak üzere, ithal eşyası için Türkiye'deki giriş liman veya yerine kadar yapılan nakliye ve sigorta giderleri ile eşyanın giriş liman veya yerine kadar nakliyesi ile ilgili olarak yapılan yükleme ve elleçleme giderleri. 2. Bu maddeye göre fiilen ödenen veya ödenecek fiyata yapılacak ilaveler için nesnel ve ölçülebilir veriler esas alınır. 3. Gümrük kıymetinin belirlenmesinde, fiilen ödenen veya ödenecek fiyata bu maddede öngörülenler dışında hiçbir ilave yapılamaz."
+},
 "e5655f423108ff57": {
 "id": "k9-6",
 "ad": "GÜMRÜK GENEL TEBLİĞİ (GÜMRÜK TARİFE CETVELİ AÇIKLAMA NOTLARI) (SERİ NO: 6) · Madde 4 · Tanımlar",
@@ -1840,6 +2025,11 @@
 "ad": "YETKİLENDİRİLMİŞ GÜMRÜK MÜŞAVİRLİĞİ TEBLİĞİ · Madde 13 · Genel hükümler",
 "metin": "ı) Genel antrepolarda AN7, AN8 ve AN9 tespit işlemleri, özel antrepolarda ise AN6, AN7 ve AN9 tespit işlemlerinin aynı yetkilendirilmiş gümrük müşavirince yapılması zorunludur. Bunların dışında kalan tespit işlemleri için yükümlü aynı veya başka bir yetkilendirilmiş gümrük müşaviri ile sözleşme yapabilir."
 },
+"e744504d1fa3b2b2": {
+"id": "k21-5",
+"ad": "Gümrük Genel Tebliği (TIR İşlemleri) (Seri No: 1) · Madde 10 · TIR rejimine kabul",
+"metin": "(1) TIR karnesi himayesinde uluslararası eşya taşımacılığı yapacak firma Ulaştırma ve Altyapı Bakanlığından faaliyetine uygun olan uluslararası taşıma yapma yetki belgesini alır. (2) Firma bağlı bulunduğu ticaret odası aracılığıyla, yetki belgesi, TIR Sözleşmesi ikinci bölümünde yer alan bilgi ve belgeler ile kefil kuruluşa başvurur. (3) Firma başvurusu, TIR Sözleşmesi hükümleri doğrultusunda, kefil kuruluş tarafından incelenir ve TIR taşımacılığı yapması uygun bulunan firmalara ilişkin bilgi ve belgeler Genel Müdürlüğe gönderilir. (4) Genel Müdürlükçe yapılacak inceleme sonucunda TIR Sözleşmesi, gümrük mevzuatı ve diğer mevzuat hükümleri doğrultusunda TIR rejimine kabulü uygun bulunan firmalar tezkiye edilir. (5) Tezkiye edilen firmaların bilgileri, TIR/Transit Takip Programı ile Uluslararası TIR Veri Bankasına girilir. Ayrıca tezkiye edilen firmalar Bakanlık internet sitesinde yayımlanır. (11.02.2017 tarihli, 29976 sayılı R.G. TIR İşlemleri Seri No: 6 GGT ile değişik) (6) Firmalar adres, unvan ve ortak değişikliklerini Ticaret Sicil Gazetesinde yayımlanmasını müteakip en geç yedi gün içinde kefil kuruluşa bildirir."
+},
 "e7b26e948a4cfd15": {
 "id": "konu-6055",
 "ad": "Sair Mevzuat Kitabı (KDV, ÖTV, TPKHK…) · Teknik Düzenlemeler Rejimi Kararı ve DTTDS Yönetmeliği",
@@ -1849,6 +2039,18 @@
 "id": "k47-10",
 "ad": "Madde 500 · Yetkili gümrük idareleri",
 "metin": "a) 4.730.000 TL'ye kadar olan geri verme veya kaldırma işlemlerini yapmaya ilgili gümrük müdürlükleri, b) 47.397.000. TL'ye kadar olan geri verme veya kaldırma işlemlerini yapmaya gümrük ve dış ticaret bölge müdürlükleri, c) 47.397.000.TL'nin üstündeki geri verme veya kaldırma işlemlerini yapmaya ise Bakanlık, yetkilidir. (01.04.2020 tarih ve 31086 sayılı R.G. ile değişik)[83]"
+},
+"e80bd91864db5561": {
+"id": "k23-43",
+"ad": "GÜMRÜK GENEL TEBLİĞİ (TRANSİT REJİMİ) (SERİ NO: 4) · Madde 42 · Alternatif kanıt",
+"metin": "… (4) Alternatif kanıt, rejim hak sahibi veya temsilcisi tarafından transit beyanı ve eşyanın varış gümrük idaresine sunulduğu anda da talep edilebilir. Varış gümrük idaresi herhangi bir uyumsuzluk bulunmaması halinde belgelerin üzerine mühür, kaşe, imza ve tarih tatbik etmek suretiyle alternatif kanıtı onaylar. Söz konusu belgelerin üstünde mühür/kaşe, ilgili memurun imzası ve tarih bulunur. (5) Ortak transit rejiminde, rejim hak sahibi tarafından hareket gümrük idaresine alternatif kanıt sunulması halinde, varış gümrük idaresinden, sunulan alternatif kanıtların yer alan TC21-Doğrulama Talebi formu ile doğrulanması istenir. Varış gümrük idaresince usulüne uygun olarak doldurulan TC21-Doğrulama Talebi formu ve eki alternatif kanıt çerçevesinde transit işleminin usulüne uygun olarak sonlandırıldığının anlaşılması halinde, ilgili transit işlemi hareket gümrük idaresince ibra edilir."
+},
+"e9d3803775026b75": {
+"id": "",
+"ad": "2709 sayılı Türkiye Cumhuriyeti Anayasası · Madde 77 · TBMM ve Cumhurbaşkanının seçim dönemi (resmî metin)",
+"metin": "Madde 77 – (Değişik: 21/1/2017-6771/4 md.) Türkiye Büyük Millet Meclisi ve Cumhurbaşkanlığı seçimleri beş yılda bir aynı günde yapılır.",
+"kaynak": "resmi",
+"url": "https://www.mevzuat.gov.tr/mevzuat?MevzuatNo=2709&MevzuatTur=1&MevzuatTertip=5"
 },
 "ea61ee57e8fc2e4f": {
 "id": "k10-14",
@@ -1864,6 +2066,11 @@
 "id": "k41-9",
 "ad": "Madde 8 · İthalat Uygunluk Belgesi",
 "metin": "(1) Sınır Ticareti Belgesini haiz esnaf ve tacir ile mağaza kiralayanlar tarafından İthalat Uygunluk Belgesine ilişkin başvurular İl Ticaret Odası veya İl Ticaret ve Sanayi Odasına yapılır. (2) Başvuruları İl Değerlendirme Komisyonu tarafından uygun görülenler adına her bir ürün için ayrı bir İthalat Uygunluk Belgesi, İl Ticaret Odası veya İl Ticaret ve Sanayi Odasınca düzenlenir. (3) İthalat Uygunluk Belgesi; Ticaret İl Müdürü ile İl Ticaret Odası veya İl Ticaret ve Sanayi Odasının en az genel sekreter düzeyindeki yetkilisi tarafından imzalanır ve İl Ticaret Odası veya İl Ticaret ve Sanayi Odası tarafından mühürlenir."
+},
+"eaaf2530bc1f8bae": {
+"id": "k34-51",
+"ad": "15481 Say.BBK · Madde 40 · Geçici ithalat rejiminden yararlandırılmayacak eşya",
+"metin": "(1) Aşağıda belirtilen eşya, tam muafiyetten yararlandırılmayacağı gibi kısmi muafiyetten de yararlandırılmaz: a) Türkiye'ye ithali yasak olan eşya. b) Tüketilebilir nitelikteki eşya. c) Ayniyet tespitinin yapılması mümkün olmayan eşya. ç) Ülke ekonomisine zarar verebileceği Müsteşarlıkça belirlenecek eşya."
 },
 "eaf1b951eca65d06": {
 "id": "k43-35",
@@ -2019,6 +2226,11 @@
 "id": "konu-12002",
 "ad": "Kaçakçilikla Mücadele Kanunu (5607) — Sunum Notlari · Kaçakçılık suçları ve cezaları özet tablosu (md. 3)",
 "metin": "1yıldan 5yıla kadar hapis ve Eşyayı GÜMRÜK İŞLEMLERİNE TABİ TUTMAKSIZINülkeye sokmak suçu 10.000güne kadar adlî para cezası 1 Eşyanın, GÜMRÜK KAPILARI DIŞINDANülkeye sokulması Üçte birinden yarısına kadar arttırılır."
+},
+"f9668010fa6e128d": {
+"id": "gk-4-v2",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği (YYS notu) · Madde 162 · Onaylanmış kişi statüsüne ilişkin hükümler",
+"metin": "… (3) Geri alma işleminden önce başlamış işlemler 162/1 [YYS düzenlenen kişilerin onaylanmış kişi statü belgelerinin geri alınması] kapsamında onaylanmış kişi statüsü geri alınan yetkilendirilmiş yükümlülerin; Onaylanmış Kişi Statüsüne İlişkin Gümrük Genel Tebliği (Sıra No: 1) kapsamında kullandıkları; Eksik beyan, Mavi hat, Kısmi teminat, Götürü teminat, Basitleştirilmiş işlem kapsamında A.TR Dolaşım Belgesi düzenleme ve vize etme, ile Gümrük Genel Tebliği (Seri No: 7) (Uluslararası Anlaşmalar) kapsamında kullandıkları; Eşyanın kıymetine bakılmaksızın fatura beyanı veya EUR.MED fatura beyanı düzenlenmesine ilişkin Onaylanmış İhracatçı yetkisine ilişkin, geri alma işleminden önce başlamış ve henüz tamamlanmamış gümrük işlemleri ilgili Tebliğlere göre sonuçlandırılır."
 },
 "f97ab14347ce13e0": {
 "id": "k34-100",

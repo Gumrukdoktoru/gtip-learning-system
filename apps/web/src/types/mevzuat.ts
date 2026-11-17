@@ -109,8 +109,10 @@ export interface Question {
   /**
    * Notlardaki dayanak hüküm. id: madde kimliği ya da "konu-<konu kimliği>".
    * kaynak 'okuma': otomatik eşleşme değil, adaylar okunarak seçilmiş dayanak (dayanak-secimleri.json).
+   * kaynak 'resmi': hüküm notlarda yok; metin mevzuat.gov.tr'deki resmî metinden alınmıştır (url). id boş olabilir
+   * (madde uygulamada yoksa) ya da uygulamadaki maddenin kimliğidir.
    */
-  dayanak?: ArticleLink & { metin: string; kaynak?: 'okuma' };
+  dayanak?: ArticleLink & { metin: string; kaynak?: 'okuma' | 'resmi'; url?: string };
   /** Dayanağı olmayan sorunun bilinen nedeni: 'genel' = genel kültür / genel yetenek sorusu (notlarda aranmaz). */
   dayanakYok?: 'genel';
   /** Fasıl sayfalarında: faslın soruyla ilişkisi (doğru cevap/kök bu fasılda ya da fasıl yalnızca diğer şıklarda). */
