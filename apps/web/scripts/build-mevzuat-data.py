@@ -206,87 +206,205 @@ class TopicParser:
         return self.blocks
 
 
-CHUNK_BYTES = 150_000
-PAGE_RE = re.compile(r"^Sayfa \d+$")
+SECTION_LIMIT = 200_000  # tek konunun en fazla boyutu
+PAGE_CHUNK = 40_000  # sayfa sayfa aktarılmış dosyalarda konu boyutu
+BUNDLE_BYTES = 300_000  # ek-*.json paket boyutu
+PAGE_RE = re.compile(r"^Sayfa (\d+)$")
 TABLE_RULE_RE = re.compile(r"^\|?[\s:|-]+\|?$")
+GROUPS = [("tarife", "Tarife"), ("genelge", "Genelge ve Tebliğler"), ("sair", "Sair Mevzuat"), ("hesap", "Vergi Hesaplama")]
+# (dosya adında aranan parça, sekme, klasör adı); ilk eşleşen kullanılır
+FOLDER_RULES = [
+    ("TARIFE_ANA", "tarife", "Tarife Ana Derleme"),
+    ("FASIL", "tarife", "Tarife Cetveli — Fasıllar (01–97)"),
+    ("GENELGE", "genelge", "Genelge, Tebliğ ve Kararlar"),
+    ("VERGI_HESAPLAMA", "hesap", "Vergi Hesaplama Derlemesi"),
+    ("Hesaplama", "hesap", "Geçmiş Yıllar Vergi Hesaplama Soruları"),
+    ("ck_2020", "sair", "İthalat Rejimi Kararı (2020/3350)"),
+    ("ck_2025", "sair", "İthalat Rejimi Kararında Değişiklik (2025/10790)"),
+    ("Koleksiyon", "sair", "Gümrük Mevzuatı Koleksiyonu"),
+    ("STA ve", "sair", "Serbest Ticaret Anlaşmaları ve Kümülasyon"),
+    ("Teslim", "sair", "Teslim Şekilleri (INCOTERMS)"),
+    ("MEVZUAT K", "sair", "Sair Mevzuat Kitabı (KDV, ÖTV, TPKHK…)"),
+]
 
 
-def split_sections(lines: list[str]) -> list[tuple[str, list[str]]]:
-    """Ek kaynağı (başlık, satırlar) bölümlerine ayırır: # / ## başlıkları sınır, sayfa başlıkları değil."""
-    sections: list[tuple[str, list[str]]] = [("", [])]
+def pretty_title(title: str) -> str:
+    if "_" in title and " " not in title:  # dosya adından gelen başlık
+        title = title.replace("_x1", " (").replace("x2_", ") ").replace("x2", ")").replace("_", " ").strip().capitalize()
+    return title[:140]
+
+
+TOPIC_MIN_BYTES = 12_000  # sayfa dökümlerinde bir konunun en az boyutu
+
+
+def is_topic_heading(text: str) -> bool:
+    """Sayfa dökümlerinde konu başlığı: rakamsız, tamamı büyük harfli kısa satır."""
+    if not 10 <= len(text) <= 80 or text != text.upper() or len(text.split()) < 2:
+        return False
+    if any(ch.isdigit() or ch in "=•|%" for ch in text) or text[-1] in ".,;:":
+        return False
+    return sum(ch.isalpha() for ch in text) > len(text) * 0.7
+
+
+def split_page_dump(lines: list[str]) -> list[tuple[str, list[str]]]:
+    """Sayfa sayfa aktarılmış dosyayı içindeki konu başlıklarına göre böler; başlığa sayfa aralığı eklenir."""
+    sections: list[list] = []  # [başlık, satırlar, ilk sayfa, son sayfa, boyut]
+    page = 1
+    for line in lines:
+        text = clean(line.lstrip("# "))
+        page_match = PAGE_RE.match(text)
+        if page_match:
+            page = int(page_match.group(1))
+            continue
+        if line.startswith("# "):
+            continue  # dosya başlığı
+        if is_topic_heading(text) and (not sections or sections[-1][4] >= TOPIC_MIN_BYTES):
+            sections.append([text, [], page, page, 0])
+        elif not sections:
+            sections.append(["Giriş", [], page, page, 0])
+        sections[-1][1].append(line)
+        sections[-1][3] = page
+        sections[-1][4] += len(line)
+    result = []
+    for title, body, first, last, size in sections:
+        if size >= 40:
+            pages = f"s. {first}" if first == last else f"s. {first}–{last}"
+            result.append((f"{title[:1]}{title[1:].lower()} ({pages})" if False else f"{title} ({pages})", body))
+    return result
+
+
+OUTLINE_FILE = Path(__file__).resolve().parent / "sayfa-konulari.json"
+
+
+def split_by_outline(lines: list[str], outline: list[dict]) -> list[tuple[str, list[str]]]:
+    """Elle hazırlanmış konu dökümüne (sayfa-konulari.json) göre böler: her konu başladığı sayfadan itibaren."""
+    starts = {item["sayfa"]: item["baslik"] for item in outline}
+    sections: list[tuple[str, list[str]]] = []
+    for line in lines:
+        page_match = PAGE_RE.match(clean(line.lstrip("# ")))
+        if page_match:
+            if int(page_match.group(1)) in starts or not sections:
+                sections.append((starts.get(int(page_match.group(1)), "Giriş"), []))
+        elif sections and not line.startswith("# "):
+            sections[-1][1].append(line)
+    return [(title, body) for title, body in sections if sum(len(l.strip()) for l in body) >= 40]
+
+
+def split_sections(lines: list[str], outline: list[dict] | None = None) -> list[tuple[str, list[str]]]:
+    """Dosyayı gerçek başlıklarına (# / ##) göre konulara ayırır; sayfa dökümlerini sayfa aralıklarına böler."""
+    if outline:
+        return split_by_outline(lines, outline)
+    headings = [clean(l.lstrip("# ")) for l in lines if re.match(r"^#{1,2} ", l)]
+    pages = sum(1 for h in headings if PAGE_RE.match(h))
+    if pages >= 3 and pages > 0.6 * len(headings):  # başlıklarının çoğu sayfa numarası olan döküm
+        return split_page_dump(lines)
+    sections: list[tuple[str, list[str]]] = []
+    keep = False
+    page, first_page, size = 0, 0, 0
     for line in lines:
         heading = re.match(r"^(#{1,2}) (.+)$", line)
         title = clean(heading.group(2)) if heading else ""
-        if heading and "İÇİNDEKİLER" in title.upper().replace("I", "İ"):
-            sections.append(("", []))  # içindekiler listesi atılır
-        elif heading and not PAGE_RE.match(title):
-            sections.append((title, []))
-        elif not heading or not PAGE_RE.match(title):
+        page_match = PAGE_RE.match(title)
+        if page_match:
+            page = int(page_match.group(1))
+            if not sections or size > PAGE_CHUNK or not sections[-1][0].startswith("Sayfa "):
+                sections.append((f"Sayfa {page}", []))
+                first_page, size, keep = page, 0, True
+            sections[-1] = (f"Sayfa {first_page}–{page}" if page != first_page else f"Sayfa {page}", sections[-1][1])
+        elif heading:
+            keep = "İÇİNDEKİLER" not in title.upper().replace("I", "İ")
+            if keep:
+                sections.append((pretty_title(title), []))
+        elif keep or not sections:
+            if not sections:
+                sections.append(("", []))
+                keep = True
             sections[-1][1].append(line)
-    return [(t, body) for t, body in sections if t and any(l.strip() for l in body) or not t and sections.index((t, body)) == 0 and any(l.strip() for l in body)]
-
-
-def pack_sections(sections: list[tuple[str, list[str]]], fallback: str) -> list[tuple[str, list[str]]]:
-    """Bölümleri yaklaşık CHUNK_BYTES büyüklüğünde konulara toplar; iç başlıklar metinde kalır."""
-    packs: list[tuple[list[str], list[str]]] = []
-    size = CHUNK_BYTES
+            size += len(line)
+    result = []
     for title, body in sections:
-        for start in range(0, max(len(body), 1), 1200):  # çok uzun bölüm satır sayısına göre bölünür
-            part = body[start:start + 1200]
-            weight = sum(len(l) for l in part)
-            if size + weight > CHUNK_BYTES:
-                packs.append(([], []))
-                size = 0
-            if title and title not in packs[-1][0]:
-                packs[-1][0].append(title)
-                packs[-1][1].append("## " + title)
-            packs[-1][1].extend(part)
-            size += weight
-    named = []
-    for number, (titles, body) in enumerate(packs, 1):
-        name = titles[0] if titles else f"{fallback} · Bölüm {number}"
-        if "_" in name and " " not in name:  # dosya adından gelen başlık
-            name = name.replace("_x1", " (").replace("x2_", ") ").replace("_", " ").strip().capitalize()
-        if len(titles) > 1:
-            name += f" (+{len(titles) - 1} başlık)"
-        named.append((name[:110], body))
-    return named
+        if sum(len(l.strip()) for l in body) < 40:
+            continue  # yalnızca başlıktan ibaret bölüm
+        part, weight, number = [], 0, 1
+        for line in body:
+            if weight > SECTION_LIMIT:
+                result.append((title if number == 1 else f"{title} ({number})", part))
+                part, weight, number = [], 0, number + 1
+            part.append(line)
+            weight += len(line)
+        result.append((title if number == 1 else f"{title} ({number})", part))
+    return result
+
+
+def section_blocks(body: list[str], topic_id: int, used_ids: set[str]) -> list[dict]:
+    parser = TopicParser(topic_id, used_ids)
+    parser.plain_source = True
+    table: list[list[str]] = []
+
+    def flush_table() -> None:
+        if table:
+            parser.flush_pending(as_headings=parser.article is None)
+            parser.article = None
+            parser.blocks.append({"t": "t", "rows": table.copy()})
+            table.clear()
+
+    for raw in body:
+        stripped = raw.strip()
+        if stripped.startswith("|"):
+            if not (TABLE_RULE_RE.match(stripped) and "-" in stripped):
+                table.append([clean(cell) for cell in stripped.strip("|").split("|")])
+            continue
+        flush_table()
+        if raw.startswith("#"):
+            parser.flush_pending(as_headings=True)
+            parser.article = None
+            parser.blocks.append({"t": "h", "x": clean(raw.lstrip("# "))})
+            continue
+        text = clean(raw)
+        if not is_noise(text):
+            parser.feed(text)
+    flush_table()
+    return parser.finish()
 
 
 def build_folders(paths: list[Path], out_dir: Path, used_ids: set[str]) -> list[dict]:
-    """Ek kaynak dosyalarını ayrı klasörler olarak konu dosyalarına çevirir (kimlik: 1000*klasör + sıra)."""
-    folders = []
+    """Diğer not dosyalarını sekmelere (tarife, genelge, sair, hesaplama) ayrılmış klasörlere çevirir.
+
+    Konular ek-<klasör>-<n>.json paketlerine yazılır; konu kimliği 1000*klasör + sıradır.
+    """
+    for stale in out_dir.glob("ek-*.json"):
+        stale.unlink()
+    groups = {key: {"id": key, "title": title, "folders": []} for key, title in GROUPS}
+    outlines = json.loads(OUTLINE_FILE.read_text(encoding="utf-8")) if OUTLINE_FILE.exists() else {}
     for folder_id, path in enumerate(paths, 1):
         lines = path.read_text(encoding="utf-8").split("\n")
-        first = next((clean(l.lstrip("# ")) for l in lines if l.startswith("# ")), "")
-        folder_title = first or path.stem.replace("_", " ")
-        topics = []
-        for order, (title, body) in enumerate(pack_sections(split_sections(lines), folder_title), 1):
+        rule = next((r for r in FOLDER_RULES if r[0] in path.name), None)
+        heading = next((clean(l.lstrip("# ")) for l in lines if l.startswith("# ")), path.stem)
+        group_key, folder_title = (rule[1], rule[2]) if rule else ("sair", heading.title() if heading.isupper() else heading)
+        topics, bundle, bundle_size, bundle_no = [], [], 0, 1
+
+        def write_bundle() -> None:
+            nonlocal bundle, bundle_size, bundle_no
+            if bundle:
+                (out_dir / f"ek-{folder_id}-{bundle_no}.json").write_text(json.dumps(bundle, ensure_ascii=False), encoding="utf-8")
+                bundle, bundle_size, bundle_no = [], 0, bundle_no + 1
+
+        for order, (title, body) in enumerate(split_sections(lines, outlines.get(path.name)), 1):
             topic_id = folder_id * 1000 + order
-            parser = TopicParser(topic_id, used_ids)
-            parser.plain_source = True
-            for raw in body:
-                if TABLE_RULE_RE.match(raw.strip()) and "-" in raw:
-                    continue
-                if raw.startswith("#"):
-                    parser.flush_pending(as_headings=True)
-                    parser.article = None
-                    parser.blocks.append({"t": "d" if raw.startswith("## ") else "h", "x": clean(raw.lstrip("# "))})
-                    continue
-                text = clean(raw.strip().strip("|").replace(" | ", " · ")) if raw.lstrip().startswith("|") else clean(raw)
-                if not is_noise(text):
-                    parser.feed(text)
-            blocks = parser.finish()
+            blocks = section_blocks(body, topic_id, used_ids)
             if not blocks:
                 continue
-            (out_dir / f"konu-{topic_id}.json").write_text(
-                json.dumps({"id": topic_id, "title": title, "blocks": blocks}, ensure_ascii=False), encoding="utf-8"
-            )
+            title = title or folder_title
+            if bundle_size > BUNDLE_BYTES:
+                write_bundle()
+            bundle.append({"id": topic_id, "title": title, "blocks": blocks})
+            bundle_size += sum(len(l) for l in body)
             articles = [{"id": b["id"], "label": b["label"], "title": b["title"]} for b in blocks if b["t"] == "a"]
-            topics.append({"id": topic_id, "title": title, "articles": articles})
-        folders.append({"id": folder_id, "title": folder_title, "topics": topics})
-        print(f"klasör {folder_id}: {folder_title[:60]} -> {len(topics)} konu")
-    return folders
+            topics.append({"id": topic_id, "title": title, "file": f"ek-{folder_id}-{bundle_no}.json", "articles": articles})
+        write_bundle()
+        groups[group_key]["folders"].append({"id": folder_id, "title": folder_title, "topics": topics})
+        print(f"{groups[group_key]['title']:22} | {folder_title[:50]:50} | {len(topics)} konu, {bundle_no - 1} paket")
+    return [group for group in groups.values() if group["folders"]]
 
 
 def number_key(no: str) -> tuple[int, str]:
@@ -359,7 +477,7 @@ def build(source_path: Path, out_dir: Path, extra_paths: list[Path] | None = Non
         entries.sort(key=lambda e: (number_key(e["no"]), e["id"]))
     index = {
         "topics": index_topics, "gk": law_index["GK"], "gy": law_index["GY"],
-        "folders": build_folders(extra_paths or [], out_dir, used_ids),
+        "groups": build_folders(extra_paths or [], out_dir, used_ids),
     }
     (out_dir / "index.json").write_text(
         json.dumps(index, ensure_ascii=False), encoding="utf-8"

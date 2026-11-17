@@ -18,7 +18,12 @@ export interface TextBlock {
   x: string;
 }
 
-export type Block = ArticleBlock | TextBlock;
+export interface TableBlock {
+  t: 't';
+  rows: string[][];
+}
+
+export type Block = ArticleBlock | TextBlock | TableBlock;
 
 export interface Topic {
   id: number;
@@ -35,6 +40,8 @@ export interface TopicArticleRef {
 export interface TopicSummary {
   id: number;
   title: string;
+  /** Konunun içinde bulunduğu paket dosyası (yalnızca diğer not dosyalarında). */
+  file?: string;
   articles: TopicArticleRef[];
 }
 
@@ -49,7 +56,13 @@ export interface MevzuatIndex {
   topics: TopicSummary[];
   gk: LawEntry[];
   gy: LawEntry[];
-  /** Ek kaynak dosyaları; her biri ayrı klasör (konu kimlikleri 1000 ve üzeri). */
+  /** Diğer not dosyaları, konu sekmelerine göre (konu kimlikleri 1000 ve üzeri). */
+  groups: SourceGroup[];
+}
+
+export interface SourceGroup {
+  id: string;
+  title: string;
   folders: Folder[];
 }
 

@@ -14,6 +14,30 @@ export function BlockList({ blocks }: BlockListProps): JSX.Element {
         switch (block.t) {
           case 'a':
             return <ArticleCard key={block.id} article={block} />;
+          case 't':
+            return (
+              <div key={i} className="mb-5 overflow-x-auto rounded-lg border border-paper-line bg-paper-card">
+                <table className="w-full border-collapse text-left text-sm">
+                  <tbody>
+                    {block.rows.map((row, r) => (
+                      <tr key={r} className={r === 0 ? 'bg-ink text-white' : 'border-t border-paper-line align-top'}>
+                        {row.map((cell, c) =>
+                          r === 0 ? (
+                            <th key={c} className="px-3 py-2 font-semibold">
+                              {cell}
+                            </th>
+                          ) : (
+                            <td key={c} className="px-3 py-2">
+                              <RichText text={cell} />
+                            </td>
+                          ),
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            );
           case 'd':
             return (
               <h3 key={i} className="mb-4 mt-10 rounded-md bg-ink px-4 py-3 text-sm font-semibold tracking-wide text-white">

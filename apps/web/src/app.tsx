@@ -25,7 +25,8 @@ function buildLookup(index: MevzuatIndex): Lookup {
   const topicOf = new Map<string, number>();
   for (const topic of index.topics) for (const article of topic.articles) topicOf.set(article.id, topic.id);
   const core = [...topicOf.keys()];
-  for (const folder of index.folders) for (const topic of folder.topics) for (const article of topic.articles) topicOf.set(article.id, topic.id);
+  for (const group of index.groups)
+    for (const folder of group.folders) for (const topic of folder.topics) for (const article of topic.articles) topicOf.set(article.id, topic.id);
   const gk = index.gk.map((entry) => entry.id);
   const gy = index.gy.map((entry) => entry.id);
   return { topicOf, knownRefs: new Set([...gk, ...gy]), order: { konu: core, gk, gy, soru: [], sinav: [], kaynak: [] } };
@@ -53,7 +54,9 @@ export function App(): JSX.Element {
   const topic = useTopic(lookup ? activeTopic : null, retry);
   const questionsView = route.kind === 'questions';
   const searching = !questionsView && term.trim().length >= 2;
-  const activeFolder = index.data?.folders.find((folder) => folder.topics.some((t) => t.id === activeTopic));
+  const groups = index.data?.groups ?? [];
+  const activeGroup = groups.find((g) => g.folders.some((f) => f.topics.some((t) => t.id === activeTopic))) ?? null;
+  const activeFolder = activeGroup?.folders.find((folder) => folder.topics.some((t) => t.id === activeTopic));
   const searchTopics = !index.data
     ? null
     : mode === 'kaynak'
@@ -98,9 +101,8 @@ export function App(): JSX.Element {
     setMode(next);
     setTerm('');
     const first = lookup.order[next][0];
-    const firstFolderTopic = index.data?.folders[0]?.topics[0]?.id;
     if (next === 'kaynak') {
-      if ((activeTopic ?? 0) < FOLDER_TOPIC_BASE && firstFolderTopic) window.location.hash = topicHash(firstFolderTopic);
+      return;
     } else if ((activeTopic ?? 0) >= FOLDER_TOPIC_BASE && next !== 'soru' && next !== 'sinav') {
       window.location.hash = articleHash(first ?? lookup.order.konu[0] ?? '');
     } else if (next === 'soru' || next === 'sinav') window.location.hash = QUESTIONS_HASH[next === 'sinav' ? 'sinav' : 'diger'];
@@ -108,6 +110,11 @@ export function App(): JSX.Element {
     else if (next !== 'konu' && first && !(activeId && lookup.order[next].includes(activeId))) {
       window.location.hash = articleHash(first);
     }
+  };
+  const changeGroup = (groupId: string): void => {
+    setTerm('');
+    const first = groups.find((g) => g.id === groupId)?.folders[0]?.topics[0]?.id;
+    if (first !== undefined && activeGroup?.id !== groupId) window.location.hash = topicHash(first);
   };
   const toggleTopic = (topicId: number, open: boolean): void =>
     setOpenTopics((current) => {
@@ -128,6 +135,9 @@ export function App(): JSX.Element {
         term={term}
         onTermChange={setTerm}
         summary={`${index.data.topics.length} konu · ${lookup.topicOf.size} madde · çıkmış sorular`}
+        groups={groups}
+        activeGroup={activeGroup?.id ?? null}
+        onGroupChange={changeGroup}
       />
       <div className="mx-auto grid max-w-[1400px] gap-6 px-4 py-6 sm:px-8 lg:grid-cols-[minmax(0,1fr)_300px]">
         <main className="min-w-0 rounded-2xl bg-paper p-4 shadow-2xl sm:p-8">
@@ -176,6 +186,7 @@ export function App(): JSX.Element {
           openTopics={openTopics}
           onToggleTopic={toggleTopic}
           onToggleAll={toggleAll}
+          folders={activeGroup?.folders ?? []}
         />
       </div>
     </ReaderContext.Provider>

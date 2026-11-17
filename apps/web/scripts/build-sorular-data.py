@@ -107,8 +107,10 @@ class ArticleMatcher:
         self.articles: list[tuple[str, str, set[str]]] = []
         self.names: dict[str, str] = {}
         self.paragraphs: dict[str, list[str]] = {}
-        for path in sorted(DATA_DIR.glob("konu-*.json")):
-            topic = json.loads(path.read_text(encoding="utf-8"))
+        loaded = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(DATA_DIR.glob("konu-*.json"))]
+        for path in sorted(DATA_DIR.glob("ek-*.json")):  # diğer not dosyalarının konu paketleri
+            loaded += json.loads(path.read_text(encoding="utf-8"))
+        for topic in loaded:
             for block in topic["blocks"]:
                 if block["t"] == "a":
                     name = " · ".join(x for x in (block["doc"], block["label"], block["title"]) if x)

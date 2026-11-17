@@ -66,6 +66,14 @@ export function findHits(topics: Topic[], term: string, mode: ReaderMode): Searc
         });
         continue;
       }
+      if (mode === 'kaynak' && block.t === 't') {
+        for (const row of block.rows) {
+          const text = row.join(' · ');
+          if (trLower(text).includes(needle))
+            hits.push({ topic, article: { t: 'a', id: `konu-${topic.id}`, src: '', no: '', label: 'Tablo satırı', title: '', doc: '', p: [text] } });
+        }
+        continue;
+      }
       if (block.t !== 'a' || (source && block.src !== source)) continue;
       if (articleText(block).includes(needle)) hits.push({ topic, article: block });
     }

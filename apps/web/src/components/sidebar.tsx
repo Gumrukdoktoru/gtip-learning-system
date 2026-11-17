@@ -1,4 +1,4 @@
-import type { MevzuatIndex, ReaderMode } from '../types/mevzuat';
+import type { Folder, MevzuatIndex, ReaderMode } from '../types/mevzuat';
 import { SidebarNav } from './sidebar-nav';
 
 interface SidebarProps {
@@ -9,6 +9,7 @@ interface SidebarProps {
   openTopics: ReadonlySet<number>;
   onToggleTopic: (topicId: number, open: boolean) => void;
   onToggleAll: () => void;
+  folders: Folder[];
 }
 
 /** İçindekiler paneli (geniş ekranda sağda, dar ekranda içeriğin üstünde açılır). */

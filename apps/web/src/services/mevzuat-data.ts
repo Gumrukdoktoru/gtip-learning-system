@@ -17,12 +17,24 @@ function loadJson<T>(file: string): Promise<T> {
   return pending;
 }
 
+const bundleOf = new Map<number, string>();
+
 export function loadIndex(): Promise<MevzuatIndex> {
-  return loadJson<MevzuatIndex>('index.json');
+  return loadJson<MevzuatIndex>('index.json').then((index) => {
+    for (const group of index.groups)
+      for (const folder of group.folders) for (const topic of folder.topics) if (topic.file) bundleOf.set(topic.id, topic.file);
+    return index;
+  });
 }
 
 export function loadTopic(topicId: number): Promise<Topic> {
-  return loadJson<Topic>(`konu-${topicId}.json`);
+  const bundle = bundleOf.get(topicId);
+  if (!bundle) return loadJson<Topic>(`konu-${topicId}.json`);
+  return loadJson<Topic[]>(bundle).then((topics) => {
+    const topic = topics.find((item) => item.id === topicId);
+    if (!topic) throw new Error('Konu pakette bulunamadı');
+    return topic;
+  });
 }
 
 export function loadTopics(topicIds: number[]): Promise<Topic[]> {

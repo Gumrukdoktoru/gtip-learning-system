@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import type { LawEntry, MevzuatIndex, ReaderMode } from '../types/mevzuat';
+import type { Folder, LawEntry, MevzuatIndex, ReaderMode } from '../types/mevzuat';
 import { articleHash, topicHash } from '../utils/route';
 
 interface SidebarNavProps {
@@ -9,6 +9,8 @@ interface SidebarNavProps {
   activeTopic: number | null;
   openTopics: ReadonlySet<number>;
   onToggleTopic: (topicId: number, open: boolean) => void;
+  /** 'kaynak' bölümünde açık sekmenin belgeleri. */
+  folders: Folder[];
 }
 
 const LINK_BASE = 'block rounded px-3 py-1.5 text-[13px] leading-snug hover:bg-white/10';
@@ -45,8 +47,12 @@ export function SidebarNav(props: SidebarNavProps): JSX.Element {
   if (mode === 'kaynak') {
     return (
       <nav ref={container} aria-label="Ek kaynaklar">
-        {index.folders.map((folder) => (
-          <details key={folder.id} open={folder.topics.some((topic) => topic.id === activeTopic)} className="border-b border-white/10">
+        {props.folders.map((folder) => (
+          <details
+            key={folder.id}
+            open={props.folders.length === 1 || folder.topics.some((topic) => topic.id === activeTopic) || undefined}
+            className="border-b border-white/10"
+          >
             <summary className="cursor-pointer px-2 py-2 text-[13px] font-semibold">
               {folder.title} <span className="font-normal text-slate-400">({folder.topics.length})</span>
             </summary>
