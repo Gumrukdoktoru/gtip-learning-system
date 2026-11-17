@@ -4,8 +4,10 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink: { DEFAULT: '#2a1840', soft: '#4a3566', mute: '#7b6c91' },
-        paper: { DEFAULT: '#ece6f5', card: '#ffffff', line: '#d6cbe6' },
+        ink: { DEFAULT: '#1c2430', soft: '#3d4a5c', mute: '#6c7a8d' },
+        paper: { DEFAULT: '#f4f5f3', card: '#ffffff', line: '#dfe3e0' },
+        shell: '#11161d',
+        accent: '#f5b83d',
         kanun: '#b3261e',
         yonetmelik: '#1d5fa8',
         diger: '#8a5a00',

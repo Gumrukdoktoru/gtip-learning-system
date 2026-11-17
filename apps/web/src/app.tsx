@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { OtherQuestions } from './components/other-questions';
+import { HeaderBar } from './components/header-bar';
 import { Reader } from './components/reader';
 import { ReaderContext } from './components/reader-context';
 import { SearchResults } from './components/search-results';
@@ -106,30 +107,17 @@ export function App(): JSX.Element {
 
   return (
     <ReaderContext.Provider value={context}>
-      <header className="flex flex-wrap items-center justify-between gap-2 bg-gradient-to-r from-[#2a1840] to-[#5b2a86] px-5 py-3.5 text-white sm:px-9">
-        <span className="text-xs font-semibold tracking-[0.22em]">GÜMRÜK MEVZUATI OKUYUCU</span>
-        <span className="text-xs text-white/70">
-          {index.data.topics.length} konu · {lookup.topicOf.size} madde
-        </span>
-      </header>
-      <div className="mx-auto grid max-w-[1400px] gap-8 p-4 sm:p-8 lg:grid-cols-[290px_minmax(0,1fr)]">
-        <Sidebar
-          index={index.data}
-          mode={mode}
-          onModeChange={changeMode}
-          term={term}
-          onTermChange={setTerm}
-          activeId={searching ? null : activeId}
-          activeTopic={activeTopic}
-          openTopics={openTopics}
-          onToggleTopic={toggleTopic}
-          onToggleAll={toggleAll}
-        />
-        <main className="min-w-0">
+      <HeaderBar
+        mode={mode}
+        onModeChange={changeMode}
+        term={term}
+        onTermChange={setTerm}
+        summary={`${index.data.topics.length} konu · ${lookup.topicOf.size} madde · çıkmış sorular`}
+      />
+      <div className="mx-auto grid max-w-[1400px] gap-6 px-4 py-6 sm:px-8 lg:grid-cols-[minmax(0,1fr)_300px]">
+        <main className="min-w-0 rounded-2xl bg-paper p-4 shadow-2xl sm:p-8">
           <div className="mb-6 border-b border-paper-line pb-5">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-ink-mute">Konu esaslı derleme</p>
-            <h1 className="my-2 font-read text-4xl tracking-tight">Gümrük Mevzuatı</h1>
-            <div className="mt-4 flex flex-wrap items-center gap-2">
+                        <div className="mt-4 flex flex-wrap items-center gap-2">
               <button type="button" className={TOOL_BUTTON} aria-label="Yazıyı büyüt" onClick={() => setFontSize(Math.min(MAX_FONT, fontSize + 1))}>
                 A+
               </button>
@@ -165,6 +153,15 @@ export function App(): JSX.Element {
             />
           )}
         </main>
+        <Sidebar
+          index={index.data}
+          mode={mode}
+          activeId={searching ? null : activeId}
+          activeTopic={activeTopic}
+          openTopics={openTopics}
+          onToggleTopic={toggleTopic}
+          onToggleAll={toggleAll}
+        />
       </div>
     </ReaderContext.Provider>
   );

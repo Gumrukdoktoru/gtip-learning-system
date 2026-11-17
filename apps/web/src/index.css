@@ -7,8 +7,8 @@
 }
 
 body {
-  @apply bg-paper text-ink antialiased;
-  background-image: linear-gradient(180deg, #e3d9f2 0, #ece6f5 320px);
+  @apply bg-shell text-ink antialiased;
+  background-image: radial-gradient(1200px 500px at 85% -10%, #26303d 0, transparent 70%);
   background-repeat: no-repeat;
 }
 

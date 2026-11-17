@@ -51,9 +51,28 @@ function QuestionItem({ question }: { question: Question }): JSX.Element {
           {revealed ? 'Cevabı gizle' : 'Cevabı göster'}
         </button>
         {revealed && (
-          <span className="ml-3 text-sm font-semibold text-emerald-800">
-            {question.cevap ? `Doğru cevap: ${question.cevap}` : 'Cevap bilgisi yok'}
-          </span>
+          <div className="mt-3 rounded-md border-l-4 border-emerald-600 bg-emerald-50 px-4 py-3 text-sm leading-relaxed text-ink">
+            <p className="font-semibold text-emerald-900">
+              Doğru cevap: {question.siklar.find((option) => option.startsWith(`${question.cevap})`)) ?? (question.cevap || 'bilgi yok')}
+            </p>
+            {question.dayanak ? (
+              <>
+                <p className="mt-2">
+                  <strong>Dayanak:</strong>{' '}
+                  <a className="font-semibold underline" href={articleHash(question.dayanak.id)}>
+                    {question.dayanak.ad}
+                  </a>
+                </p>
+                <p className="mt-1">
+                  <strong>Gerekçe:</strong> Doğru şık, aşağıdaki hükümle örtüşmektedir.
+                </p>
+                <blockquote className="mt-2 border-l-2 border-emerald-300 pl-3 font-read italic">“{question.dayanak.metin}”</blockquote>
+                <p className="mt-2 text-xs text-ink-mute">Dayanak hüküm, notlarınızdaki ilgili maddeden otomatik seçilmiştir.</p>
+              </>
+            ) : (
+              <p className="mt-2 text-ink-soft">Bu soru için notlarda dayanak hüküm eşleştirilemedi.</p>
+            )}
+          </div>
         )}
       </div>
     </details>

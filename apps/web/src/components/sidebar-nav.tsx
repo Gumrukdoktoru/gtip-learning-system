@@ -11,8 +11,8 @@ interface SidebarNavProps {
   onToggleTopic: (topicId: number, open: boolean) => void;
 }
 
-const LINK_BASE = 'block rounded px-3 py-1.5 text-[13px] leading-snug hover:bg-black/5';
-const LINK_ACTIVE = 'bg-ink text-white hover:bg-ink';
+const LINK_BASE = 'block rounded px-3 py-1.5 text-[13px] leading-snug hover:bg-white/10';
+const LINK_ACTIVE = 'bg-accent font-semibold text-shell hover:bg-accent';
 
 function LawList({ entries, code, activeId }: { entries: LawEntry[]; code: string; activeId: string | null }): JSX.Element {
   return (
@@ -44,14 +44,14 @@ export function SidebarNav(props: SidebarNavProps): JSX.Element {
 
   if (mode === 'sinav') {
     return (
-      <p className="px-2 text-[13px] leading-relaxed text-ink-soft">
+      <p className="px-2 text-[13px] leading-relaxed text-slate-300">
         Bütün çıkmış sorular sağda, yıllara ve sınavlara göre listelenir. Her sorunun altında bağlı olduğu maddeye geçiş vardır.
       </p>
     );
   }
   if (mode === 'soru') {
     return (
-      <p className="px-2 text-[13px] leading-relaxed text-ink-soft">
+      <p className="px-2 text-[13px] leading-relaxed text-slate-300">
         Kanun ve Yönetmelik maddelerine bağlanamayan sınav soruları sağda, sınavlara göre listelenir. Maddeye bağlı sorular ilgili
         maddenin altındadır.
       </p>
@@ -73,18 +73,18 @@ export function SidebarNav(props: SidebarNavProps): JSX.Element {
             key={topic.id}
             open={open}
             onToggle={(event) => onToggleTopic(topic.id, event.currentTarget.open)}
-            className="border-b border-paper-line"
+            className="border-b border-white/10"
           >
             <summary
-              className={`cursor-pointer px-2 py-2 text-[13px] font-semibold ${topic.id === activeTopic ? 'text-kanun' : ''}`}
+              className={`cursor-pointer px-2 py-2 text-[13px] font-semibold ${topic.id === activeTopic ? 'text-accent' : ''}`}
             >
-              <span className="mr-1.5 text-ink-mute">{topic.id}.</span>
+              <span className="mr-1.5 text-slate-400">{topic.id}.</span>
               {topic.title}
-              <span className="ml-1.5 font-normal text-ink-mute">({topic.articles.length})</span>
+              <span className="ml-1.5 font-normal text-slate-400">({topic.articles.length})</span>
             </summary>
             {open && (
               <div className="pb-2 pl-2">
-                <a href={topicHash(topic.id)} className={`${LINK_BASE} italic text-ink-soft`}>
+                <a href={topicHash(topic.id)} className={`${LINK_BASE} italic text-slate-300`}>
                   Konunun tamamı
                 </a>
                 {topic.articles.map((article) => (

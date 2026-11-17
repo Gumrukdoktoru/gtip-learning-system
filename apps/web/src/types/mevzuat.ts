@@ -73,6 +73,8 @@ export interface Question {
   madde?: ArticleLink[];
   /** Metin benzerliğiyle otomatik bulunan ilgili madde. */
   ilgili?: ArticleLink;
+  /** Notlardaki dayanak hüküm (otomatik seçilir). */
+  dayanak?: ArticleLink & { metin: string };
 }
 
 export interface ArticleLink {

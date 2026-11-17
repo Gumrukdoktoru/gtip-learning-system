@@ -105,12 +105,16 @@ class ArticleMatcher:
 
     def __init__(self) -> None:
         self.articles: list[tuple[str, str, set[str]]] = []
+        self.names: dict[str, str] = {}
+        self.paragraphs: dict[str, list[str]] = {}
         for path in sorted(DATA_DIR.glob("konu-*.json")):
             topic = json.loads(path.read_text(encoding="utf-8"))
             for block in topic["blocks"]:
                 if block["t"] == "a":
                     name = " · ".join(x for x in (block["doc"], block["label"], block["title"]) if x)
                     self.articles.append((block["id"], name, tokens(block["title"] + " " + " ".join(block["p"]))))
+                    self.names[block["id"]] = name
+                    self.paragraphs[block["id"]] = block["p"]
         counts: dict[str, int] = {}
         for _, _, bag in self.articles:
             for token in bag:
@@ -118,6 +122,22 @@ class ArticleMatcher:
         total = len(self.articles)
         self.idf = {token: math.log(total / count) for token, count in counts.items()}
         self.norms = [math.sqrt(sum(self.idf[t] ** 2 for t in bag)) or 1.0 for _, _, bag in self.articles]
+
+    def basis(self, question: dict, article_ids: list[str]) -> dict | None:
+        """Sorunun dayanağı: bağlı maddelerde soru kökü ve doğru şıkla en çok örtüşen hüküm."""
+        answer = [o for o in question["siklar"] if o.startswith(question["cevap"] + ")")] if len(question["cevap"]) == 1 else []
+        bag = tokens(" ".join(question["kok"] + answer))
+        best: tuple[float, str, str] | None = None
+        for article_id in article_ids:
+            for paragraph in self.paragraphs.get(article_id, []):
+                shared = bag & tokens(paragraph)
+                score = sum(self.idf.get(t, 0.0) for t in shared)
+                if len(shared) >= 2 and (best is None or score > best[0]):
+                    best = (score, article_id, paragraph)
+        if best is None:
+            return None
+        text = best[2] if len(best[2]) <= 700 else best[2][:700].rsplit(" ", 1)[0] + " …"
+        return {"id": best[1], "ad": self.names[best[1]], "metin": text}
 
     def best(self, question: dict) -> dict | None:
         answer = [o for o in question["siklar"] if o.startswith(question["cevap"] + ")")] if len(question["cevap"]) == 1 else []
@@ -158,6 +178,7 @@ def merge_supplement(exams: dict[str, dict[int, dict]]) -> int:
                 "kok": question["kok"], "siklar": question["siklar"], "cevap": question["cevap"],
                 **({"madde": match["madde"]} if match and match.get("madde") else {}),
                 **({"ilgili": match["ilgili"]} if match and match.get("ilgili") else {}),
+                **({"dayanak": match["dayanak"]} if match and match.get("dayanak") else {}),
             }
             added += match is None
         exams[exam["sinav"]] = items
@@ -222,12 +243,16 @@ def main() -> None:
 
     topics = json.loads((DATA_DIR / "index.json").read_text(encoding="utf-8"))["topics"]
     labels = {a["id"]: a["label"] for t in topics for a in t["articles"]}
+    matcher = ArticleMatcher()
     by_article: dict[str, list[dict]] = {}
     exams: dict[str, dict[int, dict]] = {}
     for container, _, question in scan(law_html) + scan(regulation_html):
         if not container:
             continue
         key = article_id(container)
+        ground = matcher.basis(question, [key])
+        if ground:
+            question["dayanak"] = ground
         if question["siklar"]:
             by_article.setdefault(key, []).append(question)
         name, number = exam_key(question)
@@ -237,13 +262,15 @@ def main() -> None:
         if link not in entry["madde"]:
             entry["madde"].append(link)
 
-    matcher = ArticleMatcher()
     groups: dict[str, list[dict]] = {}
     matched = 0
     for _, group, question in scan(other_html):
         related = matcher.best(question) if question["siklar"] else None
         if related:
             question["ilgili"] = related
+            ground = matcher.basis(question, [related["id"]])
+            if ground:
+                question["dayanak"] = ground
             matched += 1
         if question["siklar"]:
             groups.setdefault(group, []).append(question)
