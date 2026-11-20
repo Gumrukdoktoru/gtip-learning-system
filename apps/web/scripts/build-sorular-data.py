@@ -117,9 +117,13 @@ def tokens(text: str) -> set[str]:
 
 
 class ArticleMatcher:
-    """Maddeye bağlı olmayan soruyu, derlemedeki en benzer maddeyle eşleştirir (TF-IDF benzeri)."""
+    """Maddeye bağlı olmayan soruyu, derlemedeki en benzer maddeyle eşleştirir (TF-IDF benzeri).
 
-    def __init__(self) -> None:
+    skip: bu önekle başlayan maddeler havuza alınmaz. Genel eşleştirici YYS maddelerini ("yys-") almaz; YYS soruları
+    yalnızca link_yys içinde, YYS maddelerini de içeren ayrı bir eşleştiriciyle ve daha sıkı ölçütle bağlanır.
+    """
+
+    def __init__(self, skip: str = "") -> None:
         self.articles: list[tuple[str, str, set[str]]] = []
         self.names: dict[str, str] = {}
         self.paragraphs: dict[str, list[str]] = {}
@@ -129,9 +133,9 @@ class ArticleMatcher:
             loaded += json.loads(path.read_text(encoding="utf-8"))
         for topic in loaded:
             for block in topic["blocks"]:
-                if block["t"] == "a":
+                if block["t"] == "a" and not (skip and block["id"].startswith(skip)):
                     name = " · ".join(x for x in (block["doc"], block["label"], block["title"]) if x)
-                    self.articles.append((block["id"], name, tokens(block["title"] + " " + " ".join(block["p"]))))
+                    self.articles.append((block["id"], name, tokens(match_text(block["id"], block["title"] + " " + " ".join(block["p"])))))
                     self.names[block["id"]] = name
                     self.paragraphs[block["id"]] = block["p"]
         counts: dict[str, int] = {}
@@ -146,16 +150,22 @@ class ArticleMatcher:
         """Sorunun dayanağı: bağlı maddelerde soru kökü ve doğru şıkla en çok örtüşen hüküm."""
         answer = [o for o in question["siklar"] if o.startswith(question["cevap"] + ")")] if len(question["cevap"]) == 1 else []
         bag = tokens(" ".join(question["kok"] + answer))
-        best: tuple[float, str, str] | None = None
+        best: tuple[float, str, str, int] | None = None
         for article_id in article_ids:
-            for paragraph in self.paragraphs.get(article_id, []):
-                shared = bag & tokens(paragraph)
-                score = sum(self.idf.get(t, 0.0) for t in shared)
+            # YYS notunda her bent ayrı satırdır: doğru şıkkın sözcüklerini taşıyan bent (karar veren hüküm) öne alınır.
+            stress = tokens(" ".join(answer)) if article_id.startswith("yys-") else set()
+            for at, paragraph in enumerate(self.paragraphs.get(article_id, [])):
+                words = tokens(paragraph)
+                shared = bag & words
+                score = sum(self.idf.get(t, 0.0) for t in shared) + sum(self.idf.get(t, 0.0) for t in stress & words)
                 if len(shared) >= 2 and (best is None or score > best[0]):
-                    best = (score, article_id, paragraph)
+                    best = (score, article_id, paragraph, at)
         if best is None:
             return None
-        text = best[2] if len(best[2]) <= 700 else best[2][:700].rsplit(" ", 1)[0] + " …"
+        if best[1].startswith("yys-"):  # bent tek başına okunmaz: içinde bulunduğu fıkra verilir
+            text = yys_span(self.paragraphs[best[1]], best[3])
+        else:
+            text = best[2] if len(best[2]) <= 700 else best[2][:700].rsplit(" ", 1)[0] + " …"
         return {"id": best[1], "ad": self.names[best[1]], "metin": text}
 
     def best(self, question: dict) -> dict | None:
@@ -173,8 +183,10 @@ class ArticleMatcher:
         return {"id": self.articles[at][0], "ad": self.articles[at][1], "puan": round(score, 2)}
 
 
-    def best_law(self, question: dict) -> dict | None:
+    def best_law(self, question: dict, prefix: str = "") -> dict | None:
         """Kökü Gümrük Kanununu ya da Yönetmeliğini adıyla anan soru için o mevzuattaki en benzer madde.
+
+        prefix verilirse ("yys-") arama o mevzuatın maddeleriyle sınırlanır; kökte mevzuat adı aranmaz.
 
         Yalnızca güvenli eşleşme döner; üç ölçütten biri yeterlidir, ölçütler farklı madde gösterirse eşleşme yok sayılır:
           * kök + doğru şık ile madde benzerliği >= LAW_SCORE, ikinci adayla fark >= LAW_MARGIN ve kök ağırlığının
@@ -188,7 +200,7 @@ class ArticleMatcher:
         stem = lower_tr(" ".join(question["kok"]))
         if re.search(r"\d\s+sayılı", stem.replace("4458 sayılı", "")):  # başka bir mevzuat da anılıyor
             return None
-        prefix = "gy-" if "gümrük yönetmeli" in stem else "gk-" if LAW_NAMED_RE.search(stem) else ""
+        prefix = prefix or ("gy-" if "gümrük yönetmeli" in stem else "gk-" if LAW_NAMED_RE.search(stem) else "")
         answer = [o for o in question["siklar"] if o.startswith(question["cevap"] + ")")] if len(question["cevap"]) == 1 else []
         bag = {t for t in tokens(" ".join(question["kok"] + answer)) if t in self.idf}
         norm = math.sqrt(sum(self.idf[t] ** 2 for t in bag))
@@ -199,7 +211,7 @@ class ArticleMatcher:
         if len(scope) < 2:
             return None
         if not self.paragraph_bags:
-            self.paragraph_bags = {ident: [tokens(p) for p in paragraphs] for ident, paragraphs in self.paragraphs.items()}
+            self.paragraph_bags = {ident: [tokens(match_text(ident, p)) for p in paragraphs] for ident, paragraphs in self.paragraphs.items()}
         cosine = sorted(((sum(self.idf[t] ** 2 for t in bag & self.articles[i][2]) / (norm * self.norms[i]), i) for i in scope), reverse=True)
         cover = sorted(((max((sum(self.idf[t] for t in bag & p) for p in self.paragraph_bags[self.articles[i][0]]), default=0.0) / weight, i) for i in scope), reverse=True)
         picks = set()
@@ -213,7 +225,7 @@ class ArticleMatcher:
         wide = {t for t in tokens(" ".join(question["kok"] + question["siklar"])) if t in self.idf}
         wide_norm = math.sqrt(sum(self.idf[t] ** 2 for t in wide)) or 1.0
         broad = sorted(((sum(self.idf[t] ** 2 for t in wide & self.articles[i][2]) / (wide_norm * self.norms[i]), i) for i in scope), reverse=True)
-        if broad[0][0] >= LAW_ALL_SCORE and broad[0][0] - broad[1][0] >= LAW_ALL_MARGIN:
+        if broad[0][0] >= (YYS_ALL_SCORE if prefix == "yys-" else LAW_ALL_SCORE) and broad[0][0] - broad[1][0] >= LAW_ALL_MARGIN:
             picks.add(broad[0][1])
         if len(picks) != 1:
             return None
@@ -221,10 +233,117 @@ class ArticleMatcher:
         return {"id": self.articles[at][0], "ad": self.articles[at][1], "puan": round(dict((i, score) for score, i in cosine)[at], 2)}
 
 
+# --- Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği (YYS) soruları --------------------------------
+YYS_NAMED_RE = re.compile(r"kolaylaştırılması yönetmeli")
+YYS_TOPIC_RE = re.compile(r"yetkilendirilmiş yükümlü|\byys\b")
+YYS_OTHER_LAW_RE = re.compile(r"gümrük kanun|gümrük yönetmeli|tebliğ|\d\s+sayılı")  # kök başka bir mevzuatı anıyor
+YYS_ALL_SCORE = 0.4  # "kök + bütün şıklar" ölçütü YYS'de daha sıkı: kısa maddeler (ör. 160/A) yüksek benzerlik alır
+YYS_LABEL_RE = re.compile(r"\[[^\]]*\]")  # notta atıf yapılan maddenin adı köşeli parantezdedir: o maddenin hükmü değildir
+
+
+YYS_PARAGRAPH_RE = re.compile(r"^\(\d+\)")  # YYS notunda fıkra başı: "(1) Geçerliliğin başlangıcı"
+
+
+def yys_span(paragraphs: list[str], at: int, limit: int = 700) -> str:
+    """YYS maddesinde at. satırı içeren fıkra (fıkra başlığından bir sonraki fıkraya kadar), en fazla limit karakter.
+
+    Notta her bent ayrı satırdır; tek satır ("Teminata bağlanması gereken tutardan bağımsız olarak,") hükmü göstermez.
+    Fıkra uzunsa at. satır korunarak baştan kısaltılır; atlanan kısım "…" ile gösterilir. Metin değiştirilmez.
+    """
+    start = at
+    while start > 0 and not YYS_PARAGRAPH_RE.match(paragraphs[start]):
+        start -= 1
+    if not YYS_PARAGRAPH_RE.match(paragraphs[start]):
+        start = at
+    end = at + 1
+    while end < len(paragraphs) and not YYS_PARAGRAPH_RE.match(paragraphs[end]):
+        end += 1
+    while start < at and len(" ".join(paragraphs[start:at + 1])) > limit - 150:
+        start += 1
+    text, nxt = " ".join(paragraphs[start:at + 1]), at + 1
+    while nxt < end and len(text) + 1 + len(paragraphs[nxt]) <= limit:
+        text, nxt = text + " " + paragraphs[nxt], nxt + 1
+    cut = start > 0 and not YYS_PARAGRAPH_RE.match(paragraphs[start])
+    return ("… " if cut else "") + text + (" …" if nxt < end else "")
+
+
+def match_text(article_id: str, text: str) -> str:
+    """Eşleştirmede kullanılan metin: YYS maddelerinde başka maddelere yapılan atıfların [adları] sayılmaz."""
+    return YYS_LABEL_RE.sub(" ", text) if article_id.startswith("yys-") else text
+
+
+def yys_question(question: dict) -> str:
+    """'ad': kök Yönetmeliği adıyla anıyor; 'konu': yetkilendirilmiş yükümlüyü başka bir mevzuat anmadan soruyor; '' değil."""
+    stem = lower_tr(" ".join(question["kok"]))
+    if YYS_NAMED_RE.search(stem):
+        return "ad"
+    return "konu" if YYS_TOPIC_RE.search(stem) and not YYS_OTHER_LAW_RE.search(stem) else ""
+
+
+def link_yys(groups: list[dict], matcher: "ArticleMatcher", labels: dict[str, str], reviewed_keys: set[str]) -> tuple[dict[str, int], list[tuple[str, dict]]]:
+    """YYS Yönetmeliğine ilişkin soruları YYS maddelerine bağlar (madde sayfasında listelenecek (madde, soru) çiftlerini döndürür).
+
+    * Kök maddeyi açıkça anıyorsa ("…Kolaylaştırılması Yönetmeliğinin 16 ncı maddesi") soru o maddeye "madde" olarak bağlanır.
+    * Kök Yönetmeliği adıyla anıyorsa, başka mevzuattaki otomatik eşleşme ("ilgili", ör. Onaylanmış Kişi Tebliği maddesi) ve
+      ondan türeyen dayanak kaldırılır: dayanak yalnızca anılan mevzuattan seçilir.
+    * Okunarak seçilmiş dayanağı olmayan soru, ArticleMatcher.best_law ile yalnızca YYS maddeleri içinde aranır; güvenli eşleşme
+      "ilgili" (otomatik eşleşme) olur, dayanağı o maddenin karar veren bendidir. Kök Yönetmeliği adıyla anmıyorsa bu yalnızca
+      maddesi belirsiz sorulara uygulanır.
+    """
+    stats = {"soru": 0, "acik": 0, "otomatik": 0, "kaldirilan": 0, "okuma": 0}
+    listed: list[tuple[str, dict]] = []
+    for group in groups:
+        for question in group["sorular"]:
+            kind = yys_question(question) if question["siklar"] else ""
+            if not kind:
+                continue
+            stats["soru"] += 1
+            stem = lower_tr(" ".join(question["kok"]))
+            cited = []
+            for number, letter in CITED_YYS_RE.findall(stem):
+                ident = f"yys-{number}" + (f"-{letter}" if letter else "")
+                if ident in labels and ident not in cited:
+                    cited.append(ident)
+            if cited:
+                question["madde"] = question.get("madde", []) + [{"id": i, "ad": labels[i]} for i in cited]
+                if "dayanak" not in question or question["dayanak"].get("kaynak") is None:
+                    ground = matcher.basis(question, cited)
+                    if ground:
+                        question["dayanak"] = ground
+                listed += [(ident, question) for ident in cited]
+                stats["acik"] += 1
+                continue
+            auto = question.get("ilgili")
+            if kind == "ad" and auto and not auto["id"].startswith("yys-"):
+                question.pop("ilgili")
+                if (question.get("dayanak") or {}).get("id") == auto["id"]:
+                    question.pop("dayanak")
+                stats["kaldirilan"] += 1
+            if question_key(question) in reviewed_keys:
+                # okunarak seçilmiş dayanak, başka mevzuattan gelen otomatik dayanağın (ör. derlemedeki GK maddesinin fıkrası) önüne geçer
+                if kind == "ad" and (question.get("dayanak") or {}).get("kaynak") is None and not question.get("dayanak", {}).get("id", "yys-").startswith("yys-"):
+                    question.pop("dayanak")
+                stats["okuma"] += 1
+                continue
+            if kind == "konu" and any(m["id"] for m in question.get("madde", [])):
+                continue
+            related = matcher.best_law(question, "yys-")
+            if not related:
+                continue
+            question["ilgili"] = related
+            ground = matcher.basis(question, [related["id"]])
+            if ground and (question.get("dayanak") or {}).get("kaynak") is None:
+                question["dayanak"] = ground
+            listed.append((related["id"], question))
+            stats["otomatik"] += 1
+    return stats, listed
+
+
 # --- Konu notlarında (ek-*.json) pasaj düzeyinde dayanak eşleştirme ---------------------------
 ORDINAL = r"(?:\s*[.’'`]?\s*(?:inci|ıncı|uncu|üncü|nci|ncı|ncu|ncü))?"
 # "Gümrük Kanunu'nun 5 inci maddesi", "Gümrük Yönetmeliğinin 561 inci maddesi", "Gümrük Kanunu 57 nci maddesi"
 CITED_ARTICLE_RE = re.compile(r"gümrük (kanunu|yönetmeliği)(?:\W{0,2}n[uıiü]n|n)?\s+(\d{1,3})(?:\s*/\s*([a-z]))?" + ORDINAL + r"\s*\.?\s*madde")
+CITED_YYS_RE = re.compile(r"kolaylaştırılması yönetmeliği(?:\W{0,2}n[iı]n)?\s+(\d{1,3})(?:\s*/\s*([a-z]))?" + ORDINAL + r"\s*\.?\s*madde")
 LAW_NAMED_RE = re.compile(r"gümrük kanun\w*\b(?!\s+bazı)")  # "…Kanununun Bazı Maddelerinin Uygulanması Hakkında Karar" değil
 LAW_SCORE, LAW_MARGIN, LAW_STEM_COVER = 0.4, 0.15, 0.6
 LAW_PARA_COVER, LAW_PARA_MARGIN = 0.8, 0.1
@@ -531,6 +650,7 @@ class PassageMatcher:
 
 
 REVIEWED_FILE = Path(__file__).resolve().parent / "dayanak-secimleri.json"
+WEAK_AUTO = 0.4  # bu puanın altındaki otomatik madde eşleşmesi ("ilgili"), sorunun okunarak seçilmiş dayanağına yer bırakır
 OFFICIAL_DIR = Path(__file__).resolve().parent / "resmi-metinler"  # mevzuat.gov.tr'den alınmış madde metinleri
 GENERAL_RE = re.compile(
     r"işleminin sonucu|kaçtır\?|olduğuna göre|yaşındadır|kümesi|cümle|sözcük|paragraf|parçada|parçaya göre|anlatım bozukluğu|yazım yanlış"
@@ -973,7 +1093,8 @@ def link_to_topics(exam_list: list[dict], other: list[dict], index: dict, config
                     counts["silinen"] += 1
                 elif not topic and auto.get("puan", 0) >= 0.5:
                     topic = home
-        if "dayanak" not in question:  # otomatik eşleşme yok: okunarak seçilmiş dayanak
+        weak = question.get("ilgili") and question["ilgili"].get("puan", 1.0) < WEAK_AUTO and (question.get("dayanak") or {}).get("id") == question["ilgili"]["id"]
+        if "dayanak" not in question or weak:  # otomatik eşleşme yok ya da eşiğe çok yakın: okunarak seçilmiş dayanak
             ground, home = reviewed.get(question)
             if ground:
                 question["dayanak"] = ground
@@ -1149,7 +1270,7 @@ def main() -> None:
 
     topics = json.loads((DATA_DIR / "index.json").read_text(encoding="utf-8"))["topics"]
     labels = {a["id"]: a["label"] for t in topics for a in t["articles"]}
-    matcher = ArticleMatcher()
+    matcher = ArticleMatcher(skip="yys-")
     by_article: dict[str, list[dict]] = {}
     exams: dict[str, dict[int, dict]] = {}
     for container, _, question in scan(law_html) + scan(regulation_html):
@@ -1202,6 +1323,8 @@ def main() -> None:
     exam_list = build_booklets(exams, year)
     print(f"ek kaynaktan (PDF) tamamlanan soru: {added}; kökü maddeyi açıkça anan: {cited}; güvenli otomatik madde eşleşmesi: {strong}")
     other = [{"sinav": name, "sorular": items} for name, items in groups.items()]
+    picks = json.loads(REVIEWED_FILE.read_text(encoding="utf-8")) if REVIEWED_FILE.exists() else {}
+    yys_stats, yys_listed = link_yys(exam_list + other, ArticleMatcher(), labels, {k for k in picks if not k.startswith("_")})
     leftovers: dict[str, list[dict]] = {}
     config = json.loads(SUBJECT_FILE.read_text(encoding="utf-8")) if SUBJECT_FILE.exists() else None
     read_listed = 0
@@ -1213,6 +1336,17 @@ def main() -> None:
                 items.append({k: v for k, v in question.items() if k not in ("madde", "rol")})
                 read_listed += 1
     listed = list_on_articles(pdf_only, by_article, labels)
+    yys_on_pages = 0
+    for ident, question in yys_listed:  # YYS maddesine bağlanan soru, maddenin "çıkmış sınav soruları" listesine de girer
+        items = by_article.setdefault(ident, [])
+        if not any(q["sinav"] == question["sinav"] for q in items):
+            items.append({k: v for k, v in question.items() if k not in ("madde", "rol")})
+            yys_on_pages += 1
+    yys_pages = {k: len(v) for k, v in by_article.items() if k.startswith("yys-") and v}
+    print(f"YYS Yönetmeliği soruları: {yys_stats['soru']} soru kaydı; kökü maddeyi açıkça anan {yys_stats['acik']}; güvenli otomatik "
+          f"YYS eşleşmesi {yys_stats['otomatik']}; başka mevzuattan kaldırılan otomatik eşleşme {yys_stats['kaldirilan']}; "
+          f"okunarak seçilmiş dayanağı olan {yys_stats['okuma']}; madde sayfalarına eklenen {yys_on_pages}; "
+          f"soru listesi olan YYS maddesi {len(yys_pages)} ({sum(yys_pages.values())} soru)")
     by_article = {k: v for k, v in by_article.items() if v}
     general = 0
     for group in exam_list + other:

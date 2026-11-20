@@ -2,10 +2,10 @@
 
 Konu esaslı mevzuat derlemesini madde madde okutan statik web uygulaması (React + TypeScript + Vite + Tailwind).
 
-- Konular / Kanun / Yönetmelik dizinleri, daralan içindekiler
+- Konular / Kanun / Yönetmelik / YYS Yönetmeliği dizinleri, daralan içindekiler
 - Tek madde ve "konunun bütün maddeleri" görünümü, önceki/sonraki madde
-- Derleme içinde arama (eşleşme vurgulu), yazı boyutu ayarı
-- Metin içi madde atıflarında önizleme; `#gk-5`, `#gy-561`, `#konu-2`, `#m5` çapaları
+- Derleme içinde arama (eşleşme vurgulu; YYS sekmesinde yalnızca YYS maddeleri), yazı boyutu ayarı
+- Metin içi madde atıflarında önizleme; `#gk-5`, `#gy-561`, `#yys-16`, `#yys-4-a`, `#konu-2`, `#m5` çapaları
 
 ## Komutlar (depo kökünden)
 
@@ -25,6 +25,19 @@ npm run data:mevzuat -- ../2027gmnot/GUMRUK_MEVZUATI_TUMU.md
 ```
 
 Kaynağı belirlenemeyen maddeler "Madde N" olarak, bulunduğu konunun altında gösterilir.
+
+### YYS Yönetmeliği (`scripts/kaynaklar/3-YYS.md`)
+
+Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği ayrı bir mevzuat olarak okunur (kaynak kodu `YYS`, kimlikler `yys-16`,
+harfli maddelerde `yys-4-a`; `index.json` → `yys`). Kaynak, kullanıcının yüklediği YYS notunun kopyasıdır (`2027gmynot/3-YYS.md` ile
+aynı; ana derlemenin 3. konusu da bu notun aynısıdır). Derleyici bu dosyayı varsayılan olarak okur; başka bir dosya `--yys <dosya>`
+ile verilir. Notta her madde tek başına "**MADDE N**" satırıyla açılır; önceki satır madde başlığı, onun önündeki "BİRİNCİ KİTAP /
+KISIM / BÖLÜM" + ad çiftleri ara başlıktır. Maddenin ortasında aynı numarayla tekrarlanan "MADDE 4 – <başlık>" satırı atlanır.
+
+Ana derlemenin YYS notunu taşıyan konusu (madde başlıklarının en az %80'i ortak; bugün 3. konu, metin birebir aynı) genel ayrıştırıcıyla
+değil bu dosyadan kurulur: önceden notta yalnızca "MADDE 4 –" satırı madde sanıldığından bütün Yönetmelik tek bir "GK Madde 4"
+(`gk-4-v2`) bloğunda Kanun dizinine giriyordu. Konular sekmesinde konu, Yönetmeliğin kitap/kısım/bölüm başlıkları ve 168 maddesiyle
+okunur; Kanun dizininde yalnızca Gümrük Kanunu maddeleri kalır. Notlar farklılaşırsa derleyici uyarı yazar ve YYS dosyasını esas alır.
 
 Diğer not dosyaları `--ek` ile verilir ve sekmelere (Tarife, Genelge ve Tebliğler, Sair Mevzuat, Vergi Hesaplama) klasör olarak eklenir.
 Klasör numaraları `--ek` listesinin sırasından gelir; listeyi hep aynı (alfabetik) sırayla verin:
@@ -80,6 +93,20 @@ Yalnızca PDF'te bulunan soruların derlemede madde bağlantısı yoktur; bunlar
   eşleşmeyi "İlgili olabilecek madde (otomatik eşleşme)" olarak yazar. Ölçüm: maddesi derlemede belli olan, kökü mevzuatı anan 618
   sorunun 292'si ölçütü geçer; 265'i (%91) derlemenin gösterdiği maddeyle aynıdır. Eşik sabitleri `LAW_*` adlarıyla betiğin başındadır.
 - Bağlanan sorular o maddenin "çıkmış sınav soruları" listesine de eklenir (`sorular-madde.json`). Diğer sorulara dokunulmaz.
+
+YYS Yönetmeliği soruları (`link_yys`): kökü Yönetmeliği adıyla ("…Kolaylaştırılması Yönetmeliği") anan ya da başka bir mevzuat
+anmadan "yetkilendirilmiş yükümlü"yü soran sorular. Onaylanmış Kişi Statüsü Tebliği ayrı bir mevzuattır, bu adımda aranmaz.
+
+- Kök maddeyi açıkça anıyorsa ("…Kolaylaştırılması Yönetmeliğinin 16 ncı maddesi") soru `yys-16`'ya "madde" olarak bağlanır.
+- Kök Yönetmeliği adıyla anıyorsa başka mevzuattaki otomatik eşleşme (ör. Onaylanmış Kişi Tebliği maddesi) ve ondan türeyen dayanak
+  kaldırılır; okunarak seçilmiş dayanağı olan soruda başka mevzuattan gelen otomatik dayanak da seçime yer bırakır.
+- Diğerleri `best_law(soru, "yys-")` ile yalnızca YYS maddelerinde aranır. Notta başka maddelere yapılan atıfların köşeli parantez içindeki
+  adları ("6 ncı madde [Ticari kayıtların güvenilirliği…]") eşleştirmede sayılmaz ve "kök + bütün şıklar" ölçütü daha sıkıdır
+  (`YYS_ALL_SCORE` = 0,4). Ölçüm: 56 YYS sorusunda 8 güvenli eşleşme; okunduğunda 8'i de doğru madde (biri yürürlükten kaldırılmış
+  65. madde, dayanak metni yok). Ölçütler gevşekken çıkan 3 yanlışın ikisi köşeli parantezli adlardan, biri kısa 160/A maddesinden geliyordu.
+- Dayanak, maddede soruyla (doğru şık iki kat ağırlıkla) en çok örtüşen satırın bulunduğu fıkradır ("(1) …" başından bir sonraki fıkraya,
+  en fazla 700 karakter): notta her bent ayrı satır olduğundan tek satır hükmü göstermez.
+- Genel eşleştirici (`ArticleMatcher(skip="yys-")`) YYS maddelerini almaz; böylece YYS dışı sorular YYS maddelerine bağlanmaz.
 
 ### Konu notlarından dayanak ve "bu konunun çıkmış soruları"
 
@@ -137,12 +164,13 @@ adayları (bütün notlardan, düşük eşikle getirilen pasajlar) tek tek okunm
 hüküm seçilmiştir. Dosya biçimi: `{soru anahtarı: {id, ad, metin}}`; anahtar `question_key` ile hesaplanır
 (`sha1(kök|şıklar|cevap)` ilk 16 hane, yazım farklarından arındırılmış), `metin` notlardaki pasajın aynısıdır (madde bentleri
 listeyse ardışık bentler, konu notunda ardışık paragraflar boşlukla birleştirilir; karar veren bent alıntının içinde olmalıdır). `ad` okuyucuda görünen kaynak
-adıdır: notlardaki blok başlığı yanlışsa (ör. YYS konusunda "GK Madde 4" başlığı altında duran Gümrük İşlemlerinin Kolaylaştırılması
-Yönetmeliği metni; Posta ve hızlı kargo konusunda Tebliğ adı altında duran GK 173–175 ve GY 455–475) doğru mevzuat adı yazılır.
+adıdır: notlardaki blok başlığı yanlışsa (ör. Posta ve hızlı kargo konusunda Tebliğ adı altında duran GK 173–175 ve GY 455–475) doğru
+mevzuat adı yazılır. YYS Yönetmeliği metnine dayanan seçimler `yys-*` maddelerini gösterir.
 
 `build-sorular-data.py` bu seçimleri otomatik eşleştiricilerden **sonra**, yalnızca hâlâ dayanağı olmayan sorulara uygular
 (`ReviewedBasis`) ve her çalıştığında metni güncel veride aynen arar; bulunamayan (eskimiş) seçim uygulanmaz, sayısı yazdırılır.
 Bu sorularda `dayanak.kaynak = 'okuma'` olur ve okuyucu "Dayanak, notlarınız okunarak seçilmiştir." notunu gösterir.
+Puanı eşiğe çok yakın (`WEAK_AUTO` = 0,4 altı) bir otomatik madde eşleşmesi ("ilgili") okunarak seçilmiş dayanağın önüne geçmez.
 
 Hüküm notlarda hiç yoksa seçim resmî metinden yapılabilir: `{id, ad, metin, kaynak: 'resmi', url}`. Metin, mevzuat.gov.tr'den
 getirilen **güncel** metnin aynısıdır; `url` o mevzuatın mevzuat.gov.tr sayfasıdır. Kullanılan maddeler `scripts/resmi-metinler/`

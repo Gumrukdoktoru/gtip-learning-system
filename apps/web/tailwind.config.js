@@ -10,6 +10,7 @@ export default {
         accent: '#f5b83d',
         kanun: '#b3261e',
         yonetmelik: '#1d5fa8',
+        yys: '#6b3fa0',
         diger: '#8a5a00',
       },
       fontFamily: {

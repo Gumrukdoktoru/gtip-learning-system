@@ -4,6 +4,7 @@ const LAW_MODES: { mode: ReaderMode; label: string }[] = [
   { mode: 'konu', label: 'Konular' },
   { mode: 'gk', label: 'Kanun' },
   { mode: 'gy', label: 'Yönetmelik' },
+  { mode: 'yys', label: 'YYS Yönetmeliği' },
 ];
 const QUESTION_MODES: { mode: ReaderMode; label: string }[] = [
   { mode: 'sinav', label: 'Sınavlar' },
@@ -16,6 +17,7 @@ const PLACEHOLDER: Record<ReaderMode, string> = {
   konu: 'Tüm derlemede ara…',
   gk: 'Kanun maddelerinde ara…',
   gy: 'Yönetmelikte ara…',
+  yys: 'YYS Yönetmeliğinde ara…',
   soru: 'Diğer sorularda ara…',
   sinav: 'Bütün sınav sorularında ara…',
   kaynak: 'Açık belgede ara…',

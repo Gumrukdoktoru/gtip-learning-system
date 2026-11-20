@@ -23,6 +23,14 @@ describe('splitRefs', () => {
   it('harfli maddeyi tanır', () => {
     expect(splitRefs('5/A ncı maddesi', 'GK', known)[0]?.target).toBe('gk-5-A');
   });
+
+  it('YYS metnindeki atıfları YYS maddelerine, "Gümrük Yönetmeliğinin" atfını GY maddesine bağlar', () => {
+    const yys = new Set(['yys-13', 'yys-4-a', 'gy-89', 'gk-241', 'yys-1']);
+    expect(splitRefs('13 üncü madde [Yerinde inceleme] uyarınca', 'YYS', yys)[0]?.target).toBe('yys-13');
+    expect(splitRefs('4/A ncı madde', 'YYS', yys)[0]?.target).toBe('yys-4-a');
+    expect(splitRefs('Gümrük Yönetmeliğinin 89 uncu maddesi', 'YYS', yys)[1]?.target).toBe('gy-89');
+    expect(splitRefs('Kanunun 241/1 inci maddesi', 'YYS', yys).every((s) => !s.target)).toBe(true);
+  });
 });
 
 describe('splitHits', () => {

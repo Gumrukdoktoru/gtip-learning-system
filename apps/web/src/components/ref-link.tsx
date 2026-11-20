@@ -56,7 +56,7 @@ export function RefLink({ target, text }: RefLinkProps): JSX.Element {
       <a
         ref={anchor}
         href={articleHash(target)}
-        className="border-b border-dotted border-current font-medium text-kanun hover:bg-rose-50 data-[kind=gy]:text-yonetmelik data-[kind=gy]:hover:bg-teal-50"
+        className="border-b border-dotted border-current font-medium text-kanun hover:bg-rose-50 data-[kind=gy]:text-yonetmelik data-[kind=gy]:hover:bg-teal-50 data-[kind=yy]:text-yys data-[kind=yy]:hover:bg-violet-50"
         data-kind={target.slice(0, 2)}
         onMouseEnter={open}
         onMouseLeave={close}

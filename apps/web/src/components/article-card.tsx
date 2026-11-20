@@ -7,6 +7,7 @@ import { RichText } from './rich-text';
 const SOURCE_STYLE: Record<string, string> = {
   GK: 'border-kanun text-kanun',
   GY: 'border-yonetmelik text-yonetmelik',
+  YYS: 'border-yys text-yys',
   '': 'border-diger text-diger',
 };
 

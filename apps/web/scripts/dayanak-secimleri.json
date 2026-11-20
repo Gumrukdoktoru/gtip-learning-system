@@ -5,6 +5,11 @@
 "ad": "Sair Mevzuat Kitabı (KDV, ÖTV, TPKHK…) · ÖTV Kanunu: konu, vergiyi doğuran olay ve istisnalar (md. 1–8)",
 "metin": "2. Kanuna ekli listelerde yer alan mallar Türk Gümrük Tarife Cetvelinde tanımlanan eşyalardır. − Bu malların tarife numaralarında veya tanımlarında bu KANUNA EKLİ LİSTELER DIŞINDA YAPILACAK DEĞİŞİKLİKLER Özel Tüketim Vergisi Kanununun uygulanmasında HÜKÜM İFADE ETMEZ."
 },
+"0044dbb4183c052c": {
+"id": "yys-107",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 107 · Güvenli Depolama Alanları ve Güvenli Park Alanlarına Giriş İşlemleri",
+"metin": "(1) Güvenli depolama alanına giriş 111 inci madde [Boşaltma iznine ilişkin işlemler] kapsamında 106/1 [Kapalı güvenli depolama alanı] alanına alınacak eşya; İlişkili olduğu transit beyanı ve eklerindeki bilgilerle karşılaştırılarak kontrol edilir. Ardından güvenli depolama alanına alınır. Giriş kayıtları asgari olarak şunları içerir: a) Taşıma aracının mühür numarası. b) Çekici ve dorsenin plaka numarası. c) Araç konteyner ise konteyner numarası. ç) Eşyanın alana giriş tarihi ve saati. d) Transit beyanının tarih ve sayısı. e) Varsa eşyanın sipariş numaraları."
+},
 "008a76a0f4251e9a": {
 "id": "konu-9002",
 "ad": "Vergi Hesaplama Derlemesi · Gümrük vergi hesaplamaları — tek sayfa özet",
@@ -35,10 +40,20 @@
 "ad": "Gümrük Yönetmeliği · GY Madde 170 · İhracatta sözlü beyana tabi eşya (Başlık, 31.03.2010 tarih ve 27538 sayılı R.G. ile değişik)",
 "metin": "b) Devamlı görevli veya yerleşmek üzere yabancı ülkelere giden Türk memur ve vatandaşlarının ve Türkiye'deki devamlı görevleri ve işleri sona eren yabancıların beraberlerinde götürecekleri veya gidişlerinden iki ay evvel veya altı ay sonra gönderecekleri kişisel ve ev eşyası,"
 },
+"0505c732ed88bb23": {
+"id": "yys-156",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 156 · Yetkilendirilmiş Yükümlü Sertifikasının İptali",
+"metin": "(1) İptal halleri Sertifika aşağıdaki hallerde, sertifikayı düzenleyen Bölge Müdürlüğünce iptal edilir: a) Sertifikanın; Yanlış veya eksik bilgilere veya Sahte belgelere dayanılarak verildiğinin anlaşılması. b) 5/1-(a)'da sayılan kişilerden; Yönetim kurulu üyeleri veya Sermayenin %10'undan fazlasına sahip gerçek kişilerden herhangi biri hakkında aynı bentte sayılan kanunlara muhalefet nedeniyle kesinleşmiş yargı kararı verilmesi. c) Aşağıdakilerin sertifika sahibi tarafından başkası adına kullanılması veya kullanılmasına izin verilmesi: Adına düzenlenmiş sertifika, Sertifika kapsamındaki hak ve yetkiler, 15/2 [Sertifika numarası], 45/3 [Onaylanmış ihracatçı (A.TR) yetki numarası], 52/3 [Onaylanmış ihracatçı (EUR) yetki numarası], 57/6 [Onaylanmış ihracatçı (İYG) yetki numarası], 76/3 [İzinli gönderici yetki numarası], 96/3 [İzinli alıcı yetki numarası], 121/4 [İthalatta yerinde gümrükleme yetki numarası], 72/1 ve 92/1 [Özel tipte mühürler]. (2) İptalin kapsamı Sertifika iptal edilirse; sertifika kapsamındaki tüm hak ve yetkiler de iptal edilir. (3) Yeniden başvuru yasağı — 3 yıl 156/1 [Sertifikanın iptalini gerektiren haller] kapsamında iptal işleminden sonra; 3 yıl içerisinde yapılan sertifika başvuruları reddedilir."
+},
 "056758e13019db4e": {
 "id": "konu-12008",
 "ad": "Kaçakçilikla Mücadele Kanunu (5607) — Sunum Notlari · İkramiyeler ve kriminal laboratuvar (md. 23–24)",
 "metin": "(1) Kaçakçılık fiillerinin önlenme, izlenme ve araştırılması çerçevesinde görev yapmak üzere • GÜMRÜK MÜSTEŞARLIĞINCA kriminal laboratuvarlar kurulur."
+},
+"05abfdff51e1ad93": {
+"id": "yys-25",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 25 · Eksik Beyan Usulüne Konu Beyannamelerin Takibi",
+"metin": "(1) Gümrük müdürlüklerince aylık takip Gümrük müdürlüklerince her ayın ilk 5 iş günü içinde BİLGE sisteminde sorgulama yapılır. Bu sorgulama ile; Eksik olan belgeleri ek süreler dâhil süresi içinde ibraz edilmemiş veya 24/5 [Yeşil hatta işlem gören eksik beyan] kapsamındaki durumlarda ibraz edilmeye hazır hale getirilmemiş eksik beyan uygulaması kapsamındaki beyannameler tespit edilir."
 },
 "05dd53f68f69e39d": {
 "id": "k30-28",
@@ -51,9 +66,9 @@
 "metin": "9. Bu Kanuna ve gümrüklerde uygulanan mevzuat hükümlerine aykırı hareketleri görülen gümrük müşavirleri ve gümrük müşavir yardımcılarının izin belgeleri Bakanlık müfettişleri ve gümrük ve dış ticaret bölge müdürleri tarafından gerek görülmesi hâlinde tedbir mahiyetinde en fazla altı ay süre ile geçici olarak alınır ve gümrüklerde iş takip etmelerine izin verilmez. Bu durum, gerekçesiyle birlikte izin belgesinin alınmasını izleyen günde Bakanlığa bildirilir. Bu şekilde izin belgeleri alınanlar hakkında geçici mesleki faaliyetten alıkoyma cezası verilmesi hâlinde, tedbir mahiyetinde izin belgelerinin alındığı süre verilen cezadan mahsup edilir. 3713 sayılı Kanun kapsamında haklarında …"
 },
 "074698dbb866a5e4": {
-"id": "gk-4-v2",
-"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği (YYS notu) · Madde 104 · Kontrol türü bildirim süresi",
-"metin": "MADDE 104 (1) Bildirim süresinin belirlenmesi Güvenli depolama alanında veya güvenli park alanında bulunan eşyanın ithal edilmek istendiğinin gümrük idaresine bildirilmesini müteakip; 115 inci madde [İthalat beyannamesine ilişkin kontrol türünün belirlenmesi ve kontrol işlemleri] uyarınca beyanın hangi kontrol türüne tabi tutulacağının gümrük idaresi tarafından izinli alıcıya bildirileceği azami süre, sertifikayı düzenleyen bölge müdürlüğünce belirlenir."
+"id": "yys-104",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 104 · İzinli Alıcı Tesislerinde Bulunan Yetki Kapsamı Eşyaya İlişkin Kontrol Türü Bildirim Süresi",
+"metin": "(1) Bildirim süresinin belirlenmesi Güvenli depolama alanında veya güvenli park alanında bulunan eşyanın ithal edilmek istendiğinin gümrük idaresine bildirilmesini müteakip; 115 inci madde [İthalat beyannamesine ilişkin kontrol türünün belirlenmesi ve kontrol işlemleri] uyarınca beyanın hangi kontrol türüne tabi tutulacağının gümrük idaresi tarafından izinli alıcıya bildirileceği azami süre, sertifikayı düzenleyen bölge müdürlüğünce belirlenir."
 },
 "0834ff980427f5e0": {
 "id": "k39-60",
@@ -66,9 +81,9 @@
 "metin": "1. Kısmi muafiyet suretiyle geçici ithalat rejimine tabi tutulan eşyadan her ay için alınacak ithalat vergileri, geçici ithalat rejimine ilişkin beyannamenin tescil tarihinde, söz konusu eşyanın serbest dolaşıma girmiş olması halinde alınacak vergiler tutarının % 3'ü olarak tespit edilir."
 },
 "0b0786452c912cba": {
-"id": "gk-4-v2",
-"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği (YYS notu) · Madde 16 · Sertifikanın geçerliliğinin başlangıcı",
-"metin": "MADDE 16 (1) Geçerliliğin başlangıcı Yetkilendirilmiş yükümlü sertifikası, düzenlendiği tarihten sonraki ilk iş gününde geçerli hale gelir."
+"id": "yys-16",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 16 · Sertifikanın Geçerlilik Süresi",
+"metin": "(1) Geçerliliğin başlangıcı Yetkilendirilmiş yükümlü sertifikası, düzenlendiği tarihten sonraki ilk iş gününde geçerli hale gelir."
 },
 "0b86d5a5eaf75c85": {
 "id": "k36-4",
@@ -104,6 +119,11 @@
 "id": "k38-17",
 "ad": "Madde 424 · Gümrük Statü Belgesi",
 "metin": "(8) Belgelerin düzenlenmesi sırasında hatalı beyan yapıldığının idarece anlaşılması halinde, belge iptal edilerek yeni belge düzenlenir. İptal edilen belgeler tescil defterine gerekli meşruhat verilerek dosyasında saklanır"
+},
+"10c12bc271811d71": {
+"id": "yys-62",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 62 · İhracatta Yerinde Gümrükleme İzni Kapsamında İhracatı Yapılamayacak Eşya",
+"metin": "(1) Kapsam dışında bulunan eşya Aşağıdaki eşyanın ihracatı, ihracatta yerinde gümrükleme izni kapsamında yapılamaz: Kanun, genel düzenleyici işlemler ve uluslararası anlaşmalarla ihracatı yasaklanmış eşya, Kanun, genel düzenleyici işlemler ve uluslararası anlaşmalarla transiti yasaklanmış eşya, Belli kamu kurum ve kuruluşlarınca ön izne bağlanmış eşya, Belli kamu kurum ve kuruluşlarınca kayda bağlanmış eşya, Bakanlıkça belirlenecek diğer eşya."
 },
 "10c744e30b8b98fb": {
 "id": "k23-4",
@@ -144,6 +164,11 @@
 "id": "konu-6074",
 "ad": "Sair Mevzuat Kitabı (KDV, ÖTV, TPKHK…) · İthalat tebliğleri 2026/1–6: fuar, harp silahı, harita ve GTS",
 "metin": "g) Mahkumlara yaptırılan ürünlerin ihraç edilmesi, ğ) Dünya Bankası tarafından bir ülkenin yüksek gelir grubunda sınıflandırılması, TAVİZLERİN İNCELENMESİ VE YENİDEN DÜZENLENMESİ – Md.8 (1) Ticaret Bakanlığı İthalat Genel Müdürlüğü, GTS kapsamı bir eşya veya GTS kapsamı ülke menşeli eşya ithalatı nedeniyle ciddi zarar veya zarar tehdidine ilişkin başvuru üzerine ya da resen inceleme kararı alabilir."
+},
+"16f72668a00f1fe8": {
+"id": "yys-123",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 123 · İthalatta Yerinde Gümrükleme İzni İçin Kullanılacak Teminat",
+"metin": "(1) Teminat — 500.000 Avro İthalatta yerinde gümrükleme izninin kullanılabilmesi için; 140/1-(e) [İzin kapsamında işlem gören eşyaya ilişkin gümrük vergileri ve cezaların tazmini] amacıyla, 123/4 hükmü saklı kalmak kaydıyla; Ek-27/B'ye uygun 500.000 Avro tutarında; Nakit teminat veya Teminat mektubu gümrük idaresine verilmelidir."
 },
 "1704d136b506c5a1": {
 "id": "konu-12003",
@@ -234,6 +259,11 @@
 "id": "k10-12",
 "ad": "Madde 38 · Menşe şahadetnamesi aranılacak haller",
 "metin": "(2) Menşe şahadetnamesinin sonradan ibraz edileceğinin serbest dolaşıma giriş beyannamesinde belirtilmesi veya ibraz edilen menşe şahadetnamesinin şekil veya muhteva itibarıyla yanlış veya eksik bilgi taşıması nedeniyle gümrük idaresince kabul edilmemesi halinde; İthalat Rejimi Kararı eki listelerde Dünya Ticaret Örgütü üyesi olmayan ülkeler için uygulanan yüksek oranda vergiden kaynaklanan gümrük vergisi farkı, menşe esaslı ticaret politikası önlemleri, ilave gümrük vergisi veya ek mali yükümlülük gibi diğer mali yükümlülükler nakit teminata bağlanmak suretiyle usulüne uygun bir menşe şahadetnamesi ibrazı için beyannamenin tescil tarihinden itibaren altı aylık süre verilir. Mücbir sebep …"
+},
+"2362208c1e42b3e8": {
+"id": "yys-3",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 3 · Tanımlar",
+"metin": "… ı) İthalatta yerinde gümrükleme: Eşyanın ithalat gümrük idaresine getirilmeden giriş gümrük idaresinden doğrudan firmanın kendi tesislerine sevk edilmesi ve ithal işlemlerinin firmanın kendi tesislerinde basitleştirilmiş usul çerçevesinde yapılmasını,"
 },
 "239fbd8aeaddf0d6": {
 "id": "k39-26",
@@ -388,8 +418,8 @@
 "metin": "(1) Önceden ihracat durumunda izin belgesinde, eşdeğer eşya karşılığı ithal eşyasının gümrük beyanı için gereken süre belirtilir. Bu süre, ilgili eşdeğer eşyadan elde edilen işlem görmüş ürünler için ihracat beyannamesinin tescil tarihinden itibaren işlemeye başlar."
 },
 "33597fac2e68c252": {
-"id": "konu-3",
-"ad": "YYS",
+"id": "yys-3",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 3 · Tanımlar",
 "metin": "i) İzinli alıcı: Transit rejimine tabi eşyayı, eşya Türkiye Cumhuriyeti Gümrük Bölgesine girdikten sonra varış gümrük idaresine sunmaksızın izinli alıcı yetkisi ve/veya ithalatta yerinde gümrükleme izni kapsamı tesislerde teslim almaya ve transit işlemlerini bu yerlerde sonlandırmaya yetkilendirilmiş olan taşımadan sorumlu veya ithalatçı kişiyi,"
 },
 "348179543c7e338e": {
@@ -488,9 +518,9 @@
 "metin": "(3) Geçici depolama yerlerine konulmaksızın ihraç edilecek eşyanın beyanname kapatma süresi iki aydır. Bu süre gümrük müdürlüklerince makul sebeplerle en çok iki ay uzatılabilir. Bu süreler içinde işlemleri tamamlanmayan beyannameler iptal edilir. Deniz ve hava taşıtlarına kumanya, yağ ve yakıt dışında yapılacak teslimler (12.06.2013 tarih ve 28675 sayılı R.G. ile yeniden düzenlenmiştir)"
 },
 "3d01b62a7bf84f57": {
-"id": "gk-4-v2",
-"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği (YYS notu) · Madde 148 · Emniyet ve güvenlik kontrollerinde kolaylıklardan yararlanma izninin kapsamı",
-"metin": "… (1) Sağlanabilecek kolaylıklar Yetkilendirilmiş yükümlü statüsü sahibi kişilere aşağıdaki emniyet ve güvenlik kontrollerine ilişkin kolaylıklardan yararlanma izni verilebilir: a) Azaltılmış zorunlu bilgilerden oluşan özet beyan verme kolaylığı. b) Özet beyana, özet beyan yerine geçen belgelere veya özet beyan olarak kullanılan bilgilere dayalı emniyet ve güvenliğe ilişkin; Gümrük kontrollerinin azaltılması ve Kontrollerin öncelikle yapılması. c) Sınır kapılarından öncelikli geçiş hakkı tanınması."
+"id": "yys-148",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 148 · Emniyet ve Güvenlik Kontrollerinde Kolaylıklardan Yararlanma İzninin Kapsamı",
+"metin": "(1) Sağlanabilecek kolaylıklar Yetkilendirilmiş yükümlü statüsü sahibi kişilere aşağıdaki emniyet ve güvenlik kontrollerine ilişkin kolaylıklardan yararlanma izni verilebilir: a) Azaltılmış zorunlu bilgilerden oluşan özet beyan verme kolaylığı. b) Özet beyana, özet beyan yerine geçen belgelere veya özet beyan olarak kullanılan bilgilere dayalı emniyet ve güvenliğe ilişkin; Gümrük kontrollerinin azaltılması ve Kontrollerin öncelikle yapılması. c) Sınır kapılarından öncelikli geçiş hakkı tanınması."
 },
 "3d905f5365d793a6": {
 "id": "konu-2023",
@@ -637,6 +667,11 @@
 "ad": "Kaçakçilikla Mücadele Kanunu (5607) — Sunum Notlari · Geri gönderme, müsadere, kaim değer ve tasfiye (md. 12–16/A)",
 "metin": "(1) Bu Kanunda tanımlanan suçlar dolayısıyla müsadere yaptırımının konusunu oluşturan eşyanın KAİM DEĞERİNDEN, Bu eşyanın GÜMRÜKLENMİŞ DEĞERİanlaşılır."
 },
+"48994a1fd12a22cb": {
+"id": "yys-33",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 33 · Götürü Teminat Uygulamasından Yararlanılabilecek Durumlar",
+"metin": "(1) Götürü teminatın geçerli olduğu kamu alacakları Götürü teminat; 4760 sayılı Özel Tüketim Vergisi Kanununun ekindeki (I) sayılı listede yer alan eşyaya ilişkin kamu alacakları hariç olmak üzere, eşyanın gümrükçe onaylanmış işlem veya kullanıma tabi tutulmasına ilişkin tüm kamu alacakları için geçerlidir."
+},
 "4a578851c1f01cbb": {
 "id": "konu-801030",
 "ad": "Tarife Kitabı — fasıl fasıl ders notları · Fasıl 28 — Anorganik kimyasallar; kıymetli metallerin, radyoaktif elementlerin, nadir toprak…",
@@ -697,6 +732,11 @@
 "ad": "YETKİLENDİRİLMİŞ GÜMRÜK MÜŞAVİRLİĞİ TEBLİĞİ · Madde 11 · Tespit işlemi yapılacak gümrük işlemleri",
 "metin": "i) TP1, kapanmış beyannamelerde 31/12/2020 tarihli ve 3350 sayılı Cumhurbaşkanı Kararı ile yürürlüğe konulan İthalat Rejimi Kararının 4 üncü maddesinde sayılan önlemlere tabi eşyanın kapsam dışı olup olmadığının tespitini kapsar. (11.01.2024 / 32426 sayılı R.G. ile eklenmiştir)"
 },
+"4ddfa07a2a87ddc1": {
+"id": "yys-123",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 123 · İthalatta Yerinde Gümrükleme İzni İçin Kullanılacak Teminat",
+"metin": "(7) Türk lirası teminatın güncellenmesi 123/5 [Askıya alma veya geri alma halinde teminatın iadesi] saklı kalmak kaydıyla; teminat Türk lirası cinsinden verilmişse, 123/1'deki 500.000 Avro karşılığını sağlayıp sağlamadığının belirlenmesi amacıyla; Teminat tutarı her yıl yeniden hesaplanır. İbraz edilmiş teminat tutarı buna göre güncellenir."
+},
 "4e2a5902f35f1d06": {
 "id": "k49-5",
 "ad": "Madde 587 · İtirazların karara bağlanmasından önce eşyanın çekilebilmesi",
@@ -711,6 +751,11 @@
 "id": "konu-6003",
 "ad": "Sair Mevzuat Kitabı (KDV, ÖTV, TPKHK…) · Gümrük Birliği Kararı: tanımlar ve A.TR düzenlenmesi (md. 1–18)",
 "metin": "AVRUPA TOPLULUĞU’NA ÜYE ÜLKELER: aşağıda adları belirtilen ülkeler, ALMANYA (Kurucu) FİNLANDİYA, İSVEÇ MALTA AVUSTURYA FRANSA (Kurucu) İTALYA (Kurucu) POLONYA BELÇİKA (Kurucu) HIRVATİSTAN (2013) KIBRIS PORTEKİZ BULGARİSTAN (2007) HOLLANDA (Kurucu) LETONYA ROMANYA (2007) İNGİLTERE 31.12.2020 ÇEK CUMHURİYETİ LİTVANYA, SLOVAKYA KUZEY İRLANDA (07.05.2021) DANİMARKA İRLANDA LÜKSEMBURG (Kurucu) SLOVENYA ESTONYA İSPANYA MACARİSTAN YUNANİSTAN TOPLULUK: Avrupa Topluluğu, GÜMRÜK BİRLİĞİ: Türkiye ile Topluluk arasında tesis edilen Gümrük Birliği, TÜRKİYE GÜMRÜK BÖLGESİ: Türkiye Cumhuriyeti topraklarını, karasularını, iç sularını ve hava sahasını kapsayan Türkiye"
+},
+"4ffaa80b69847158": {
+"id": "yys-4",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 4 · Yetkilendirilmiş yükümlü statüsü ve kapsamı",
+"metin": "(1) YYS'nin temel koşulları Aşağıdaki koşulları sağlayan gerçek veya tüzel kişilere yetkilendirilmiş yükümlü statüsü tanınır: 5 inci madde [Güvenilirlik koşulu] 6 ncı madde [Ticari kayıtların güvenilirliği ve izlenebilir olması koşulu] 7 nci madde [Mali yeterlilik koşulu] 8 inci madde [Emniyet ve güvenlik koşulu] Gümrük mevzuatına göre serbest bölgeler dâhil Türkiye Gümrük Bölgesinde yerleşik olmak, En az 3 yıldır fiilen faaliyette bulunmak."
 },
 "5001e59816023643": {
 "id": "k36-43",
@@ -763,6 +808,11 @@
 "id": "k49-7",
 "ad": "Madde 589 · İkinci tahlilin yapılacağı yer ve katılacaklar",
 "metin": "(1) a) İtiraz üzerine, birinci tahlilin yapıldığı gümrük laboratuvarında görevli olan ve ilk tahlili yapan kimyager dışındaki iki kimyager tarafından ikinci tahlil yapılır. Yükümlünün talebi halinde, gümrük idareleri, gümrük kimyageri olmayan, bir gözlemci kimyagerin de ikinci tahlilde bulunmasına izin verir."
+},
+"53f35101ead19f23": {
+"id": "yys-4",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 4 · Yetkilendirilmiş yükümlü statüsü ve kapsamı",
+"metin": "(1) YYS'nin temel koşulları Aşağıdaki koşulları sağlayan gerçek veya tüzel kişilere yetkilendirilmiş yükümlü statüsü tanınır: 5 inci madde [Güvenilirlik koşulu] 6 ncı madde [Ticari kayıtların güvenilirliği ve izlenebilir olması koşulu] 7 nci madde [Mali yeterlilik koşulu] 8 inci madde [Emniyet ve güvenlik koşulu] Gümrük mevzuatına göre serbest bölgeler dâhil Türkiye Gümrük Bölgesinde yerleşik olmak, En az 3 yıldır fiilen faaliyette bulunmak."
 },
 "54038ee40911778c": {
 "id": "konu-12003",
@@ -830,9 +880,14 @@
 "metin": "(3) (03.01.2019 tarihli, 30644 sayılı R.G. ile eklenmiştir)Yetkilendirilmiş gümrük müşavirleri yanlarında gümrük müşavir yardımcısı (…)[134] ve stajyer[135] çalıştırabilirler. Stajyer, gümrük müşavir yardımcısı tarafından yapılması gereken iş ve işlemleri yapamaz. Bu şekilde davrandığı tespit edilenlerin stajına son verilir ve bu kişiler bir daha yetkilendirilmiş gümrük müşaviri yanında çalıştırılamaz[136]. Yetkilendirilmiş gümrük müşavirlerinin yanlarında çalışan gümrük müşavir yardımcıları; a) Sigortalı olarak çalıştığı yetkilendirilmiş gümrük müşaviri veya yetkilendirilmiş gümrük müşavirliği firması adına özel ve genel antrepoların giriş-çıkış işlemleri ve bu antrepolarda yapılan elleçlemelere ilişkin olarak düzenlenen sayım tutanaklarını imzalayabilir."
 },
 "5a3018a699c8a58f": {
-"id": "k4-40",
-"ad": "ONAYLANMIŞ KİŞİ STATÜSÜNE İLİŞKİN GÜMRÜK GENEL TEBLİĞİ (SIRA NO: 1) · Madde 37 · Götürü teminat yetkisinin geçerlilik süresi",
-"metin": "(1) Götürü teminat yetkisinin geçerlilik süresi bir yıldır. (2) Geçerlilik süresinin başlangıcı götürü teminat yetkisinin tanınması, güncellenmesi veya teminatın değiştirilmesine ilişkin başvurunun yetkili bölge müdürlüğü genel evrak kaydına alındığı ayın ilk günüdür."
+"id": "yys-38",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 38 · Götürü Teminat Yetkisinin Geçerlilik Süresi",
+"metin": "(1) Geçerlilik süresi Götürü teminat yetkisinin geçerlilik süresi 1 yıldır."
+},
+"5b35e3c7c5724c3a": {
+"id": "yys-4",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 4 · Yetkilendirilmiş yükümlü statüsü ve kapsamı",
+"metin": "(1) YYS'nin temel koşulları Aşağıdaki koşulları sağlayan gerçek veya tüzel kişilere yetkilendirilmiş yükümlü statüsü tanınır: 5 inci madde [Güvenilirlik koşulu] 6 ncı madde [Ticari kayıtların güvenilirliği ve izlenebilir olması koşulu] 7 nci madde [Mali yeterlilik koşulu] 8 inci madde [Emniyet ve güvenlik koşulu] Gümrük mevzuatına göre serbest bölgeler dâhil Türkiye Gümrük Bölgesinde yerleşik olmak, En az 3 yıldır fiilen faaliyette bulunmak."
 },
 "5b565d41749c3fc8": {
 "id": "konu-12005",
@@ -905,8 +960,8 @@
 "metin": "… Gümrük müdürlüğü tarafından onaylanan beyanname izin hükmündedir. (2) Ticari kiralama konusu eşyanın mülkiyetinin kiraya verene ait olmaması durumunda, eşyanın mülkiyetinin başkasına ait olduğuna ilişkin noterde tanzim ettirilmiş muvafakatname ibraz edilir. (3) Ticari kiralama konusu eşyanın, finansal kiralama yoluyla elde edilmiş olması durumunda, söz konusu eşyanın finansal kiralama yoluyla elde edildiğine ilişkin kiralayan ile kiraya veren arasında yapılan sözleşme ve kiralayan kişi tarafından noterden tanzim ettirilmiş muvafakatname ibraz edilir. (4) Ticari kiralama yoluyla yapılacak ihracatta süre, Gümrük Kanununun maddesinde belirtilen 3 yıllık süreyi aşamaz. Ancak bu süre, bitiminden önce başvurulmak kaydıyla, ilgili gümrük müdürlüğünce ticari kiralama sözleşmesinde belirlenen süre kadar uzatılabilir."
 },
 "60b9f3ea824f814d": {
-"id": "konu-3",
-"ad": "YYS",
+"id": "yys-3",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 3 · Tanımlar",
 "metin": "i) İzinli alıcı: Transit rejimine tabi eşyayı, eşya Türkiye Cumhuriyeti Gümrük Bölgesine girdikten sonra varış gümrük idaresine sunmaksızın izinli alıcı yetkisi ve/veya ithalatta yerinde gümrükleme izni kapsamı tesislerde teslim almaya ve transit işlemlerini bu yerlerde sonlandırmaya yetkilendirilmiş olan taşımadan sorumlu veya ithalatçı kişiyi,"
 },
 "60e4d9d1a2012eb8": {
@@ -928,6 +983,11 @@
 "id": "k36-5",
 "ad": "Madde 417 · Geçici depolama süresi ve takip edilmeyen beyannameler",
 "metin": "(3) Geçici depolama yerlerine konulmaksızın ihraç edilecek eşyanın beyanname kapatma süresi iki aydır. Bu süre gümrük müdürlüklerince makul sebeplerle en çok iki ay uzatılabilir. Bu süreler içinde işlemleri tamamlanmayan beyannameler iptal edilir. Deniz ve hava taşıtlarına kumanya, yağ ve yakıt dışında yapılacak teslimler (12.06.2013 tarih ve 28675 sayılı R.G. ile yeniden düzenlenmiştir)"
+},
+"6273b03e7b523398": {
+"id": "yys-96",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 96 · İzinli Alıcı Yetkisi",
+"metin": "(1) Yetki için ek koşullar Yetkilendirilmiş yükümlü sertifikası sahibi kişilere, 121/5 hükümleri saklı kalmak kaydıyla, aşağıdaki ek koşulları sağlamaları halinde; Eşyayı varış gümrük müdürlüğüne sunmaksızın transit işlemlerini kendi tesislerinde sonlandırmalarına ve Eşyanın alıcısı tarafından bu tesislerde ithalat işlemlerinin gerçekleştirilmesine izin verilebilir. a) Ulaştırma ve Altyapı Bakanlığından alınmış uluslararası taşımacı yetki belgesi sahibi olmak. b) Başvuru yılından bir önceki takvim yılı veya başvurunun yapıldığı ayın ilk gününden geriye dönük 1 yıl içerisinde, aşağıdaki koşullardan en az birini sağlamak: 1) En az 500 transit beyannamesi (TIR Karnesi dâhil) kapsamında eşya transit etmiş olmak. 2) En az 300'ü transit beyanı (TIR Karnesi dâhil) olmak kaydıyla toplam 500 transit beyanı ve özet beyan kapsamında işlem yapmış olmak. 3) Yürürlükten kaldırılmıştır. c) 98 inci madde [İzinli alıcı yetkisinin kullanılabilmesi için verilmesi gereken teminat] uyarınca gümrük idaresine teminat vermiş olmak. ç) Yetki kapsamı eşyanın; Depolanması, Boşaltılması, Muayenesi, Numune alınabilmesi için gerekli teçhizat ve donanıma sahip olmak. d) Yetki kapsamında işlem yapılacak tesislerde gerektiğinde eşya ve taşıma aracının tartımı için gerekli düzeneğe sahip olmak. e) Yetki kapsamında kullanılacak en az 1 tesise sahip olmak."
 },
 "63824f57b91b9692": {
 "id": "konu-3074",
@@ -969,6 +1029,11 @@
 "ad": "GÜMRÜK GENEL TEBLİĞİ (TRANSİT REJİMİ) (SERİ NO: 4) · Madde 9 · Kapsamlı teminat mektubu ve sertifikaya ilişkin işlemler",
 "metin": "(5) Teminat mektubunun teminat gümrük idaresince kabulü tarihinden itibaren 6 ay geçmedikçe söz konusu teminat mektubunun iadesi talep edilemez."
 },
+"699a749de603c0dd": {
+"id": "yys-16",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 16 · Sertifikanın Geçerlilik Süresi",
+"metin": "(2) Geçerlilik süresi 154 ilâ 156 ncı madde hükümleri [Sertifikanın askıya alınması, geri alınması ve iptaline ilişkin hükümler] saklı kalmak kaydıyla; yetkilendirilmiş yükümlü sertifikası süresiz olarak geçerlidir."
+},
 "6a096df13fcfb698": {
 "id": "k50-7",
 "ad": "GÜMRÜK UZLAŞMA YÖNETMELİĞİ · Madde 6 · Uzlaşmaya konu olamayacak alacaklar",
@@ -993,6 +1058,11 @@
 "id": "konu-801008",
 "ad": "Tarife Kitabı — fasıl fasıl ders notları · Fasıl 06 — Canlı ağaçlar ve diğer bitkiler; yumrular, kökler ve benzerleri; kesme çiçekler ve…",
 "metin": "II BİTKİSEL ÜRÜNLER Fasıl 6 Canlı ağaçlar ve diğer bitkiler; yumrular, kökler ve benzerleri; kesme çiçekler ve süs yaprakları Fasıl 7 Yenilen sebzeler ve bazı kök ve yumrular Fasıl 8 Yenilen meyveler ve yenilen sert kabuklu meyveler; turunçgillerin ve kavun ve karpuzların kabukları Fasıl 9 Kahve, çay, paraguay çayı ve baharat Fasıl 10 Hububat Fasıl 11 Değirmencilik ürünleri; malt; nişasta; inulin; buğday gluteni Fasıl 12 Yağlı tohum ve meyveler; muhtelif tane, tohum ve meyveler; sanayide veya tıpta kullanılan bitkiler; saman ve kaba yem Fasıl 13 Lak; sakız, reçine ve diğer bitkisel özsu ve hülasalar"
+},
+"6c2636a2cb66c1d2": {
+"id": "yys-144",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 144 · Yeşil Hat Uygulaması",
+"metin": "(2) Yeşil hatta işlem görmeyecek eşya Gümrük Yönetmeliğinin 196/1-(a) ve (ç) bentlerinde tahlile tabi tutulacağı belirtilen eşyaya ilişkin gümrük beyannameleri; yeşil hatta işlem görmez."
 },
 "6d12988bd8b9b641": {
 "id": "k33-8",
@@ -1084,6 +1154,11 @@
 "ad": "YETKİLENDİRİLMİŞ GÜMRÜK MÜŞAVİRLİĞİ TEBLİĞİ · Madde 19 · Çalışma düzeni, evrak işlemleri ve dosyalama",
 "metin": "(2) Her bir tespit işlemi için ayrı bir tespit dosyası açılır. (3) Açılan tespit dosyalarına sözleşme yılı/yetki numarası/tespit kodu/sözleşme sıra numarasını içerecek şekilde her yıl itibariyle müteselsil numara verilir. (4) AN6 ve AN8 tespit işlemlerinde, aynı gün içerisinde gerçekleşen tüm giriş ve çıkış işlemleri için tek bir tespit dosyası açılır. (5) Tespit işlemi kapsamında düzenlenen tutanaklar, yazışmalar, günlük rapor, tespit sözleşmesinin tarafı olan gerçek/tüzel kişi tarafından ibraz edilen belgeler ve hazırlanan tespit raporu bahsi geçen tespit dosyasında muhafaza edilir."
 },
+"756b49a0c3637555": {
+"id": "yys-4",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 4 · Yetkilendirilmiş yükümlü statüsü ve kapsamı",
+"metin": "(7) Talep gerektirmeden yararlanılabilecek basitleştirilmiş uygulamalar Yetkilendirilmiş yükümlü statüsü sahiplerinin, ayrıca bir talebe gerek kalmaksızın, aşağıdaki basitleştirilmiş uygulamalardan faydalanmalarına izin verilir: a) Eksik beyan usulü b) Kısmi teminat uygulaması (8) Talep ve ek koşullarla yararlanılabilecek basitleştirilmiş uygulamalar Yetkilendirilmiş yükümlü statüsü sahiplerinin aşağıdaki uygulamalardan faydalanmalarına; Talep etmeleri ve İlgili uygulamaya ilişkin ek koşul veya koşulları sağlamaları halinde izin verilir: a) Götürü teminat uygulaması b) Onaylanmış ihracatçı yetkisi kapsamında; A.TR Dolaşım Belgelerini, Bakanlıkça yetki verilen kişi ve kuruluş tarafından düzenleme ve vize işlemi için gümrük idarelerine ibraz edilme zorunluluğu olmaksızın düzenleyebilme izni,"
+},
 "76ac5f83139278ba": {
 "id": "konu-6018",
 "ad": "Sair Mevzuat Kitabı (KDV, ÖTV, TPKHK…) · 32 sayılı Karar: tanımlar, Türk parası, döviz ve kıymetli madenler",
@@ -1093,6 +1168,11 @@
 "id": "k36-28",
 "ad": "İHRACAT YÖNETMELİĞİ · Madde 13 · Diğer ihracat şekilleri ve transit ticaret (12.07.2008 tarih ve 26934 sayılı R.G. ile değişik)[8]",
 "metin": "(3) Uluslararası anlaşmalarla ticareti yasaklanmış mallar ile Bakanlığın[10] madde politikası itibariyle transit ticaretinin yapılmasını uygun görmediği mallar transit ticarete konu olamaz. İthalat ve ihracat yapılması yasaklanmış ülkelerle transit ticaret yapılamaz."
+},
+"777aaa3cd485e3da": {
+"id": "yys-102",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 102 · İzinli Alıcı Yetkisi Kapsamında İşlem Yapılamayacak Eşya",
+"metin": "(1) Kapsam dışındaki eşya Aşağıdaki eşyanın; Transit işlemleri izinli alıcı yetkisi kapsamında sonlandırılamaz, İthali izinli alıcı tesislerinde gerçekleştirilemez, Eşya, izinli gönderici yetkisi kapsamında başka tesislere veya gümrük antreposuna sevk edilemez. a) Kanun, genel düzenleyici işlemler ve uluslararası anlaşmalarla ithali veya transiti yasaklanmış veya kısıtlanmış eşya. b) Türkiye'ye ithali belli kurum ve kuruluşlara bırakılan eşya. c) Gümrük Yönetmeliğinin 196 ncı maddesinin birinci fıkrasının (a) ve (ç) bentlerinde belirtilen eşya. ç) 4760 sayılı Özel Tüketim Vergisi Kanununun ekindeki (I) sayılı listede yer alan eşya. d) Bakanlıkça belirlenecek olanlar haricindeki ihtisas gümrüğü uygulamasına tabi eşya. e) Bakanlıkça belirlenecek diğer eşya."
 },
 "77844648e9edbfea": {
 "id": "k36-43",
@@ -1261,6 +1341,11 @@
 "ad": "TASFİYE YÖNETMELİĞİ · Madde 45 · Perakende satılacak eşya",
 "metin": "(1) Perakende satılacak eşya ve fiyatı komisyon tarafından belirlenir. (2) 5607 sayılı Kanun uyarınca tasfiyelik hale gelen ve açık artırma suretiyle satışa sunulan perakende niteliğini haiz eşya yüzde yetmiş beşin altında teklif alması halinde 38 inci maddenin ikinci fıkrasının (e) bendinde belirtilen teklif bedeli üzerinden işletme tarafından satın alınarak perakende satılabilir."
 },
+"885fa0b53d228d42": {
+"id": "yys-146",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 146 · Yetkilendirilmiş Yükümlü Sertifikası Sahiplerine Ait Gümrük Beyannamesi Kapsamı Eşyanın Muayeneye Tabi Tutulması Halinde Yapılacak İşlemler",
+"metin": "(1) Daha az muayene Yetkilendirilmiş yükümlü sertifikası sahiplerine ait gümrük beyannamesi kapsamındaki eşya; diğer yükümlülere göre daha az muayeneye tabi tutulur."
+},
 "88eae0d5b44f1cf4": {
 "id": "konu-8003",
 "ad": "Tarife ders notu ve sunum notları · Sunum — tarife giriş ve genel yorum kuralları (s. 1–61)",
@@ -1272,9 +1357,9 @@
 "metin": "• Süt ürünleri işlem derecesine göre ayrılır: sade süt ve krema 04.01, konsantre veya tatlandırılmış 04.02, fermente veya asitliği artırılmış 04.03, peyniraltı suyu 04.04, süt yağları 04.05, peynir 04.06."
 },
 "8a2b98f30ccadac3": {
-"id": "gk-4-v2",
-"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği (YYS notu) · Madde 160 · Yerinde izleme",
-"metin": "… (1) Yerinde izleme — Her 5 yılda bir 13/2 ve 13/6'da yer alan yerinde incelemeye konu koşulların karşılanıp karşılanmadığı; sertifikanın düzenlendiği tarihten itibaren her 5 yılda bir, sonradan kontrol yetkilisi tarafından sertifika sahibinin tesislerinde gerçekleştirilecek yerinde izleme ile tespit edilir."
+"id": "yys-160",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 160 · Yetkilendirilmiş Yükümlü Sertifikası ve Sertifika Kapsamı Yetki ve İzinlerin Koşullarına İlişkin Yerinde İzleme",
+"metin": "(1) Yerinde izleme — Her 5 yılda bir 13/2 ve 13/6'da yer alan yerinde incelemeye konu koşulların karşılanıp karşılanmadığı; sertifikanın düzenlendiği tarihten itibaren her 5 yılda bir, sonradan kontrol yetkilisi tarafından sertifika sahibinin tesislerinde gerçekleştirilecek yerinde izleme ile tespit edilir."
 },
 "8a7d32165b3693aa": {
 "id": "k46-9",
@@ -1290,6 +1375,11 @@
 "id": "k2076-1",
 "ad": "Genelge, Tebliğ ve Kararlar · Telafi Edici Verginin Ödenmesi · Madde 1 · Amaç",
 "metin": "Bu Karar; Dünya piyasa fiyatlarında hammadde temin etmek suretiyle ihracatı artırmak, ihraç ürünlerine uluslararası piyasalarda rekabet gücü kazandırmak, ihraç pazarlarını geliştirmek ve ihraç ürünlerini çeşitlendirmek amacıyla hazırlanmıştır."
+},
+"8d11509990a9d012": {
+"id": "yys-98",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 98 · İzinli Alıcı Yetkisi Kapsamında Kullanılacak Teminat",
+"metin": "(1) Teminat tutarı İzinli alıcı yetkisinin kullanılabilmesi için; 97/4 [Eşyanın kaybı, hasarı veya değiştirilmesinden doğan ve gümrük vergileri ile cezaları da kapsayan izinli alıcının mali sorumluluğu] kapsamındaki gümrük vergileri ve cezaların tazmini amacıyla; Ek-27/A'daki örneğe uygun olarak gümrük idaresine 1.000.000 Avro tutarında; Nakit teminat veya Teminat mektubu verilmiş olması gerekir."
 },
 "8d3b600c3f95aa93": {
 "id": "k10-15",
@@ -1341,6 +1431,11 @@
 "ad": "GEÇİCİ İTHAL EDİLEN KARA TAŞITLARINA İLİŞKİN GÜMRÜK GENEL TEBLİĞİ (SERİ NO: 1) · Madde 4 · Tanımlar",
 "metin": "o) Yabancı taşıtlar geçici giriş karnesi: Çift uyruklu Türk vatandaşları hariç olmak üzere, Türkiye Gümrük Bölgesi dışında yerleşik kişilerden, Türkiye'ye belirli bir süre görev yapmak veya öğrenimde bulunmak için gelenler ile Türkiye'de geçici olarak oturma iznini haiz emekli yabancıların ikamet yerlerinde adlarına kayıtlı kişisel kullanıma mahsus kara taşıtları için kefil kuruluşlarca verilen ve yalnız Türkiye için geçerli olan teminat hükmünde olan belgeyi,"
 },
+"9323bcb69f32da77": {
+"id": "yys-4",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 4 · Yetkilendirilmiş yükümlü statüsü ve kapsamı",
+"metin": "(1) YYS'nin temel koşulları Aşağıdaki koşulları sağlayan gerçek veya tüzel kişilere yetkilendirilmiş yükümlü statüsü tanınır: 5 inci madde [Güvenilirlik koşulu] 6 ncı madde [Ticari kayıtların güvenilirliği ve izlenebilir olması koşulu] 7 nci madde [Mali yeterlilik koşulu] 8 inci madde [Emniyet ve güvenlik koşulu] Gümrük mevzuatına göre serbest bölgeler dâhil Türkiye Gümrük Bölgesinde yerleşik olmak, En az 3 yıldır fiilen faaliyette bulunmak."
+},
 "933da4e438bedcf2": {
 "id": "k21-10",
 "ad": "Madde 15 · Taşıt onay belgesinin düzenlenmesi",
@@ -1352,6 +1447,11 @@
 "metin": "VI. Vergi ödevi Madde 73 – Herkes, kamu giderlerini karşılamak üzere, mali gücüne göre, vergi ödemekle yükümlüdür.",
 "kaynak": "resmi",
 "url": "https://www.mevzuat.gov.tr/mevzuat?MevzuatNo=2709&MevzuatTur=1&MevzuatTertip=5"
+},
+"94a08bb6275659f2": {
+"id": "yys-6",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 6 · Yetkilendirilmiş Yükümlü Sertifikası Başvurusu İçin Aranacak Ticari Kayıtların Güvenilirliği ve İzlenebilir Olması Koşulu",
+"metin": "… h) Arşivleme ve bilgi kaybının önlenmesi Bilgi ve kayıtların arşivlenmesi ve bilgi kaybının önlenmesine yönelik yeterli ve uygun bir iş planlamasına sahip olmak."
 },
 "951a070a9ee23cdb": {
 "id": "gk-244",
@@ -1510,6 +1610,11 @@
 "ad": "Gümrük Kanunu · Geçici Madde 6",
 "metin": "7. Disiplin cezaları bir dava sonucuna bağlı olmaksızın mevzuat hükümlerine aykırılığı gümrük idarelerince tespit edildiği tarihten itibaren üç yıl süreyle uygulanmadığı takdirde zamanaşımına uğrar. Mevzuata aykırı işlem ve eylemlerin aynı zamanda bir adli kovuşturma konusu olması halinde, bu aykırılık için Türk Ceza Kanununda öngörülen zamanaşımı hükümlerine göre disiplin cezası verilebilir."
 },
+"ac24adaa244e49e5": {
+"id": "yys-118",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 118 · İzinli Alıcı Yetkisi Sahibinin Yükümlülükleri",
+"metin": "… d) İzinli alıcı yetkisi kapsamında kırılan mühürlerin korunmasını sağlamaya yönelik gerekli bütün tedbirleri almak."
+},
 "ad3e55952d265c9e": {
 "id": "konu-6002",
 "ad": "Sair Mevzuat Kitabı (KDV, ÖTV, TPKHK…) · Ankara Anlaşması, ortaklık organları ve 1/95 sayılı OKK",
@@ -1519,6 +1624,11 @@
 "id": "k38-18",
 "ad": "Madde 425 · Serbest bölgelerdeki eşyaya yönelik yapılabilecek işlemler",
 "metin": "(1) Bir serbest bölgeye konulmuş serbest dolaşımda olmayan eşya; dahilde işleme rejimi, gümrük kontrolü altında işleme rejimi veya geçici ithalat rejimlerinden birine tabi tutulması halinde, söz konusu rejimlerin bu Yönetmelikle belirlenen hükümlerine tabidir. Bu durumda, serbest bölgelerin işletilmesine ve gümrük gözetimine ilişkin koşullar da göz önünde bulundurulur. Bu rejimlere ilişkin izin belgelerinde faaliyetlerin yürütüleceği serbest bölge ismi belirtilir."
+},
+"ae18aba4d53e1594": {
+"id": "yys-159",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 159 · Yetkilendirilmiş Yükümlü Sertifikası ve Sertifika Kapsamı Yetki ve İzinlerin Koşullarına İlişkin Ön İzleme",
+"metin": "(1) Ön izleme — Her 5 yılda bir 6/1-(a) ilâ (h) bentleri ile 8 inci maddede sayılanlar dışında kalan ön incelemeye konu koşulların tamamının karşılanıp karşılanmadığı; sertifikanın düzenlendiği tarihten itibaren her 5 yılda bir sertifikayı düzenleyen Bölge Müdürlüğünce ön izlemeye tabi tutulur."
 },
 "af4a55eb86e0fd54": {
 "id": "k30-16",
@@ -1539,6 +1649,11 @@
 "id": "k32-16",
 "ad": "Madde 349 · Dahilde işleme rejimi için tanımlar",
 "metin": "b) Önceden ihracat: Rejimin şartlı muafiyet sisteminde, ithal eşyasının bu sisteme tabi tutulmadan önce eşdeğer eşyadan üretilen işlem görmüş ürünlerin Türk Gümrük Bölgesinden ihracına ve ithal eşyasının sonradan ithaline imkan veren uygulamayı, c) Fire ve zayiat: İthal eşyasından, işleme faaliyetleri esnasında buharlaşma, gaz olarak havaya karışma, kuruma veya damıtma sonucu tahrip veya zayi şeklindeki eksilmeleri, ifade eder."
+},
+"affbaa909e295413": {
+"id": "yys-14",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 14 · Başvurunun Reddi",
+"metin": "(1) Ön inceleme yapılmaksızın başvurunun reddedileceği haller Aşağıdaki durumlardan herhangi birinin bulunması halinde başvuru ön inceleme yapılmaksızın reddedilir ve başvuru dosyası, başvurunun yapıldığı bölge müdürlüğü tarafından derhal iade edilir: a) Yetkisiz bölge müdürlüğüne başvuru Başvurunun Ek-20'de yer alan tabloya göre belirlenecek yetkili bölge müdürlüğüne yapılmamış olması. b) Başvuru formunun usulüne uygun imzalanmaması Başvuru formunun 10/4 [Başvuru formu ve soru formunun imzalanması] hükmüne uygun olarak imzalanmamış olması. c) ISO belgelerinin eksik olması Başvuru dosyasında 10/1-(e) [ISO 9001 ve ISO 27001 sertifikaları] kapsamında belirtilen belgelerden herhangi birinin eksik olması. ç) Daha önce iptal edilen YYS nedeniyle 3 yıllık sürenin dolmamış olması 156/1 [Yetkilendirilmiş yükümlü sertifikasının iptali] uyarınca sertifikası daha önce iptal edilmiş kişiler tarafından yeni sertifika başvurusunun, iptal işlemini müteakip 3 yıl içerisinde yapılmış olması."
 },
 "affde25e992a4a4e": {
 "id": "konu-2002",
@@ -1566,9 +1681,9 @@
 "metin": "54 Tarife Yorum kuralları KURAL 5 Kural 2’ye ayrılmıştır 5(a) (Mahfazalar, kutular ve benzeri kaplar) 5(b) (Ambalaj maddeleri ve ambalaj mahfazaları) 55 Tarife Yorum kuralları KURAL 5 5(a) (Mahfazalar, kutular ve benzeri kaplar) • Yukarıda belirtilen hükümlere ilaveten, aşağıdaki eşya konusunda şu kurallar uygulanır: • Fotoğraf makinası mahfazası, müzik aleti mahfazası, silah mahfazası, çizim aleti kutuları, kolye kutuları ve benzeri kutular, • özellikle belli bir eşyaya veya takım halindeki eşyaya göre şekil verilmişse • veya bu eşyaya uygun olarak yapılmışsa • uzun süre kullanılmaya uygunsa ve ait oldukları eşya ile birlikte ithal edilen kutularsa,"
 },
 "b3b71f7677fa1350": {
-"id": "k4-29",
-"ad": "ONAYLANMIŞ KİŞİ STATÜSÜNE İLİŞKİN GÜMRÜK GENEL TEBLİĞİ (SIRA NO: 1) · Madde 26 · Kısmi teminat uygulanacak durumlar",
-"metin": "(1) Gümrük antrepo, gümrük kontrolü altında işleme ve geçici ithalat rejimlerine tabi tutulan eşya için teminat alınması öngörülen durumlarda, statü belgesi sahibi kişilerden, talep etmeleri halinde, ithalat vergilerinin yüzde onu oranında teminat alınır. (2) Dâhilde işleme ve hariçte işleme rejimleri ile ilgili usul ve esaslar hakkında çıkarılan bakanlar kurulu kararları ile belirlenmiş teminat uygulamaları hükümleri saklıdır."
+"id": "yys-27",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 27 · Kısmi Teminat Uygulanacak Durumlar",
+"metin": "(1) Kısmi teminat oranı Aşağıdaki rejimlere tabi tutulan eşya için teminat alınmasının öngörüldüğü durumlarda; Gümrük antrepo rejimi Gümrük kontrolü altında işleme rejimi Geçici ithalat rejimi sertifika sahibi kişilerden, talep etmeleri halinde, ithalat vergilerinin %10'u oranında teminat alınır."
 },
 "b3decf7c46b47696": {
 "id": "gy-171",
@@ -1725,6 +1840,11 @@
 "ad": "Sair Mevzuat Kitabı (KDV, ÖTV, TPKHK…) · İhracat bedelleri hakkında Tebliğ (2018-32/48) · TÜRK PARASI KIYMETİNİ KORUMA HAKKINDA 32 SAYILI KARARA İLİŞKİN TEBLİĞ · Ek Madde 1 · MERKEZ BANKASI İHRACAT GENELGESİ – İHRACAT BE",
 "metin": "PEŞİN DÖVİZ karşılığında ihracat 24 ay MÜTEAHHİT FİRMALAR 365 gün İhracat Bedellerinin yurda getirilme süresi (Fiili ihraç tarihinden itibaren) 180 gün KONSİNYE ihracat (Kesin satışı müteakip) 180 gün Uluslararası FUAR, SERGİ (Haftanın bitimini müteakip) 180 gün GEÇİCİ İHRACAT (Süresinde getirilmemesi veya satılması) 90 gün KREDİLİ veya KİRALAMA YOLUYLA yapılan ihracatta (Vade tarihi) 90 gün 180 GÜNDEN FAZLA VADE öngörülmesi (Vade bitimini müteakip) 90 gün DÂHİLDE İŞLEME İZİN BELGESİ ve VERGİ, RESİM ve HARÇ İSTİSNA BELGESİ kapsamında BELGE SÜRESİ KADARDIR ihracat ile ilgili olarak sağlanan PEŞİN DÖVİZLERİN KULLANIM SÜRESİ"
 },
+"c5957a0fff601700": {
+"id": "yys-47",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 47 · Basitleştirilmiş Usulde Düzenlenecek A.TR Dolaşım Belgelerinin Doldurulması ve Kullanılması",
+"metin": "(5) Sorumluluk Basitleştirilmiş işlem kapsamında düzenlenecek A.TR Dolaşım Belgelerinin; Şekil şartları, İçerdiği bilgiler, Usulüne uygun düzenlenip düzenlenmediği, Vize edilip edilmediği hususlarından doğrudan doğruya basitleştirilmiş işlem kapsamında A.TR Dolaşım Belgesi düzenleme ve vize etme uygulamasından yararlanma izni verilmiş kişiler sorumludur."
+},
 "c5f1d5835e90611d": {
 "id": "k38-15",
 "ad": "Madde 422 · Ticaret politikası önlemlerinin uygulanması",
@@ -1830,6 +1950,11 @@
 "ad": "Gümrük Genel Tebliği (Geçici İthalat) Seri No: 4 · Madde 12 · Çıkış Sayılan Haller",
 "metin": "ATA Karnesi ile \"Geçici İthalat Rejimi\" uyarınca yurda geçici ithali yapılan eşyanın karnenin geçerlilik süresi içerisinde yurt dışı edilmesi esastır. Ancak, eşyanın yurt dışı edilmesinden vazgeçilerek, serbest dolaşıma giriş rejimine tabi tutulması veya çıkış hükmünde geçici depolama yeri veya antrepoya konulması ya da Hazine'ye herhangi bir külfet getirmeksizin resmi makamların nezareti altında imha edilmesi çıkış hükmündedir."
 },
+"d31a855e58e8b910": {
+"id": "yys-154",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 154 · Yetkilendirilmiş Yükümlü Sertifikasının Askıya Alınması",
+"metin": "(1) Koşulun kaybedildiğinin sertifika sahibince bildirilmesi — 30 gün 154/22 [ISO 9001 ve ISO 27001 belgelerinin süresinde ibraz edilmemesi halinde sertifikanın 30 gün askıya alınması] saklı kalmak kaydıyla; sertifika için aranan koşullardan herhangi birinin artık karşılanmadığı sertifika sahibince bildirilirse; ilgili Bölge Müdürlüğünce, eksikliklerin düzeltilmesi ve/veya durumun açıklanması için bildirim tarihinden itibaren 30 gün süre verilir."
+},
 "d3390f530a9bf5df": {
 "id": "k32-56",
 "ad": "DAHİLDE İŞLEME REJİMİ TEBLİĞİ (İHRACAT: 2006/12) · Madde 20 · Belge/izin süresi",
@@ -1879,6 +2004,11 @@
 "id": "k36-43",
 "ad": "İhracı Yasak ve Ön İzne Bağlı Mallara İlişkin Tebliğ (96/31) · EK-1 İhracı yasak mallar listesi",
 "metin": "7- Odun (10.11.2010 tarih ve 27755 sayılı R.G. İhracat 2010/16 ile değişik)[1] | 06/01/1996 tarih ve 22515 sayılı Resmi Gazete'de yayımlanmış bulunan 95/7623 sayılı İhracat Rejimi Kararı"
+},
+"d845ea251a99e984": {
+"id": "yys-4",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 4 · Yetkilendirilmiş yükümlü statüsü ve kapsamı",
+"metin": "(8) Talep ve ek koşullarla yararlanılabilecek basitleştirilmiş uygulamalar Yetkilendirilmiş yükümlü statüsü sahiplerinin aşağıdaki uygulamalardan faydalanmalarına; Talep etmeleri ve İlgili uygulamaya ilişkin ek koşul veya koşulları sağlamaları halinde izin verilir: a) Götürü teminat uygulaması b) Onaylanmış ihracatçı yetkisi kapsamında; A.TR Dolaşım Belgelerini, Bakanlıkça yetki verilen kişi ve kuruluş tarafından düzenleme ve vize işlemi için gümrük idarelerine ibraz edilme zorunluluğu olmaksızın düzenleyebilme izni, Serbest Ticaret Anlaşması yapılan ülke veya ülke gruplarıyla tercihli ticarette, Türkiye ile Avrupa Birliği arasında tarım ürünlerinin tercihli ticaretinde ve ülkemiz tarafından tek taraflı olarak tanınan Genelleştirilmiş Tercihler Sistemi rejimi kapsamında gerçekleştirilen tercihli ticarette, eşyanın kıymetine bakılmaksızın fatura beyanı veya EUR.MED fatura beyanı düzenleyebilme izni, İhracatta yerinde gümrükleme izni"
 },
 "d8b45f7627427f04": {
 "id": "k36-5",
@@ -2014,6 +2144,11 @@
 "id": "k45-9",
 "ad": "Madde 490",
 "metin": "(4) Gümrük vergileri alacağına bağlı idari para cezalarının zamanaşımı, bu idari para cezalarına ilişkin gümrük vergilerinin zamanaşımına tabidir."
+},
+"e5bdd2d6b1cd2a79": {
+"id": "yys-4",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 4 · Yetkilendirilmiş yükümlü statüsü ve kapsamı",
+"metin": "(1) YYS'nin temel koşulları Aşağıdaki koşulları sağlayan gerçek veya tüzel kişilere yetkilendirilmiş yükümlü statüsü tanınır: 5 inci madde [Güvenilirlik koşulu] 6 ncı madde [Ticari kayıtların güvenilirliği ve izlenebilir olması koşulu] 7 nci madde [Mali yeterlilik koşulu] 8 inci madde [Emniyet ve güvenlik koşulu] Gümrük mevzuatına göre serbest bölgeler dâhil Türkiye Gümrük Bölgesinde yerleşik olmak, En az 3 yıldır fiilen faaliyette bulunmak."
 },
 "e60ab275529bbe8c": {
 "id": "gy-212",
@@ -2197,6 +2332,11 @@
 "ad": "GÜMRÜK GENEL TEBLİĞİ (TAHSİLAT İŞLEMLERİ) (SERİ NO: 2) · Madde 6 · Dolaylı temsilde sorumluluk",
 "metin": "(3) Dolaylı temsile yetkili kişilerin sorumluluğunun tespit edildiği durumlarda; a) Asıl yükümlünün onaylanmış kişi statü belgesi veya yetkilendirilmiş yükümlü sertifikasına sahip olması, b) Asıl yükümlü adına gümrük idaresi nezdinde, alacağa yetecek miktarda teminatın bulunması, c) Eşyanın tesliminden önce ek tahakkukun asıl yükümlüye tebliğ edilmiş olması, hallerinde dolaylı temsile yetkili kişilere ayrıca tebligat yapılmaz."
 },
+"f6541cfbc56c5dfb": {
+"id": "yys-4",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 4 · Yetkilendirilmiş yükümlü statüsü ve kapsamı",
+"metin": "(7) Talep gerektirmeden yararlanılabilecek basitleştirilmiş uygulamalar Yetkilendirilmiş yükümlü statüsü sahiplerinin, ayrıca bir talebe gerek kalmaksızın, aşağıdaki basitleştirilmiş uygulamalardan faydalanmalarına izin verilir: a) Eksik beyan usulü b) Kısmi teminat uygulaması (8) Talep ve ek koşullarla yararlanılabilecek basitleştirilmiş uygulamalar Yetkilendirilmiş yükümlü statüsü sahiplerinin aşağıdaki uygulamalardan faydalanmalarına; Talep etmeleri ve İlgili uygulamaya ilişkin ek koşul veya koşulları sağlamaları halinde izin verilir: a) Götürü teminat uygulaması"
+},
 "f6e2e84957f728f5": {
 "id": "gy-527",
 "ad": "Gümrük Yönetmeliği · GY Madde 527",
@@ -2228,8 +2368,8 @@
 "metin": "1yıldan 5yıla kadar hapis ve Eşyayı GÜMRÜK İŞLEMLERİNE TABİ TUTMAKSIZINülkeye sokmak suçu 10.000güne kadar adlî para cezası 1 Eşyanın, GÜMRÜK KAPILARI DIŞINDANülkeye sokulması Üçte birinden yarısına kadar arttırılır."
 },
 "f9668010fa6e128d": {
-"id": "gk-4-v2",
-"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği (YYS notu) · Madde 162 · Onaylanmış kişi statüsüne ilişkin hükümler",
+"id": "yys-162",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 162 · Onaylanmış Kişi Statüsüne İlişkin Hükümler",
 "metin": "… (3) Geri alma işleminden önce başlamış işlemler 162/1 [YYS düzenlenen kişilerin onaylanmış kişi statü belgelerinin geri alınması] kapsamında onaylanmış kişi statüsü geri alınan yetkilendirilmiş yükümlülerin; Onaylanmış Kişi Statüsüne İlişkin Gümrük Genel Tebliği (Sıra No: 1) kapsamında kullandıkları; Eksik beyan, Mavi hat, Kısmi teminat, Götürü teminat, Basitleştirilmiş işlem kapsamında A.TR Dolaşım Belgesi düzenleme ve vize etme, ile Gümrük Genel Tebliği (Seri No: 7) (Uluslararası Anlaşmalar) kapsamında kullandıkları; Eşyanın kıymetine bakılmaksızın fatura beyanı veya EUR.MED fatura beyanı düzenlenmesine ilişkin Onaylanmış İhracatçı yetkisine ilişkin, geri alma işleminden önce başlamış ve henüz tamamlanmamış gümrük işlemleri ilgili Tebliğlere göre sonuçlandırılır."
 },
 "f97ab14347ce13e0": {
@@ -2241,6 +2381,11 @@
 "id": "gk-178",
 "ad": "Gümrük Kanunu · GK Madde 178",
 "metin": "177 nci maddede belirtilen eşya; a) İhale yoluyla satış suretiyle, b) Yeniden ihraç amaçlı satış suretiyle, c) Perakende satılmak suretiyle, d) Kamu kuruluşları ile özel kanunla kurulmuş vakıf ve derneklere tahsis edilmek suretiyle, e) İmha suretiyle, f) Özel yolla, (07.07.2009/27281 R.G. 5911 s.k. ile eklenmiştir) Tasfiyeye tabi tutulur."
+},
+"fa20782d35206fea": {
+"id": "yys-76",
+"ad": "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği · YYS Madde 76 · İzinli Gönderici Yetkisi",
+"metin": "(1) Yetki için ek koşullar Yetkilendirilmiş yükümlü sertifikası sahibi kişilere, aşağıdaki ek koşulları sağlamaları halinde; eşyayı hareket gümrük müdürlüğüne sunmaksızın transit işlemlerini kendi tesislerinde gerçekleştirmek üzere izin verilebilir. a) Ulaştırma ve Altyapı Bakanlığından alınmış uluslararası taşımacı yetki belgesi sahibi olmak. b) Kapsamlı teminat veya teminattan vazgeçme sertifikası sahibi olmak. c) Başvuru yılından bir önceki takvim yılı veya başvurunun yapıldığı ayın ilk gününden geriye dönük 1 yıl içerisinde, aşağıdaki koşullardan en az birini sağlamış olmak: 1) En az 500 transit beyannamesi (TIR Karnesi dâhil) kapsamında eşya transit etmiş olmak. 2) En az 300'ü transit beyanı (TIR Karnesi dâhil) olmak kaydıyla, toplam 500 transit beyanı ve özet beyan kapsamında işlem yapmış olmak. 3) Yürürlükten kaldırılmıştır. ç) Yetki kapsamı eşyanın; Depolanması, Boşaltılması, Muayenesi, Numune alınabilmesi için gerekli teçhizat ve donanıma sahip olmak. d) Yetki kapsamında işlem yapılacak tesislerde, gerektiğinde eşya ve taşıma aracının tartımı için gerekli düzeneğe sahip olmak. e) Yetki kapsamında kullanılacak en az 1 tesise sahip olmak."
 },
 "fa6a10c38d1ef487": {
 "id": "konu-12003",

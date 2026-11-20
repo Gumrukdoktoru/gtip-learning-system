@@ -15,6 +15,11 @@ interface SidebarNavProps {
 
 const LINK_BASE = 'block rounded px-3 py-1.5 text-[13px] leading-snug hover:bg-white/10';
 const LINK_ACTIVE = 'bg-accent font-semibold text-shell hover:bg-accent';
+const LAW_LISTS: Partial<Record<ReaderMode, { label: string; code: string }>> = {
+  gk: { label: 'Kanun maddeleri', code: 'GK' },
+  gy: { label: 'Yönetmelik maddeleri', code: 'GY' },
+  yys: { label: 'YYS Yönetmeliği maddeleri', code: 'YYS' },
+};
 
 function LawList({ entries, code, activeId }: { entries: LawEntry[]; code: string; activeId: string | null }): JSX.Element {
   return (
@@ -88,10 +93,12 @@ export function SidebarNav(props: SidebarNavProps): JSX.Element {
       </p>
     );
   }
-  if (mode !== 'konu') {
+  const law = LAW_LISTS[mode];
+  if (law) {
+    const entries = mode === 'gk' ? index.gk : mode === 'gy' ? index.gy : (index.yys ?? []);
     return (
-      <nav ref={container} aria-label={mode === 'gk' ? 'Kanun maddeleri' : 'Yönetmelik maddeleri'}>
-        <LawList entries={mode === 'gk' ? index.gk : index.gy} code={mode.toUpperCase()} activeId={activeId} />
+      <nav ref={container} aria-label={law.label}>
+        <LawList entries={entries} code={law.code} activeId={activeId} />
       </nav>
     );
   }

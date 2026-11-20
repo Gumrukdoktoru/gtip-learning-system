@@ -7,36 +7,13 @@ import { SearchResults } from './components/search-results';
 import { Sidebar } from './components/sidebar';
 import { useHashRoute } from './hooks/use-hash-route';
 import { useExamGroups, useIndex, useSearch, useTopic } from './hooks/use-mevzuat';
-import type { MevzuatIndex, ReaderMode } from './types/mevzuat';
+import type { ReaderMode } from './types/mevzuat';
+import { FOLDER_TOPIC_BASE, buildLookup, modeForArticle, searchScope } from './utils/lookup';
 import { QUESTIONS_HASH, articleHash, topicHash } from './utils/route';
 
-const FOLDER_TOPIC_BASE = 1000;
 const MIN_FONT = 14;
 const MAX_FONT = 26;
 const TOOL_BUTTON = 'rounded-md border border-paper-line px-3 py-1.5 text-xs hover:bg-black/5';
-
-interface Lookup {
-  topicOf: Map<string, number>;
-  knownRefs: Set<string>;
-  order: Record<ReaderMode, string[]>;
-}
-
-function buildLookup(index: MevzuatIndex): Lookup {
-  const topicOf = new Map<string, number>();
-  for (const topic of index.topics) for (const article of topic.articles) topicOf.set(article.id, topic.id);
-  const core = [...topicOf.keys()];
-  for (const group of index.groups)
-    for (const folder of group.folders) for (const topic of folder.topics) for (const article of topic.articles) topicOf.set(article.id, topic.id);
-  const gk = index.gk.map((entry) => entry.id);
-  const gy = index.gy.map((entry) => entry.id);
-  return { topicOf, knownRefs: new Set([...gk, ...gy]), order: { konu: core, gk, gy, soru: [], sinav: [], kaynak: [] } };
-}
-
-function modeForArticle(id: string, current: ReaderMode, topicId: number | undefined): ReaderMode {
-  if ((topicId ?? 0) >= FOLDER_TOPIC_BASE) return 'kaynak';
-  if (current === 'konu') return 'konu';
-  return id.startsWith('gk-') ? 'gk' : id.startsWith('gy-') ? 'gy' : 'konu';
-}
 
 export function App(): JSX.Element {
   const [retry, setRetry] = useState(0);
@@ -57,12 +34,8 @@ export function App(): JSX.Element {
   const groups = index.data?.groups ?? [];
   const activeGroup = groups.find((g) => g.folders.some((f) => f.topics.some((t) => t.id === activeTopic))) ?? null;
   const activeFolder = activeGroup?.folders.find((folder) => folder.topics.some((t) => t.id === activeTopic));
-  const searchTopics = !index.data
-    ? null
-    : mode === 'kaynak'
-      ? (activeFolder?.topics.map((t) => t.id) ?? [])
-      : index.data.topics.map((t) => t.id);
-  const search = useSearch(searchTopics, mode === 'kaynak' ? `folder-${activeFolder?.id}` : 'core', questionsView ? '' : term, mode);
+  const scope = index.data ? searchScope(index.data, mode, activeFolder) : null;
+  const search = useSearch(scope?.topics ?? null, scope?.key ?? 'core', questionsView ? '' : term, mode);
   const otherQuestions = useExamGroups(route.kind === 'questions' ? route.view : null);
 
   useEffect(() => setTerm(''), [route]);
@@ -155,6 +128,7 @@ export function App(): JSX.Element {
               <span className="ml-auto flex gap-3 text-[11px] font-semibold">
                 <span className="text-kanun">GK · Kanun</span>
                 <span className="text-yonetmelik">GY · Yönetmelik</span>
+                <span className="text-yys">YYS · Kolaylaştırma Yönetmeliği</span>
                 <span className="text-diger">Diğer mevzuat</span>
               </span>
             </div>
@@ -167,6 +141,8 @@ export function App(): JSX.Element {
             />
           ) : searching ? (
             <SearchResults term={term.trim()} result={search} />
+          ) : route.kind === 'article' && activeTopic === null ? (
+            <p className="text-ink-soft">Bu madde derlemede bulunamadı.</p>
           ) : (
             <Reader
               topic={topic}

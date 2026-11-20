@@ -2,12 +2,14 @@
 """Konu esaslı mevzuat derlemesini (Markdown) okuyucu için JSON'a çevirir.
 
 Kullanım:
-    python3 apps/web/scripts/build-mevzuat-data.py <GUMRUK_MEVZUATI_TUMU.md> [çıktı klasörü]
+    python3 apps/web/scripts/build-mevzuat-data.py <GUMRUK_MEVZUATI_TUMU.md> [--yys <3-YYS.md>] [--ek <not dosyaları>...]
 
 Çıktı (varsayılan apps/web/public/data):
-    index.json       konu listesi + Kanun/Yönetmelik madde dizinleri
+    index.json       konu listesi + Kanun/Yönetmelik/YYS Yönetmeliği madde dizinleri
     konu-<n>.json    her konunun blokları (başlık, paragraf, madde)
-    refs.json        atıf önizlemesi için GK/GY madde metinleri
+    refs.json        atıf önizlemesi için GK/GY/YYS madde metinleri
+
+--yys verilmezse scripts/kaynaklar/3-YYS.md (Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği notu) kullanılır.
 """
 
 from __future__ import annotations
@@ -38,7 +40,9 @@ DOC_TITLE_RE = re.compile(
     r"(KANUNU|Kanunu|YÖNETMELİĞİ|Yönetmeliği|YÖNETMELİK|TEBLİĞİ|Tebliği|TEBLİĞ|KARARI|SÖZLEŞMESİ|Sözleşmesi)"
 )
 NOT_HEADING_START_RE = re.compile(r"^(\(|\d+[.)\-]|[a-zçğıöşü]{1,2}\)|[-–—•§ü] )")
-SOURCE_NAMES = {"GK": "Gümrük Kanunu", "GY": "Gümrük Yönetmeliği"}
+YYS_NAME = "Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği"
+SOURCE_NAMES = {"GK": "Gümrük Kanunu", "GY": "Gümrük Yönetmeliği", "YYS": YYS_NAME}
+YYS_FILE = Path(__file__).resolve().parent / "kaynaklar" / "3-YYS.md"
 
 
 # Eğitmen/kurum tanıtım satırları (sayfa altlıkları, kapak imzası) hiçbir çıktıya alınmaz.
@@ -222,6 +226,84 @@ class TopicParser:
     def finish(self) -> list[dict]:
         self.flush_pending(as_headings=self.article is None)
         return self.blocks
+
+
+YYS_TOPIC_TITLE = "YYS Yönetmeliği"  # maddelerin üst satırında Yönetmeliğin tam adı ayrıca yazılır
+YYS_ARTICLE_RE = re.compile(r"^MADDE\s+(\d+)(?:\s*/\s*([A-Z]))?(?:\s*[-–—]\s*(.+))?$")
+YYS_PART_RE = re.compile(r"^(?:[A-ZÇĞİÖŞÜ]+ )?(?:KİTAP|KISIM|BÖLÜM)$")
+YYS_MATCH_SHARE = 0.8  # konunun YYS notu sayılması için madde başlıklarının en az bu kadarı konuda bulunmalı
+
+
+def parse_yys(lines: list[str]) -> list[dict]:
+    """Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği notunu madde madde bloklara çevirir (kaynak kodu YYS).
+
+    Notta her madde tek başına "**MADDE N**" satırıyla açılır; hemen önceki satır maddenin başlığıdır, onun önündeki
+    "BİRİNCİ KİTAP / KISIM / BÖLÜM" + ad satır çiftleri ara başlıktır ("h" bloğu). Bölüm adı doğrudan maddeden önce
+    geliyorsa (madde başlığı yok) bölüm adı madde başlığı olarak da kullanılır. Maddenin ortasında aynı numarayla
+    tekrarlanan "MADDE 4 – <başlık>" satırı yeni madde açmaz ve atlanır. Metin değiştirilmez; yalnızca ** işaretleri atılır.
+    Kimlikler: yys-16, harfli maddelerde yys-4-a.
+    """
+    texts = [t for t in (clean(line) for line in lines) if t]
+    heads: list[tuple[int, re.Match[str]]] = []
+    skipped: set[int] = set()
+    for at, text in enumerate(texts):
+        match = YYS_ARTICLE_RE.match(text)
+        if not match:
+            continue
+        if match.group(3) and heads and heads[-1][1].group(1, 2) == match.group(1, 2):
+            skipped.add(at)  # aynı maddenin devamında tekrarlanan başlık
+        else:
+            heads.append((at, match))
+    blocks: list[dict] = []
+    preambles = []  # (önsözün başladığı satır, ara başlıklar, madde başlığı)
+    floor = 0
+    for at, _ in heads:
+        start, parts, title = at, [], ""
+        if start - 2 >= floor and YYS_PART_RE.match(texts[start - 2]):
+            title = texts[start - 1]  # bölüm adı maddenin de başlığıdır
+            parts.append(f"{texts[start - 2]} — {texts[start - 1]}")
+            start -= 2
+        elif start - 1 >= floor:
+            title = texts[start - 1]
+            start -= 1
+        while start - 2 >= floor and YYS_PART_RE.match(texts[start - 2]):
+            parts.insert(0, f"{texts[start - 2]} — {texts[start - 1]}")
+            start -= 2
+        preambles.append((start, parts, title))
+        floor = at + 1
+    blocks += [{"t": "p", "x": text} for text in texts[: preambles[0][0] if preambles else len(texts)]]
+    for number, ((at, match), (_, parts, title)) in enumerate(zip(heads, preambles)):
+        end = preambles[number + 1][0] if number + 1 < len(preambles) else len(texts)
+        letter = match.group(2) or ""
+        no = match.group(1) + (f"/{letter}" if letter else "")
+        blocks += [{"t": "h", "x": part} for part in parts]
+        blocks.append({
+            "t": "a", "id": f"yys-{match.group(1)}" + (f"-{letter.lower()}" if letter else ""), "src": "YYS", "no": no,
+            "label": f"YYS Madde {no}", "title": title, "doc": YYS_NAME,
+            "p": [text for i, text in enumerate(texts[at + 1:end], at + 1) if i not in skipped],
+        })
+    return blocks
+
+
+def find_yys_topic(topics: list[tuple[int, str, list[str]]], yys_lines: list[str]) -> int | None:
+    """Ana derlemede YYS notunun aynısını taşıyan konu (madde başlıklarının çoğu konuda geçiyorsa); yoksa None."""
+    wanted = {t for t in (clean(line) for line in yys_lines) if YYS_ARTICLE_RE.match(t)}
+    best, share = None, 0.0
+    for topic_id, _, body in topics:
+        found = wanted & {t for t in (clean(line) for line in body) if YYS_ARTICLE_RE.match(t)}
+        if wanted and len(found) / len(wanted) > share:
+            best, share = topic_id, len(found) / len(wanted)
+    if best is None or share < YYS_MATCH_SHARE:
+        return None
+    body = next(b for i, _, b in topics if i == best)
+    mine = [t for t in (clean(line) for line in body) if t and not is_noise(t)]
+    theirs = [t for t in (clean(line) for line in yys_lines) if t]
+    if mine == theirs:
+        print(f"YYS notu: ana derlemenin {best}. konusuyla aynı; konu YYS dosyasından madde madde kurulur")
+    else:
+        extra, missing = len(set(mine) - set(theirs)), len(set(theirs) - set(mine))
+        print(f"UYARI: {best}. konu YYS notundan farklı (konuda fazla {extra}, eksik {missing} satır); YYS dosyası esas alındı")
+    return best
 
 
 SECTION_LIMIT = 200_000  # tek konunun en fazla boyutu
@@ -464,7 +546,7 @@ def number_key(no: str) -> tuple[int, str]:
     return int(digits), letter
 
 
-def build(source_path: Path, out_dir: Path, extra_paths: list[Path] | None = None) -> None:
+def build(source_path: Path, out_dir: Path, extra_paths: list[Path] | None = None, yys_path: Path | None = None) -> None:
     lines = source_path.read_text(encoding="utf-8").split("\n")
     topics: list[tuple[int, str, list[str]]] = []
     for line in lines:
@@ -474,21 +556,34 @@ def build(source_path: Path, out_dir: Path, extra_paths: list[Path] | None = Non
         elif topics:
             topics[-1][2].append(line)
 
+    # YYS Yönetmeliği ayrı bir mevzuattır: ana derlemedeki kopyası (3-YYS) GK maddesi sanılmasın diye bu konu
+    # YYS dosyasından madde madde kurulur; derlemede yoksa yeni bir konu olarak eklenir.
+    yys_lines = yys_path.read_text(encoding="utf-8").split("\n") if yys_path and yys_path.exists() else None
+    yys_topic = find_yys_topic(topics, yys_lines) if yys_lines else None
+    if yys_lines and yys_topic is None:
+        yys_topic = max(t[0] for t in topics) + 1
+        topics.append((yys_topic, YYS_TOPIC_TITLE, []))
+        print(f"YYS notu ana derlemede bulunamadı: {yys_topic}. konu olarak eklendi")
+
     out_dir.mkdir(parents=True, exist_ok=True)
     for stale in out_dir.glob("konu-*.json"):
         stale.unlink()
     used_ids: set[str] = set()
     index_topics, refs = [], {}
-    law_index: dict[str, list[dict]] = {"GK": [], "GY": []}
+    law_index: dict[str, list[dict]] = {"GK": [], "GY": [], "YYS": []}
     for topic_id, title, body in topics:
         if topic_id in SKIPPED_TOPICS:
             continue
-        parser = TopicParser(topic_id, used_ids)
-        for raw in body:
-            text = clean(raw)
-            if not is_noise(text):
-                parser.feed(text)
-        blocks = parser.finish()
+        if topic_id == yys_topic:
+            title, blocks = YYS_TOPIC_TITLE, parse_yys(yys_lines)
+            used_ids.update(b["id"] for b in blocks if b["t"] == "a")
+        else:
+            parser = TopicParser(topic_id, used_ids)
+            for raw in body:
+                text = clean(raw)
+                if not is_noise(text):
+                    parser.feed(text)
+            blocks = parser.finish()
         articles = [b for b in blocks if b["t"] == "a"]
         if not articles and not any(b["t"] == "p" for b in blocks):
             continue  # boş konu
@@ -528,7 +623,7 @@ def build(source_path: Path, out_dir: Path, extra_paths: list[Path] | None = Non
     for entries in law_index.values():
         entries.sort(key=lambda e: (number_key(e["no"]), e["id"]))
     index = {
-        "topics": index_topics, "gk": law_index["GK"], "gy": law_index["GY"],
+        "topics": index_topics, "gk": law_index["GK"], "gy": law_index["GY"], "yys": law_index["YYS"],
         "groups": build_folders(extra_paths or [], out_dir, used_ids),
     }
     (out_dir / "index.json").write_text(
@@ -539,7 +634,8 @@ def build(source_path: Path, out_dir: Path, extra_paths: list[Path] | None = Non
     )
     total = sum(len(t["articles"]) for t in index_topics)
     print(
-        f"{len(index_topics)} konu, {total} madde (GK {len(law_index['GK'])}, GY {len(law_index['GY'])}) -> {out_dir}"
+        f"{len(index_topics)} konu, {total} madde (GK {len(law_index['GK'])}, GY {len(law_index['GY'])}, "
+        f"YYS {len(law_index['YYS'])}) -> {out_dir}"
     )
 
 
@@ -548,8 +644,12 @@ def main() -> None:
         sys.exit(__doc__)
     default_out = Path(__file__).resolve().parent.parent / "public" / "data"
     args = sys.argv[2:]
+    yys = YYS_FILE
+    if "--yys" in args:  # --yys <dosya>; --ek listesinin önünde ya da arkasında verilebilir
+        at = args.index("--yys")
+        yys, args = Path(args[at + 1]), args[:at] + args[at + 2:]
     extra = [Path(p) for p in args[args.index("--ek") + 1:]] if "--ek" in args else []
-    build(Path(sys.argv[1]), default_out, extra)
+    build(Path(sys.argv[1]), default_out, extra, yys)
 
 
 if __name__ == "__main__":

@@ -40,7 +40,7 @@ export interface SearchHit {
   article: ArticleBlock;
 }
 
-const MODE_SOURCE: Record<ReaderMode, string | null> = { konu: null, gk: 'GK', gy: 'GY', soru: null, sinav: null, kaynak: null };
+const MODE_SOURCE: Record<ReaderMode, string | null> = { konu: null, gk: 'GK', gy: 'GY', yys: 'YYS', soru: null, sinav: null, kaynak: null };
 const searchText = new WeakMap<ArticleBlock, string>();
 
 function articleText(article: ArticleBlock): string {

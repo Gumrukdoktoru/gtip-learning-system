@@ -1,5 +1,6 @@
-export type SourceCode = 'GK' | 'GY' | '';
-export type ReaderMode = 'konu' | 'gk' | 'gy' | 'soru' | 'sinav' | 'kaynak';
+/** GK: Gümrük Kanunu, GY: Gümrük Yönetmeliği, YYS: Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği. */
+export type SourceCode = 'GK' | 'GY' | 'YYS' | '';
+export type ReaderMode = 'konu' | 'gk' | 'gy' | 'yys' | 'soru' | 'sinav' | 'kaynak';
 
 export interface ArticleBlock {
   t: 'a';
@@ -68,6 +69,8 @@ export interface MevzuatIndex {
   topics: TopicSummary[];
   gk: LawEntry[];
   gy: LawEntry[];
+  /** Gümrük İşlemlerinin Kolaylaştırılması Yönetmeliği (YYS) maddeleri; eski veride bulunmayabilir. */
+  yys?: LawEntry[];
   /** Diğer not dosyaları, konu sekmelerine göre (konu kimlikleri 1000 ve üzeri). */
   groups: SourceGroup[];
 }
